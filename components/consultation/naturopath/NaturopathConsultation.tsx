@@ -19,7 +19,7 @@ export function NaturopathConsultation({ consultation, onSave }: NaturopathConsu
     const [phvProgram, setPhvProgram] = useState<any[]>([])
     const [anamnesisData, setAnamnesisData] = useState<any>({})
     const [showPatientFile, setShowPatientFile] = useState(false)
-    const [rightPanelView, setRightPanelView] = useState<'notes' | 'anamnesis'>('notes')
+    const [showAnamnesis, setShowAnamnesis] = useState(false)
     const editorRef = useRef<ConsultationEditorRef>(null)
 
     // Load initial state
@@ -67,6 +67,26 @@ export function NaturopathConsultation({ consultation, onSave }: NaturopathConsu
                             </div>
                         </SheetContent>
                     </Sheet>
+
+                    <Sheet open={showAnamnesis} onOpenChange={setShowAnamnesis}>
+                        <SheetTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8 text-xs">
+                                <ClipboardList className="h-3.5 w-3.5 mr-1.5" />
+                                Anamnèse
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="w-[500px] sm:max-w-[500px]">
+                            <SheetHeader>
+                                <SheetTitle>Questionnaire d'Anamnèse</SheetTitle>
+                            </SheetHeader>
+                            <div className="mt-4 h-[calc(100vh-100px)]">
+                                <AnamnesisForm
+                                    data={anamnesisData}
+                                    onChange={setAnamnesisData}
+                                />
+                            </div>
+                        </SheetContent>
+                    </Sheet>
                 </div>
             </div>
 
@@ -80,51 +100,19 @@ export function NaturopathConsultation({ consultation, onSave }: NaturopathConsu
                     />
                 </div>
 
-                {/* Right Panel - Notes or Anamnesis (40%) */}
+                {/* Editor - Right Side (40%) */}
                 <div className="w-[40%] overflow-hidden flex flex-col bg-white">
-                    {/* Toggle Header */}
-                    <div className="px-3 py-2 border-b bg-slate-50/30 flex items-center justify-between shrink-0">
-                        <div className="flex items-center gap-1 bg-white rounded-md p-0.5 border">
-                            <button
-                                onClick={() => setRightPanelView('notes')}
-                                className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-colors ${
-                                    rightPanelView === 'notes'
-                                        ? 'bg-slate-900 text-white'
-                                        : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                            >
-                                <FileText className="h-3.5 w-3.5" />
-                                Notes
-                            </button>
-                            <button
-                                onClick={() => setRightPanelView('anamnesis')}
-                                className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-colors ${
-                                    rightPanelView === 'anamnesis'
-                                        ? 'bg-slate-900 text-white'
-                                        : 'text-slate-600 hover:text-slate-900'
-                                }`}
-                            >
-                                <ClipboardList className="h-3.5 w-3.5" />
-                                Anamnèse
-                            </button>
-                        </div>
+                    <div className="px-3 py-2 border-b bg-slate-50/30 flex items-center gap-2 shrink-0">
+                        <FileText className="h-4 w-4 text-slate-500" />
+                        <span className="text-sm font-medium text-slate-700">Notes de Consultation</span>
                     </div>
-
-                    {/* Content */}
                     <div className="flex-1 overflow-hidden">
-                        {rightPanelView === 'notes' ? (
-                            <ConsultationEditor
-                                ref={editorRef}
-                                key={consultation.id}
-                                initialContent={editorContent}
-                                onChange={setEditorContent}
-                            />
-                        ) : (
-                            <AnamnesisForm
-                                data={anamnesisData}
-                                onChange={setAnamnesisData}
-                            />
-                        )}
+                        <ConsultationEditor
+                            ref={editorRef}
+                            key={consultation.id}
+                            initialContent={editorContent}
+                            onChange={setEditorContent}
+                        />
                     </div>
                 </div>
             </div>

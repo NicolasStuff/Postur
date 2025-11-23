@@ -20,7 +20,7 @@ export async function updateUserProfile(data: {
     companyAddress?: string,
     siret?: string,
     slug?: string,
-    practitionerType?: "OSTEOPATH" | "NATUROPATH" | "SOPHROLOGIST",
+    practitionerType?: "OSTEOPATH",
     openingHours?: any
 }) {
     const session = await auth.api.getSession({

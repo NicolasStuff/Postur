@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Plus, Trash2, Edit2, FileDown, Library, GripVertical, Check, X } from "lucide-react"
+import { Plus, Trash2, Edit2, Library, Check, X } from "lucide-react"
 import { useState } from "react"
 
 interface Advice {
@@ -118,19 +118,6 @@ export function PHVBuilder({ program, onChange }: PHVBuilderProps) {
         }
     }
 
-    const getCategoryColor = (category: string) => {
-        const colors: Record<string, string> = {
-            'Alimentation': 'border-l-orange-500',
-            'Gestion du Stress': 'border-l-purple-500',
-            'Sommeil': 'border-l-indigo-500',
-            'Détoxification': 'border-l-green-500',
-            'Activité Physique': 'border-l-emerald-500',
-            'Microbiote': 'border-l-pink-500',
-            'Compléments': 'border-l-yellow-500'
-        }
-        return colors[category] || 'border-l-slate-500'
-    }
-
     return (
         <div className="h-full flex flex-col bg-white">
             {/* Header */}
@@ -141,51 +128,62 @@ export function PHVBuilder({ program, onChange }: PHVBuilderProps) {
                         {program.length} conseil{program.length > 1 ? 's' : ''}
                     </span>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Sheet open={showLibrary} onOpenChange={setShowLibrary}>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8 text-xs">
-                                <Library className="h-3.5 w-3.5 mr-1.5" />
-                                Bibliothèque
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="right" className="w-[500px] sm:max-w-[500px]">
-                            <SheetHeader>
-                                <SheetTitle>Bibliothèque de Conseils</SheetTitle>
-                            </SheetHeader>
-                            <ScrollArea className="h-[calc(100vh-100px)] mt-4">
-                                <div className="space-y-3 pr-4">
-                                    {adviceLibrary.map((advice) => (
-                                        <Card
-                                            key={advice.id}
-                                            className={`p-3 border-l-4 ${getCategoryColor(advice.category)} cursor-pointer hover:shadow-md transition-shadow`}
-                                            onClick={() => addAdvice(advice)}
-                                        >
-                                            <div className="flex items-start gap-3">
-                                                <span className="text-2xl">{advice.icon}</span>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center justify-between gap-2 mb-1">
-                                                        <h4 className="text-sm font-semibold text-slate-800">{advice.title}</h4>
-                                                        <Plus className="h-4 w-4 text-slate-400 shrink-0" />
+                <Sheet open={showLibrary} onOpenChange={setShowLibrary}>
+                    <SheetTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-8 text-xs">
+                            <Library className="h-3.5 w-3.5 mr-1.5" />
+                            Bibliothèque
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-[500px] sm:max-w-[500px]">
+                        <SheetHeader>
+                            <SheetTitle>Bibliothèque de Conseils</SheetTitle>
+                        </SheetHeader>
+                        <ScrollArea className="h-[calc(100vh-100px)] mt-4">
+                            <div className="pr-4 pb-4">
+                                {Object.entries(
+                                    adviceLibrary.reduce((acc, advice) => {
+                                        if (!acc[advice.category]) acc[advice.category] = []
+                                        acc[advice.category].push(advice)
+                                        return acc
+                                    }, {} as Record<string, Advice[]>)
+                                ).map(([category, advices]) => (
+                                    <div key={category} className="mb-6">
+                                        <h3 className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3 px-1">
+                                            {category}
+                                        </h3>
+                                        <div className="space-y-2">
+                                            {advices.map((advice) => (
+                                                <button
+                                                    key={advice.id}
+                                                    onClick={() => addAdvice(advice)}
+                                                    className="w-full text-left group"
+                                                >
+                                                    <div className="p-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 transition-all">
+                                                        <div className="flex items-start gap-3">
+                                                            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-slate-50 shrink-0">
+                                                                <span className="text-xl">{advice.icon}</span>
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <h4 className="text-sm font-semibold text-slate-900 mb-1 group-hover:text-slate-700">
+                                                                    {advice.title}
+                                                                </h4>
+                                                                <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+                                                                    {advice.description}
+                                                                </p>
+                                                            </div>
+                                                            <Plus className="h-4 w-4 text-slate-400 group-hover:text-slate-600 shrink-0 mt-1 transition-colors" />
+                                                        </div>
                                                     </div>
-                                                    <p className="text-xs text-slate-600 mb-1">{advice.description}</p>
-                                                    <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                                                        {advice.category}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    ))}
-                                </div>
-                            </ScrollArea>
-                        </SheetContent>
-                    </Sheet>
-
-                    <Button variant="outline" size="sm" className="h-8 text-xs">
-                        <FileDown className="h-3.5 w-3.5 mr-1.5" />
-                        Générer PDF
-                    </Button>
-                </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </ScrollArea>
+                    </SheetContent>
+                </Sheet>
             </div>
 
             {/* Program Content */}
@@ -207,11 +205,11 @@ export function PHVBuilder({ program, onChange }: PHVBuilderProps) {
                         </Button>
                     </div>
                 ) : (
-                    <div className="space-y-3 max-w-3xl mx-auto">
+                    <div className="space-y-2 max-w-4xl mx-auto">
                         {program.map((advice, index) => (
                             <Card
                                 key={advice.id}
-                                className={`border-l-4 ${getCategoryColor(advice.category)} overflow-hidden`}
+                                className="hover:shadow-sm transition-shadow"
                             >
                                 {editingId === advice.id ? (
                                     // Edit Mode
@@ -247,41 +245,40 @@ export function PHVBuilder({ program, onChange }: PHVBuilderProps) {
                                 ) : (
                                     // View Mode
                                     <div className="p-4">
-                                        <div className="flex items-start gap-3">
-                                            <div className="flex items-center gap-2 shrink-0">
-                                                <GripVertical className="h-4 w-4 text-slate-400 cursor-move" />
-                                                <span className="text-2xl">{advice.icon}</span>
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-start justify-between gap-2 mb-1">
-                                                    <div className="flex-1">
-                                                        <h4 className="text-sm font-semibold text-slate-800 mb-1">
-                                                            {index + 1}. {advice.title}
-                                                        </h4>
-                                                        <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="flex items-start gap-3 flex-1">
+                                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 shrink-0">
+                                                    <span className="text-sm font-semibold text-slate-600">{index + 1}</span>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-sm font-semibold text-slate-900 mb-1">
+                                                        {advice.title}
+                                                    </h4>
+                                                    <p className="text-sm text-slate-600 leading-relaxed">{advice.description}</p>
+                                                    <div className="mt-2">
+                                                        <span className="inline-flex items-center text-xs text-slate-500 bg-slate-50 px-2 py-1 rounded">
                                                             {advice.category}
                                                         </span>
                                                     </div>
-                                                    <div className="flex gap-1 shrink-0">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="h-7 w-7 p-0"
-                                                            onClick={() => startEdit(advice)}
-                                                        >
-                                                            <Edit2 className="h-3.5 w-3.5 text-slate-500" />
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="h-7 w-7 p-0 hover:bg-red-50 hover:text-red-600"
-                                                            onClick={() => removeAdvice(advice.id)}
-                                                        >
-                                                            <Trash2 className="h-3.5 w-3.5" />
-                                                        </Button>
-                                                    </div>
                                                 </div>
-                                                <p className="text-sm text-slate-600 mt-2">{advice.description}</p>
+                                            </div>
+                                            <div className="flex gap-1 shrink-0">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-8 w-8 p-0"
+                                                    onClick={() => startEdit(advice)}
+                                                >
+                                                    <Edit2 className="h-3.5 w-3.5 text-slate-500" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
+                                                    onClick={() => removeAdvice(advice.id)}
+                                                >
+                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                </Button>
                                             </div>
                                         </div>
                                     </div>

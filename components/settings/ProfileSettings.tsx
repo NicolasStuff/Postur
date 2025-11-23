@@ -6,9 +6,7 @@ import { Label } from "@/components/ui/label"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getUserProfile, updateUserProfile } from "@/app/actions/user"
 import { useEffect, useState } from "react"
-import { Loader2, Activity, Leaf, Brain } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { PractitionerType } from "@prisma/client"
+import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 export function ProfileSettings() {
@@ -19,8 +17,7 @@ export function ProfileSettings() {
         companyName: "",
         companyAddress: "",
         siret: "",
-        slug: "",
-        practitionerType: "" as PractitionerType | ""
+        slug: ""
     })
 
     useEffect(() => {
@@ -29,8 +26,7 @@ export function ProfileSettings() {
                 companyName: user.companyName || "",
                 companyAddress: user.companyAddress || "",
                 siret: user.siret || "",
-                slug: user.slug || "",
-                practitionerType: user.practitionerType || ""
+                slug: user.slug || ""
             })
         }
     }, [user])
@@ -58,37 +54,6 @@ export function ProfileSettings() {
                 </div>
             </div>
             <div className="grid gap-2">
-                <Label>Practitioner Type</Label>
-                <Select 
-                    value={formData.practitionerType} 
-                    onValueChange={(value) => setFormData({...formData, practitionerType: value as PractitionerType})}
-                >
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select your profession" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="OSTEOPATH">
-                            <div className="flex items-center gap-2">
-                                <Activity className="w-4 h-4 text-blue-500" />
-                                <span>Osteopath</span>
-                            </div>
-                        </SelectItem>
-                        <SelectItem value="NATUROPATH">
-                            <div className="flex items-center gap-2">
-                                <Leaf className="w-4 h-4 text-green-500" />
-                                <span>Naturopath</span>
-                            </div>
-                        </SelectItem>
-                        <SelectItem value="SOPHROLOGIST">
-                            <div className="flex items-center gap-2">
-                                <Brain className="w-4 h-4 text-purple-500" />
-                                <span>Sophrologist</span>
-                            </div>
-                        </SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-            <div className="grid gap-2">
                 <Label>Company Name</Label>
                 <Input value={formData.companyName} onChange={(e) => setFormData({...formData, companyName: e.target.value})} placeholder="Cabinet Dr. Martin" />
             </div>
@@ -100,10 +65,7 @@ export function ProfileSettings() {
                 <Label>SIRET</Label>
                 <Input value={formData.siret} onChange={(e) => setFormData({...formData, siret: e.target.value})} placeholder="123 456 789 00012" />
             </div>
-            <Button onClick={() => mutation.mutate({
-                ...formData,
-                practitionerType: formData.practitionerType === "" ? undefined : formData.practitionerType
-            })} disabled={mutation.isPending}>
+            <Button onClick={() => mutation.mutate(formData)} disabled={mutation.isPending}>
                 {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
                 Save Changes
             </Button>

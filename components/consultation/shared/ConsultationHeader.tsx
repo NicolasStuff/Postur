@@ -32,13 +32,15 @@ export function ConsultationHeader({ practitionerName, practitionerType, onSave,
         }
     }
 
+    const practitionerLabel = practitionerType === 'OSTEOPATH' ? 'Ostéopathe' : practitionerType
+
     return (
         <div className="flex items-center justify-between px-4 py-2.5 bg-white border-b">
             <div className="flex items-center gap-3">
                 <Link href="/dashboard/calendar" className="text-slate-400 hover:text-slate-600 transition-colors">
                     <ArrowLeft className="h-4 w-4" />
                 </Link>
-                <h2 className="text-base font-semibold text-slate-900">{practitionerType}: {practitionerName}</h2>
+                <h2 className="text-base font-semibold text-slate-900">{practitionerLabel}: {practitionerName}</h2>
             </div>
             <div className="flex items-center gap-2">
                 <Button

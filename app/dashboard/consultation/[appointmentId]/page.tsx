@@ -8,8 +8,6 @@ import { use } from "react"
 import { ConsultationHeader } from "@/components/consultation/shared/ConsultationHeader"
 import { PatientFile } from "@/components/consultation/shared/PatientFile"
 import { OsteopathConsultation } from "@/components/consultation/osteopath/OsteopathConsultation"
-import { NaturopathConsultation } from "@/components/consultation/naturopath/NaturopathConsultation"
-import { SophrologistConsultation } from "@/components/consultation/sophrologist/SophrologistConsultation"
 
 export default function ConsultationPage({ params }: { params: Promise<{ appointmentId: string }> }) {
   const { appointmentId } = use(params)
@@ -28,7 +26,6 @@ export default function ConsultationPage({ params }: { params: Promise<{ appoint
   if (isLoading) return <div className="flex h-full items-center justify-center">Loading...</div>
   if (!consultation) return <div>Consultation not found</div>
 
-  const practitionerType = consultation.user?.practitionerType || 'OSTEOPATH'
   const practitionerName = consultation.user?.name || 'Praticien'
 
   const handleSave = async () => {
@@ -47,7 +44,7 @@ export default function ConsultationPage({ params }: { params: Promise<{ appoint
        <div className="shrink-0">
            <ConsultationHeader
                 practitionerName={practitionerName}
-                practitionerType={practitionerType}
+                practitionerType="OSTEOPATH"
                 onSave={handleSave}
                 onFinishAndBill={handleFinishAndBill}
                 isSaving={saveMutation.isPending}
@@ -56,24 +53,10 @@ export default function ConsultationPage({ params }: { params: Promise<{ appoint
 
        {/* Main Content */}
        <div className="flex-1 min-h-0">
-            {practitionerType === 'OSTEOPATH' && (
-                <OsteopathConsultation
-                    consultation={consultation}
-                    onSave={(data) => saveMutation.mutate(data)}
-                />
-            )}
-            {practitionerType === 'NATUROPATH' && (
-                <NaturopathConsultation
-                    consultation={consultation}
-                    onSave={(data) => saveMutation.mutate(data)}
-                />
-            )}
-            {practitionerType === 'SOPHROLOGIST' && (
-                <SophrologistConsultation
-                    consultation={consultation}
-                    onSave={(data) => saveMutation.mutate(data)}
-                />
-            )}
+            <OsteopathConsultation
+                consultation={consultation}
+                onSave={(data) => saveMutation.mutate(data)}
+            />
        </div>
     </div>
   )

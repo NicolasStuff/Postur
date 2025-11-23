@@ -3,12 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, Users, CalendarCheck } from "lucide-react"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
+import { GoogleBookingTutorial } from "@/components/dashboard/GoogleBookingTutorial"
 
 export default async function DashboardPage() {
   const data = await getDashboardData()
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
+      {/* Google Booking Tutorial */}
+      <GoogleBookingTutorial />
+
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
