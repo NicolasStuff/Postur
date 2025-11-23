@@ -1,6 +1,6 @@
 # Fichiers de traduction
 
-Ce dossier contient les fichiers de traduction pour l'application TheraFlow.
+Ce dossier contient les fichiers de traduction pour l'application postur.
 
 ## Fichiers
 
@@ -13,24 +13,25 @@ Ce dossier contient les fichiers de traduction pour l'application TheraFlow.
 
 ### Détails
 
-| Section | EN | FR | Statut |
-|---------|----|----|--------|
-| Consultation partagée | 20 | 20 | ✓ |
-| Réservation publique | 42 | 42 | ✓ |
-| Calendrier | 22 | 22 | ✓ |
-| Rendez-vous | 8 | 8 | ✓ |
-| Patients | 17 | 17 | ✓ |
-| Facturation | 20 | 20 | ✓ |
-| Tableau de bord | 83 | 103 | ✓ |
-| Commun | 51 | 51 | ✓ |
-| Authentification | 17 | 17 | ✓ |
-| Erreurs | 29 | 29 | ✓ |
+| Section               | EN  | FR  | Statut |
+| --------------------- | --- | --- | ------ |
+| Consultation partagée | 20  | 20  | ✓      |
+| Réservation publique  | 42  | 42  | ✓      |
+| Calendrier            | 22  | 22  | ✓      |
+| Rendez-vous           | 8   | 8   | ✓      |
+| Patients              | 17  | 17  | ✓      |
+| Facturation           | 20  | 20  | ✓      |
+| Tableau de bord       | 83  | 103 | ✓      |
+| Commun                | 51  | 51  | ✓      |
+| Authentification      | 17  | 17  | ✓      |
+| Erreurs               | 29  | 29  | ✓      |
 
 ### Fonctionnalités additionnelles dans FR
 
 Le fichier français contient 203 clés supplémentaires pour des fonctionnalités étendues :
 
 - **Consultation Ostéopathe** (~99 clés)
+
   - Schéma corporel (anterior/posterior)
   - Timeline traumatique
   - Historique des sélections
@@ -70,10 +71,10 @@ Les fichiers de traduction utilisent une structure JSON imbriquée :
 Les traductions sont accessibles via le système i18n de l'application :
 
 ```typescript
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 
-const t = useTranslations('section.subsection');
-const text = t('key'); // Retourne "Texte traduit"
+const t = useTranslations("section.subsection");
+const text = t("key"); // Retourne "Texte traduit"
 ```
 
 ## Ajout de nouvelles traductions

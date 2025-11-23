@@ -1,4 +1,3 @@
-import createMiddleware from 'next-intl/middleware'
 import { NextRequest, NextResponse } from 'next/server'
 import { routing } from './i18n/routing'
 
@@ -56,32 +55,19 @@ function isDashboardRoute(pathname: string): boolean {
   return DASHBOARD_ROUTES.some((route) => pathname.startsWith(route))
 }
 
-// Create the next-intl middleware with locale detection
-const intlMiddleware = createMiddleware(routing)
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-
-  // Remove locale prefix if present to get the base pathname
-  const pathnameWithoutLocale = pathname.replace(/^\/(fr|en)/, '') || '/'
 
   /**
    * STRATEGY 1: French-only routes (Landing page, public booking pages)
    * - Force French locale
    * - No locale prefix in URL
-   * - Redirect if user tries to access with /en prefix
    */
-  if (isFrenchOnlyRoute(pathnameWithoutLocale)) {
-    // If user tries to access with /en prefix, redirect to French version
-    if (pathname.startsWith('/en/') || pathname === '/en') {
-      const url = request.nextUrl.clone()
-      url.pathname = pathnameWithoutLocale
-      return NextResponse.redirect(url)
-    }
-
+  if (isFrenchOnlyRoute(pathname)) {
     // Set French locale header for these routes
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-user-locale', 'fr')
+    requestHeaders.set('x-next-intl-locale', 'fr')
 
     // Continue without locale handling
     return NextResponse.next({
@@ -94,42 +80,54 @@ export async function middleware(request: NextRequest) {
   /**
    * STRATEGY 2: Dashboard routes (authenticated, multi-language)
    * - Support both French and English
+   * - NO URL prefix (stays at /dashboard, not /fr/dashboard or /en/dashboard)
    * - Detect locale from:
    *   1. User's cookie (set when user changes language)
-   *   2. Accept-Language header (browser preference)
-   *   3. Default to French
+   *   2. Default to French
+   * - Pass locale to pages via header
    */
-  if (isDashboardRoute(pathnameWithoutLocale)) {
+  if (isDashboardRoute(pathname)) {
     // Get the locale from user's cookie (set by the app when user changes language)
     const userLocaleCookie = request.cookies.get('NEXT_LOCALE')?.value
+    const locale = userLocaleCookie && routing.locales.includes(userLocaleCookie as any)
+      ? userLocaleCookie
+      : routing.defaultLocale
 
-    // If user has a preferred locale in cookie, use it
-    if (userLocaleCookie && routing.locales.includes(userLocaleCookie as any)) {
-      const requestHeaders = new Headers(request.headers)
-      requestHeaders.set('x-user-locale', userLocaleCookie)
+    // Set locale header for next-intl
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-user-locale', locale)
+    requestHeaders.set('x-next-intl-locale', locale)
 
-      // Pass through next-intl middleware with user's locale
-      const response = intlMiddleware(request)
+    // Continue without URL rewriting, just pass headers
+    const response = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    })
 
-      // Ensure the cookie is set on the response
-      response.cookies.set('NEXT_LOCALE', userLocaleCookie, {
-        maxAge: 60 * 60 * 24 * 365, // 1 year
-        path: '/',
-        sameSite: 'lax',
-      })
+    // Ensure the cookie is set on the response
+    response.cookies.set('NEXT_LOCALE', locale, {
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+      path: '/',
+      sameSite: 'lax',
+    })
 
-      return response
-    }
-
-    // Otherwise, let next-intl handle locale detection (from Accept-Language header)
-    return intlMiddleware(request)
+    return response
   }
 
   /**
-   * STRATEGY 3: All other routes
-   * - Use default next-intl behavior
+   * STRATEGY 3: All other routes (API, etc.)
+   * - Set default French locale
    */
-  return intlMiddleware(request)
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-user-locale', routing.defaultLocale)
+  requestHeaders.set('x-next-intl-locale', routing.defaultLocale)
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
 }
 
 export const config = {

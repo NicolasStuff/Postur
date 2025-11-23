@@ -4,7 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers/Providers";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
 import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
+import { cookies } from 'next/headers';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,8 +26,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
-  const messages = await getMessages();
+  // Get locale from cookie set by middleware
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'fr';
+
+  // Load messages manually since we're not using the next-intl plugin
+  const messages = (await import(`@/messages/${locale}.json`)).default;
 
   return (
     <html lang={locale} suppressHydrationWarning>

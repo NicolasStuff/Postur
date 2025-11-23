@@ -1,21 +1,21 @@
-version: '3.9'
+version: "3.9"
 
 services:
   # Base de données PostgreSQL pour le développement local
   postgres:
     image: postgres:16-alpine
-    container_name: theraflow-db
+    container_name: postur-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: theraflow
-      POSTGRES_PASSWORD: theraflow_dev_password
-      POSTGRES_DB: theraflow_dev
+      POSTGRES_USER: postur
+      POSTGRES_PASSWORD: postur_dev_password
+      POSTGRES_DB: postur_dev
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U theraflow"]
+      test: ["CMD-SHELL", "pg_isready -U postur"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,13 +25,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: theraflow-app
+    container_name: postur-app
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://theraflow:theraflow_dev_password@postgres:5432/theraflow_dev
+      - DATABASE_URL=postgresql://postur:postur_dev_password@postgres:5432/postur_dev
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
     depends_on:
       postgres:

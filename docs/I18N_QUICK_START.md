@@ -1,6 +1,6 @@
 # i18n Quick Start Guide
 
-Guide rapide pour utiliser l'internationalisation dans TheraFlow.
+Guide rapide pour utiliser l'internationalisation dans postur.
 
 ## Configuration actuelle
 
@@ -13,18 +13,19 @@ Guide rapide pour utiliser l'internationalisation dans TheraFlow.
 ### 1. Dans un composant
 
 ```tsx
-import { useTranslations } from 'next-intl'
+import { useTranslations } from "next-intl";
 
 export default function MyComponent() {
-  const t = useTranslations('myNamespace')
+  const t = useTranslations("myNamespace");
 
-  return <h1>{t('title')}</h1>
+  return <h1>{t("title")}</h1>;
 }
 ```
 
 ### 2. Ajouter une traduction
 
 **messages/fr.json**
+
 ```json
 {
   "myNamespace": {
@@ -34,6 +35,7 @@ export default function MyComponent() {
 ```
 
 **messages/en.json**
+
 ```json
 {
   "myNamespace": {
@@ -45,9 +47,9 @@ export default function MyComponent() {
 ### 3. Navigation
 
 ```tsx
-import { Link } from '@/i18n/routing'
+import { Link } from "@/i18n/routing";
 
-<Link href="/dashboard/patients">Patients</Link>
+<Link href="/dashboard/patients">Patients</Link>;
 ```
 
 ### 4. Changer de langue
@@ -55,23 +57,26 @@ import { Link } from '@/i18n/routing'
 Le composant `<LanguageSwitcher />` est déjà intégré dans la sidebar (menu utilisateur).
 
 Ou utilisez le hook :
-```tsx
-import { useLocale } from '@/components/providers/LocaleProvider'
 
-const { locale, setLocale } = useLocale()
+```tsx
+import { useLocale } from "@/components/providers/LocaleProvider";
+
+const { locale, setLocale } = useLocale();
 
 // Changer la langue
-await setLocale('en')
+await setLocale("en");
 ```
 
 ## Routes
 
 ### Public (Français uniquement)
+
 - `/` - Landing page
 - `/[slug]` - Page de réservation
 - `/signin`, `/signup` - Authentification
 
 ### Dashboard (Multilingue)
+
 - `/dashboard` ou `/en/dashboard`
 - `/dashboard/calendar` ou `/en/dashboard/calendar`
 - `/dashboard/patients` ou `/en/dashboard/patients`
