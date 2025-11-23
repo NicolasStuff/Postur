@@ -40,8 +40,9 @@ RUN pnpm build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Installer OpenSSL pour Prisma
+# Installer OpenSSL pour Prisma et pnpm
 RUN apk add --no-cache openssl
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -68,4 +69,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Script de démarrage avec migration Prisma
-CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
+CMD ["sh", "-c", "pnpm prisma migrate deploy && node server.js"]
