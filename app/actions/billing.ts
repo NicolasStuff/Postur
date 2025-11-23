@@ -8,11 +8,17 @@ export async function getInvoices() {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) return [];
 
-    return await prisma.invoice.findMany({
+    const invoices = await prisma.invoice.findMany({
         where: { userId: session.user.id },
         include: { patient: true },
         orderBy: { date: 'desc' }
     })
+
+    // Convert Decimal to number for client components
+    return invoices.map(invoice => ({
+        ...invoice,
+        amount: invoice.amount.toNumber()
+    }))
 }
 
 export async function createInvoice(data: { patientId: string, amount: number }) {

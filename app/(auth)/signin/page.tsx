@@ -24,7 +24,8 @@ export default function AuthPage() {
       password,
     }, {
       onSuccess: () => {
-        router.push("/dashboard")
+        // Let server-side layout handle the redirect based on profile completion
+        window.location.href = "/dashboard"
       },
       onError: (ctx) => {
         alert(ctx.error.message)
@@ -41,7 +42,8 @@ export default function AuthPage() {
       name,
     }, {
       onSuccess: () => {
-        router.push("/dashboard")
+        // Let server-side layout handle the redirect to onboarding
+        window.location.href = "/dashboard"
       },
       onError: (ctx) => {
         alert(ctx.error.message)

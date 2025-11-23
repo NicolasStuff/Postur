@@ -1,9 +1,18 @@
+"use client"
+
 import { BodyChart } from "./BodyChart"
-import { ConsultationEditor } from "../shared/Editor"
+import { ConsultationEditor, ConsultationEditorRef } from "../shared/Editor"
 import { TraumaTimeline } from "./TraumaTimeline"
 import { QuickNotes } from "./QuickNotes"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useState, useEffect } from "react"
+import { PatientFile } from "../shared/PatientFile"
+import { BodyChartHistoryViewer } from "./BodyChartHistoryViewer"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Clock, User, FileText, History } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { saveBodyChartHistory, getBodyChartHistory } from "@/app/actions/consultation"
+import { bodyPartLabels } from "@/lib/bodyChartLabels"
+import { toast } from "sonner"
 
 interface OsteopathConsultationProps {
     consultation: any
@@ -13,6 +22,12 @@ interface OsteopathConsultationProps {
 export function OsteopathConsultation({ consultation, onSave }: OsteopathConsultationProps) {
     const [editorContent, setEditorContent] = useState<any>(null)
     const [bodyChartParts, setBodyChartParts] = useState<string[]>([])
+    const [showTimeline, setShowTimeline] = useState(false)
+    const [showPatientFile, setShowPatientFile] = useState(false)
+    const [showHistory, setShowHistory] = useState(false)
+    const [history, setHistory] = useState<any[]>([])
+    const editorRef = useRef<ConsultationEditorRef>(null)
+    const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     // Load initial state
     useEffect(() => {
@@ -22,6 +37,22 @@ export function OsteopathConsultation({ consultation, onSave }: OsteopathConsult
             if (content.bodyChart) setBodyChartParts(content.bodyChart)
         }
     }, [consultation])
+
+    // Load history
+    useEffect(() => {
+        if (consultation?.id) {
+            loadHistory()
+        }
+    }, [consultation?.id])
+
+    const loadHistory = async () => {
+        try {
+            const historyData = await getBodyChartHistory(consultation.id)
+            setHistory(historyData)
+        } catch (error) {
+            console.error("Failed to load history:", error)
+        }
+    }
 
     // Auto-save logic (simplified wrapper)
     useEffect(() => {
@@ -36,47 +67,124 @@ export function OsteopathConsultation({ consultation, onSave }: OsteopathConsult
         return () => clearTimeout(timer)
     }, [editorContent, bodyChartParts, onSave])
 
+    // Save body chart history with debounce
+    useEffect(() => {
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current)
+        }
+
+        saveTimeoutRef.current = setTimeout(async () => {
+            if (bodyChartParts.length > 0 && consultation?.id) {
+                try {
+                    await saveBodyChartHistory(consultation.id, bodyChartParts)
+                    await loadHistory() // Reload history after save
+                } catch (error) {
+                    console.error("Failed to save body chart history:", error)
+                    toast.error("Erreur lors de la sauvegarde de l'historique")
+                }
+            }
+        }, 5000) // Wait 5 seconds before saving to history
+
+        return () => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current)
+            }
+        }
+    }, [bodyChartParts, consultation?.id])
+
     const handleQuickNote = (text: string) => {
-        // This is a bit tricky with the current Editor component as it might not expose a way to append text easily from outside.
-        // For now, we will just log it or maybe we need to pass a ref to the editor?
-        // Or we can update the editorContent state if we know the structure.
-        console.log("Quick note added:", text)
-        // Ideally, we would append this to the editor content.
+        editorRef.current?.insertText(text)
     }
 
     return (
-        <div className="flex flex-col gap-6 h-full">
-            {/* Top Row: Trauma Timeline */}
-            <div className="h-44 shrink-0">
-                <TraumaTimeline history={consultation.patient.medicalHistory} />
+        <div className="flex flex-col h-full bg-white overflow-hidden">
+            {/* Compact Toolbar */}
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-t bg-slate-50/50 shrink-0">
+                <div className="flex items-center gap-2">
+                    <Sheet open={showTimeline} onOpenChange={setShowTimeline}>
+                        <SheetTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8 text-xs">
+                                <Clock className="h-3.5 w-3.5 mr-1.5" />
+                                Timeline
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="w-[600px] sm:max-w-[600px]">
+                            <SheetHeader>
+                                <SheetTitle>Timeline Traumatique</SheetTitle>
+                            </SheetHeader>
+                            <div className="mt-4">
+                                <TraumaTimeline history={consultation.patient.medicalHistory} />
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+
+                    <Sheet open={showPatientFile} onOpenChange={setShowPatientFile}>
+                        <SheetTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8 text-xs">
+                                <User className="h-3.5 w-3.5 mr-1.5" />
+                                Dossier Patient
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="w-[400px] sm:max-w-[400px]">
+                            <SheetHeader>
+                                <SheetTitle>Dossier Patient</SheetTitle>
+                            </SheetHeader>
+                            <div className="mt-4">
+                                <PatientFile patient={consultation.patient} />
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+
+                    <Sheet open={showHistory} onOpenChange={setShowHistory}>
+                        <SheetTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8 text-xs">
+                                <History className="h-3.5 w-3.5 mr-1.5" />
+                                Historique Schéma
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="w-[500px] sm:max-w-[500px]">
+                            <SheetHeader>
+                                <SheetTitle>Historique des Sélections</SheetTitle>
+                            </SheetHeader>
+                            <div className="mt-4 overflow-auto h-[calc(100vh-8rem)]">
+                                <BodyChartHistoryViewer
+                                    history={history}
+                                    muscleLabels={bodyPartLabels}
+                                />
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+                </div>
+
+                <QuickNotes onAddNote={handleQuickNote} />
             </div>
 
-            {/* Bottom Row: Main Work Area */}
-            <div className="flex-1 min-h-0">
-                <Card className="h-full border-slate-200 shadow-sm flex flex-col overflow-hidden bg-white">
-                    <CardHeader className="pb-4 pt-5 border-b flex flex-row items-center justify-between shrink-0">
-                        <CardTitle className="text-base font-bold text-slate-900">Note de Consultation (Ostéopathie)</CardTitle>
-                        <QuickNotes onAddNote={handleQuickNote} />
-                    </CardHeader>
-                    <CardContent className="flex-1 min-h-0 p-0 flex overflow-hidden">
-                        {/* Body Chart */}
-                        <div className="w-1/2 border-r overflow-auto flex items-center justify-center bg-white py-6 px-4">
-                            <BodyChart
-                                value={bodyChartParts}
-                                onChange={setBodyChartParts}
-                                className="border-0 shadow-none"
-                            />
-                        </div>
-                        {/* Editor */}
-                        <div className="w-1/2 overflow-hidden flex flex-col bg-white">
-                            <ConsultationEditor
-                                key={consultation.id}
-                                initialContent={editorContent}
-                                onChange={setEditorContent}
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
+            {/* Main Work Area: Body Map + Notes */}
+            <div className="flex-1 min-h-0 flex overflow-hidden">
+                {/* Body Chart - Left Side (60%) */}
+                <div className="w-[60%] border-r overflow-auto flex items-center justify-center bg-slate-50/30 p-4">
+                    <BodyChart
+                        value={bodyChartParts}
+                        onChange={setBodyChartParts}
+                        className="border-0 shadow-none"
+                    />
+                </div>
+
+                {/* Editor - Right Side (40%) */}
+                <div className="w-[40%] overflow-hidden flex flex-col bg-white">
+                    <div className="px-3 py-2 border-b bg-slate-50/30 flex items-center gap-2 shrink-0">
+                        <FileText className="h-4 w-4 text-slate-500" />
+                        <span className="text-sm font-medium text-slate-700">Notes de Consultation</span>
+                    </div>
+                    <div className="flex-1 overflow-hidden">
+                        <ConsultationEditor
+                            ref={editorRef}
+                            key={consultation.id}
+                            initialContent={editorContent}
+                            onChange={setEditorContent}
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     )

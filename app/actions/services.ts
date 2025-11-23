@@ -10,9 +10,15 @@ export async function getServices() {
     })
     if (!session) return [];
 
-    return await prisma.service.findMany({
+    const services = await prisma.service.findMany({
         where: { userId: session.user.id }
     })
+
+    // Convert Decimal to number for client components
+    return services.map(service => ({
+        ...service,
+        price: service.price.toNumber()
+    }))
 }
 
 export async function createService(data: { name: string, duration: number, price: number }) {

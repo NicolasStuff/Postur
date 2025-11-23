@@ -9,5 +9,13 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true
   },
+  user: {
+    additionalFields: {
+      practitionerType: {
+        type: "string",
+        required: false,
+      },
+    },
+  },
   // Add other providers if needed
 });

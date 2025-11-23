@@ -21,13 +21,29 @@ interface CreateAppointmentDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     initialDate?: Date
+    preselectedPatientId?: string
 }
 
-export function CreateAppointmentDialog({ open, onOpenChange, initialDate }: CreateAppointmentDialogProps) {
+export function CreateAppointmentDialog({ open, onOpenChange, initialDate, preselectedPatientId }: CreateAppointmentDialogProps) {
   const queryClient = useQueryClient()
   const [patientId, setPatientId] = useState("")
   const [serviceId, setServiceId] = useState("")
-  
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialDate)
+
+  // Update selectedDate when initialDate changes
+  useEffect(() => {
+    if (initialDate) {
+      setSelectedDate(initialDate)
+    }
+  }, [initialDate])
+
+  // Set preselected patient when provided
+  useEffect(() => {
+    if (preselectedPatientId) {
+      setPatientId(preselectedPatientId)
+    }
+  }, [preselectedPatientId])
+
   // Fetch Patients & Services
   const { data: patients } = useQuery({ queryKey: ['patients'], queryFn: () => getPatients() })
   const { data: services } = useQuery({ queryKey: ['services'], queryFn: () => getServices() })
@@ -39,6 +55,7 @@ export function CreateAppointmentDialog({ open, onOpenChange, initialDate }: Cre
       onOpenChange(false)
       setPatientId("")
       setServiceId("")
+      setSelectedDate(undefined)
     },
     onError: (error) => {
       alert("Failed to create appointment: " + error.message)
@@ -46,19 +63,35 @@ export function CreateAppointmentDialog({ open, onOpenChange, initialDate }: Cre
   })
 
   const handleSubmit = () => {
-    if (!initialDate || !patientId || !serviceId) return
-    
+    if (!selectedDate || !patientId || !serviceId) return
+
     const service = services?.find(s => s.id === serviceId)
     if (!service) return
 
-    const end = new Date(initialDate.getTime() + service.duration * 60000)
+    const end = new Date(selectedDate.getTime() + service.duration * 60000)
 
     mutation.mutate({
         patientId,
         serviceId,
-        start: initialDate,
+        start: selectedDate,
         end
     })
+  }
+
+  const formatDateTimeLocal = (date: Date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${year}-${month}-${day}T${hours}:${minutes}`
+  }
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    if (value) {
+      setSelectedDate(new Date(value))
+    }
   }
 
   return (
@@ -94,12 +127,19 @@ export function CreateAppointmentDialog({ open, onOpenChange, initialDate }: Cre
                         </SelectContent>
                     </Select>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                    Date: {initialDate?.toLocaleString()}
+                <div className="grid gap-2">
+                    <Label>Date & Time</Label>
+                    <input
+                        type="datetime-local"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        value={selectedDate ? formatDateTimeLocal(selectedDate) : ''}
+                        onChange={handleDateChange}
+                        min={formatDateTimeLocal(new Date())}
+                    />
                 </div>
             </div>
             <DialogFooter>
-            <Button onClick={handleSubmit} disabled={mutation.isPending || !patientId || !serviceId}>
+            <Button onClick={handleSubmit} disabled={mutation.isPending || !patientId || !serviceId || !selectedDate}>
                 {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Create
             </Button>

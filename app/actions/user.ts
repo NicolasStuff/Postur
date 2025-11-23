@@ -15,11 +15,13 @@ export async function getUserProfile() {
     })
 }
 
-export async function updateUserProfile(data: { 
-    companyName?: string, 
-    companyAddress?: string, 
-    siret?: string, 
-    slug?: string 
+export async function updateUserProfile(data: {
+    companyName?: string,
+    companyAddress?: string,
+    siret?: string,
+    slug?: string,
+    practitionerType?: "OSTEOPATH" | "NATUROPATH" | "SOPHROLOGIST",
+    openingHours?: any
 }) {
     const session = await auth.api.getSession({
         headers: await headers()

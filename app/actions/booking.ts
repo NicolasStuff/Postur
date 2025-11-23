@@ -11,7 +11,8 @@ export async function getPractitionerBySlug(slug: string) {
             companyName: true,
             companyAddress: true,
             services: true,
-            image: true
+            image: true,
+            openingHours: true
         }
     })
 

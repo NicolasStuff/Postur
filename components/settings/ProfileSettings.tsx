@@ -6,7 +6,10 @@ import { Label } from "@/components/ui/label"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getUserProfile, updateUserProfile } from "@/app/actions/user"
 import { useEffect, useState } from "react"
-import { Loader2 } from "lucide-react"
+import { Loader2, Activity, Leaf, Brain } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { PractitionerType } from "@prisma/client"
+import { toast } from "sonner"
 
 export function ProfileSettings() {
     const queryClient = useQueryClient()
@@ -16,7 +19,8 @@ export function ProfileSettings() {
         companyName: "",
         companyAddress: "",
         siret: "",
-        slug: ""
+        slug: "",
+        practitionerType: "" as PractitionerType | ""
     })
 
     useEffect(() => {
@@ -25,7 +29,8 @@ export function ProfileSettings() {
                 companyName: user.companyName || "",
                 companyAddress: user.companyAddress || "",
                 siret: user.siret || "",
-                slug: user.slug || ""
+                slug: user.slug || "",
+                practitionerType: user.practitionerType || ""
             })
         }
     }, [user])
@@ -34,10 +39,10 @@ export function ProfileSettings() {
         mutationFn: updateUserProfile,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['userProfile'] })
-            alert("Profile updated!")
+            toast.success("Profile updated successfully!")
         },
         onError: (err) => {
-            alert("Failed to update: " + err.message)
+            toast.error("Failed to update: " + err.message)
         }
     })
 
@@ -48,9 +53,40 @@ export function ProfileSettings() {
             <div className="grid gap-2">
                 <Label>Public Booking URL (Slug)</Label>
                 <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-sm">theraflow.com/u/</span>
+                    <span className="text-muted-foreground text-sm">theraflow.com/</span>
                     <Input value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} placeholder="dr-martin" />
                 </div>
+            </div>
+            <div className="grid gap-2">
+                <Label>Practitioner Type</Label>
+                <Select 
+                    value={formData.practitionerType} 
+                    onValueChange={(value) => setFormData({...formData, practitionerType: value as PractitionerType})}
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select your profession" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="OSTEOPATH">
+                            <div className="flex items-center gap-2">
+                                <Activity className="w-4 h-4 text-blue-500" />
+                                <span>Osteopath</span>
+                            </div>
+                        </SelectItem>
+                        <SelectItem value="NATUROPATH">
+                            <div className="flex items-center gap-2">
+                                <Leaf className="w-4 h-4 text-green-500" />
+                                <span>Naturopath</span>
+                            </div>
+                        </SelectItem>
+                        <SelectItem value="SOPHROLOGIST">
+                            <div className="flex items-center gap-2">
+                                <Brain className="w-4 h-4 text-purple-500" />
+                                <span>Sophrologist</span>
+                            </div>
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
             <div className="grid gap-2">
                 <Label>Company Name</Label>
@@ -64,7 +100,10 @@ export function ProfileSettings() {
                 <Label>SIRET</Label>
                 <Input value={formData.siret} onChange={(e) => setFormData({...formData, siret: e.target.value})} placeholder="123 456 789 00012" />
             </div>
-            <Button onClick={() => mutation.mutate(formData)} disabled={mutation.isPending}>
+            <Button onClick={() => mutation.mutate({
+                ...formData,
+                practitionerType: formData.practitionerType === "" ? undefined : formData.practitionerType
+            })} disabled={mutation.isPending}>
                 {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
                 Save Changes
             </Button>

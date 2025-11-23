@@ -51,19 +51,69 @@ export function BookingFlow({ practitioner, slug }: BookingFlowProps) {
 
     // Simple slot generation (9am - 6pm, every 30 mins)
     // Real app would check duration and overlap
+    // Helper to get day name from date
+    const getDayName = (date: Date) => {
+        const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        return days[date.getDay()];
+    }
+
     const generateSlots = () => {
-        const slots = []
-        for (let h = 9; h < 18; h++) {
-            slots.push(`${h}:00`, `${h}:30`)
+        if (!date || !practitioner.openingHours) return [];
+
+        const dayName = getDayName(date);
+        // Parse opening hours safely
+        let daySlots: string[] = [];
+        try {
+            const openingHours = typeof practitioner.openingHours === 'string' 
+                ? JSON.parse(practitioner.openingHours) 
+                : practitioner.openingHours;
+            
+            daySlots = openingHours[dayName] || [];
+        } catch (e) {
+            console.error("Error parsing opening hours", e);
+            return [];
         }
-        // Filter out booked slots (simplified)
+
+        const slots: string[] = [];
+
+        daySlots.forEach(range => {
+            const [startStr, endStr] = range.split('-');
+            if (!startStr || !endStr) return;
+
+            const [startH, startM] = startStr.split(':').map(Number);
+            const [endH, endM] = endStr.split(':').map(Number);
+
+            let currentH = startH;
+            let currentM = startM;
+
+            while (currentH < endH || (currentH === endH && currentM < endM)) {
+                const timeString = `${currentH.toString().padStart(2, '0')}:${currentM.toString().padStart(2, '0')}`;
+                slots.push(timeString);
+
+                // Increment by 30 mins
+                currentM += 30;
+                if (currentM >= 60) {
+                    currentH += 1;
+                    currentM -= 60;
+                }
+            }
+        });
+
+        // Filter out booked slots
         return slots.filter(slot => {
              const [h, m] = slot.split(':').map(Number)
-             const slotTime = new Date(date!); slotTime.setHours(h,m,0,0);
+             const slotTime = new Date(date); 
+             slotTime.setHours(h,m,0,0);
+             
+             // Don't show past slots if today
+             if (new Date().toDateString() === date.toDateString()) {
+                 if (slotTime < new Date()) return false;
+             }
              
              return !appointments?.some(appt => {
                  const apptStart = new Date(appt.start)
                  const apptEnd = new Date(appt.end)
+                 // Check if slot start is within appointment
                  return slotTime >= apptStart && slotTime < apptEnd
              })
         })

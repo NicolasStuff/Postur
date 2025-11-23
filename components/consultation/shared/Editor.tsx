@@ -5,13 +5,19 @@ import StarterKit from '@tiptap/starter-kit'
 import { Button } from '@/components/ui/button'
 import { Bold, Italic, List, ListOrdered, Strikethrough, Undo, Redo } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { forwardRef, useImperativeHandle } from 'react'
 
 interface ConsultationEditorProps {
     initialContent?: any
     onChange?: (content: any) => void
 }
 
-export function ConsultationEditor({ initialContent, onChange }: ConsultationEditorProps) {
+export interface ConsultationEditorRef {
+    insertText: (text: string) => void
+}
+
+export const ConsultationEditor = forwardRef<ConsultationEditorRef, ConsultationEditorProps>(
+  function ConsultationEditor({ initialContent, onChange }, ref) {
   const editor = useEditor({
     extensions: [StarterKit],
     content: initialContent || '<p></p>',
@@ -25,6 +31,14 @@ export function ConsultationEditor({ initialContent, onChange }: ConsultationEdi
         onChange?.(editor.getJSON())
     }
   })
+
+  useImperativeHandle(ref, () => ({
+    insertText: (text: string) => {
+      if (editor) {
+        editor.chain().focus().insertContent(` ${text} `).run()
+      }
+    }
+  }), [editor])
 
   if (!editor) {
     return null
@@ -94,4 +108,4 @@ export function ConsultationEditor({ initialContent, onChange }: ConsultationEdi
         <EditorContent editor={editor} className="flex-1 min-h-0 overflow-auto px-4" />
     </div>
   )
-}
+})

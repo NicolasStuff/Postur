@@ -26,7 +26,7 @@ model User {
   
   // Professional Profile
   slug             String?           @unique
-  practitionerType PractitionerType? @default(OSTEOPATH)
+  practitionerType PractitionerType?
   siret            String?
   companyName      String?
   companyAddress   String?
@@ -173,8 +173,22 @@ model ConsultationNote {
 
   content       Json
 
+  bodyChartHistory BodyChartHistory[]
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+model BodyChartHistory {
+  id                  String    @id @default(cuid())
+  consultationNoteId  String
+  consultationNote    ConsultationNote @relation(fields: [consultationNoteId], references: [id], onDelete: Cascade)
+
+  selectedParts       String[]  // Liste des muscles/parties sélectionnés
+
+  createdAt           DateTime  @default(now())
+
+  @@index([consultationNoteId, createdAt])
 }
 
 model Invoice {

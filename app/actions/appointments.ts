@@ -9,8 +9,8 @@ export async function getAppointments(start: Date, end: Date) {
     })
     if (!session) return [];
 
-    return await prisma.appointment.findMany({
-        where: { 
+    const appointments = await prisma.appointment.findMany({
+        where: {
             userId: session.user.id,
             start: { gte: start },
             end: { lte: end }
@@ -20,6 +20,15 @@ export async function getAppointments(start: Date, end: Date) {
             service: true
         }
     })
+
+    // Convert Decimal to number for client components
+    return appointments.map(apt => ({
+        ...apt,
+        service: {
+            ...apt.service,
+            price: apt.service.price.toNumber()
+        }
+    }))
 }
 
 export async function createAppointment(data: { patientId: string, serviceId: string, start: Date, end: Date }) {

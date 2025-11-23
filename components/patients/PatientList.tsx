@@ -10,13 +10,22 @@ import { Input } from "@/components/ui/input"
 import { useQuery } from "@tanstack/react-query"
 import { getPatients } from "@/app/actions/patients"
 import { useState } from "react"
+import { CreateAppointmentDialog } from "@/components/calendar/CreateAppointmentDialog"
 
 export function PatientList() {
   const [search, setSearch] = useState("")
+  const [appointmentDialogOpen, setAppointmentDialogOpen] = useState(false)
+  const [selectedPatientId, setSelectedPatientId] = useState<string | undefined>()
+
   const { data: patients, isLoading } = useQuery({
     queryKey: ['patients'],
     queryFn: () => getPatients()
   })
+
+  const handleNewAppointment = (patientId: string) => {
+    setSelectedPatientId(patientId)
+    setAppointmentDialogOpen(true)
+  }
 
   const filteredPatients = patients?.filter(p => 
     p.lastName.toLowerCase().includes(search.toLowerCase()) || 
@@ -79,7 +88,7 @@ export function PatientList() {
                                 <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4"/></Button></DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem>View History</DropdownMenuItem>
-                                    <DropdownMenuItem>New Appointment</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleNewAppointment(patient.id)}>New Appointment</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </TableCell>
@@ -88,6 +97,12 @@ export function PatientList() {
             </TableBody>
         </Table>
       </div>
+
+      <CreateAppointmentDialog
+        open={appointmentDialogOpen}
+        onOpenChange={setAppointmentDialogOpen}
+        preselectedPatientId={selectedPatientId}
+      />
     </div>
   )
 }
