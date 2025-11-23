@@ -1,0 +1,684 @@
+{
+  "consultation": {
+    "shared": {
+      "save": "Sauvegarder",
+      "finishAndBill": "Terminer & Facturer",
+      "consultationSaved": "Consultation sauvegardée avec succès",
+      "consultationSaveError": "Erreur lors de la sauvegarde de la consultation",
+      "consultationBilled": "Consultation facturée avec succès",
+      "consultationBillError": "Erreur lors de la facturation de la consultation",
+      "practitionerTypes": {
+        "osteopath": "Ostéopathe",
+        "naturopath": "Naturopathe",
+        "sophrologist": "Sophrologue"
+      },
+      "notes": "Notes",
+      "consultationHistory": "Historique des Consultations",
+      "consultation": "Consultation",
+      "noConsultations": "Aucune consultation trouvée",
+      "editor": {
+        "bold": "Gras",
+        "italic": "Italique",
+        "strikethrough": "Barré",
+        "bulletList": "Liste à puces",
+        "orderedList": "Liste numérotée",
+        "undo": "Annuler",
+        "redo": "Refaire"
+      }
+    },
+    "osteopath": {
+      "toolbar": {
+        "timeline": "Timeline",
+        "traumaticTimeline": "Timeline Traumatique",
+        "patientFile": "Dossier Patient",
+        "historyChart": "Historique Schéma",
+        "historySelections": "Historique des Sélections"
+      },
+      "quickNotes": {
+        "label": "Notes rapides:",
+        "cervicalBlock": "Blocage Cervical",
+        "twistedPelvis": "Bassin Vrillé",
+        "diaphragmTension": "Tension Diaphragme",
+        "visceral": "Viscéral",
+        "cranial": "Crânien"
+      },
+      "editor": {
+        "title": "Notes de Consultation"
+      },
+      "timeline": {
+        "noEvents": "Aucun événement traumatique enregistré"
+      },
+      "history": {
+        "title": "Historique des Sélections",
+        "noHistory": "Aucun historique de sélection disponible",
+        "entries": "entrées",
+        "entry": "entrée",
+        "current": "Actuel",
+        "zonesSelected": "zones sélectionnées",
+        "zoneSelected": "zone sélectionnée",
+        "added": "Ajouté",
+        "addedPlural": "Ajoutés",
+        "removed": "Retiré",
+        "removedPlural": "Retirés",
+        "selectedZones": "Zones sélectionnées"
+      },
+      "bodyParts": {
+        "anterior": {
+          "head": "Tête (ant.)",
+          "neckLeft": "Cou (G)",
+          "neckRight": "Cou (D)",
+          "trapLeft": "Trapèze gauche",
+          "trapRight": "Trapèze droit",
+          "shoulderLeft": "Épaule gauche (ant.)",
+          "shoulderRight": "Épaule droite (ant.)",
+          "bicepsLeft": "Biceps gauche",
+          "bicepsRight": "Biceps droit",
+          "elbowLeft": "Coude gauche (ant.)",
+          "elbowRight": "Coude droit (ant.)",
+          "forearmLeft": "Avant-bras gauche (ant.) (fléchisseurs)",
+          "forearmRight": "Avant-bras droit (ant.) (fléchisseurs)",
+          "wristLeft": "Poignet gauche (ant.)",
+          "wristRight": "Poignet droit (ant.)",
+          "handLeft": "Main gauche (ant.) (face palmaire)",
+          "handRight": "Main droite (ant.) (face palmaire)",
+          "pectoralLeft": "Pectoral gauche",
+          "pectoralRight": "Pectoral droit",
+          "ribsLeft": "Côtes gauches",
+          "ribsRight": "Côtes droites",
+          "abdominalsLeft": "Adbominaux gauches",
+          "abdominalsRight": "Abdominaux droits",
+          "obliquesLeft": "Obliques gauches",
+          "obliquesRight": "Obliques droits",
+          "hipLeft": "Hanche gauche",
+          "hipRight": "Hanche droite",
+          "quadricepsLeft": "Quadriceps gauche",
+          "quadricepsRight": "Quadriceps droit",
+          "adductorLeft": "Adducteur gauche",
+          "adductorRight": "Adducteur droit",
+          "kneeLeft": "Genou gauche (ant.)",
+          "kneeRight": "Genou droit (ant.)",
+          "tibiaLeft": "Tibia gauche",
+          "tibiaRight": "Tibia droit",
+          "ankleLeft": "Cheville gauche (ant.)",
+          "ankleRight": "Cheville droite (ant.)",
+          "footLeft": "Pied gauche",
+          "footRight": "Pied droit"
+        },
+        "posterior": {
+          "head": "Tête (post.)",
+          "trapLeft": "Trapèze gauche",
+          "trapRight": "Trapèze droit",
+          "shoulderLeft": "Epaule gauche (post.)",
+          "shoulderRight": "Epaule droite (post.)",
+          "tricepsLeft": "Triceps gauche",
+          "tricepsRight": "Triceps droit",
+          "elbowLeft": "Coude gauche (post.)",
+          "elbowRight": "Coude droit (post.)",
+          "forearmLeft": "Avant-bras gauche (post.) (extenseurs)",
+          "forearmRight": "Avant-bras droit (post.) (extenseurs)",
+          "wristLeft": "Poignet gauche (post.)",
+          "wristRight": "Poignet droit (post.)",
+          "handLeft": "Main gauche (post.) (face dorsale)",
+          "handRight": "Main droit (post.) (face dorsale)",
+          "spine": "Colonne vertébrale",
+          "scapularLeft": "Région scapulaire gauche",
+          "scapularRight": "Région scapulaire droite",
+          "backLeft": "Dos (flanc gauche)",
+          "backRight": "Dos (flanc droit)",
+          "lumbarLeft": "Lombaire gauche",
+          "lumbarRight": "Lombaire droit",
+          "buttockLeft": "Fesse gauche",
+          "buttockRight": "Fesse droite",
+          "hamstringsLeft": "Ischios gauches",
+          "hamstringsRight": "Ischios droits",
+          "kneeLeft": "Genou gauche (post.)",
+          "kneeRight": "Genou droit (post.)",
+          "calfLeft": "Mollet gauche",
+          "calfRight": "Mollet droit",
+          "ankleLeft": "Cheville gauche (post.)",
+          "ankleRight": "Chevile droite (post.)",
+          "footLeft": "Pied gauche (post.)",
+          "footRight": "Pied droit (post.)"
+        }
+      },
+      "errors": {
+        "historySaveFailed": "Erreur lors de la sauvegarde de l'historique"
+      }
+    },
+    "naturopath": {
+      "patientFile": "Dossier Patient",
+      "anamnesis": {
+        "nutrition": {
+          "title": "Alimentation",
+          "mealsPerDay": "Repas par jour",
+          "mealsPerDayPlaceholder": "Ex: 3 repas + 1 collation",
+          "intolerances": "Intolérances",
+          "intolerancesPlaceholder": "Gluten, lactose...",
+          "hydration": "Hydratation",
+          "hydrationPlaceholder": "Ex: 1.5L/jour",
+          "habits": "Habitudes",
+          "habitsPlaceholder": "Bio, fait maison..."
+        },
+        "sleep": {
+          "title": "Sommeil",
+          "hours": "Heures de sommeil",
+          "hoursPlaceholder": "Ex: 7h",
+          "wakeQuality": "Qualité du réveil",
+          "wakeQualityPlaceholder": "Fatigué, en forme...",
+          "difficulties": "Difficultés",
+          "difficultiesPlaceholder": "Insomnies, réveils..."
+        },
+        "activity": {
+          "title": "Activité Physique",
+          "frequency": "Fréquence et type",
+          "frequencyPlaceholder": "Course 3x/semaine...",
+          "sedentary": "Sédentarité",
+          "sedentaryPlaceholder": "Bureau 8h/jour"
+        },
+        "stress": {
+          "title": "Gestion du Stress",
+          "level": "Niveau de stress",
+          "levelPlaceholder": "Élevé, modéré...",
+          "sources": "Sources",
+          "sourcesPlaceholder": "Travail, famille...",
+          "techniques": "Techniques pratiquées",
+          "techniquesPlaceholder": "Méditation, respiration..."
+        },
+        "health": {
+          "title": "Santé Générale",
+          "medicalHistory": "Antécédents médicaux",
+          "medicalHistoryPlaceholder": "Maladies, opérations...",
+          "currentTreatments": "Traitements en cours",
+          "currentTreatmentsPlaceholder": "Médicaments, compléments...",
+          "symptoms": "Symptômes actuels",
+          "symptomsPlaceholder": "Fatigue, douleurs..."
+        },
+        "goals": {
+          "title": "Objectifs de Santé",
+          "desired": "Objectifs souhaités",
+          "desiredPlaceholder": "Énergie, poids, digestion..."
+        }
+      },
+      "anamnesisQuestionnaire": "Questionnaire d'Anamnèse",
+      "consultationNotes": "Notes de Consultation",
+      "phvBuilder": {
+        "title": "Programme d'Hygiène Vitale",
+        "adviceSingular": "conseil",
+        "advicePlural": "conseils",
+        "library": {
+          "button": "Bibliothèque",
+          "title": "Bibliothèque de Conseils",
+          "categories": {
+            "nutrition": "Alimentation",
+            "stress": "Gestion du Stress",
+            "sleep": "Sommeil",
+            "detox": "Détoxification",
+            "exercise": "Activité Physique",
+            "microbiome": "Microbiote",
+            "supplements": "Compléments"
+          },
+          "advice": {
+            "antiInflammatory": {
+              "title": "Alimentation Anti-inflammatoire",
+              "description": "Privilégier les aliments riches en oméga-3, éviter les aliments transformés"
+            },
+            "hydration": {
+              "title": "Hydratation Optimale",
+              "description": "Boire 1.5L à 2L d'eau par jour, en dehors des repas"
+            },
+            "stressManagement": {
+              "title": "Techniques de Gestion du Stress",
+              "description": "Cohérence cardiaque 3x/jour, méditation quotidienne"
+            },
+            "restorativeSleep": {
+              "title": "Sommeil Réparateur",
+              "description": "Coucher avant 23h, éviter les écrans 1h avant le coucher"
+            },
+            "liverDetox": {
+              "title": "Détox Foie",
+              "description": "Cure de radis noir et artichaut pendant 3 semaines"
+            },
+            "regularExercise": {
+              "title": "Exercice Régulier",
+              "description": "30 minutes d'activité modérée par jour, 5 jours par semaine"
+            },
+            "microbiomeSupport": {
+              "title": "Renforcement du Microbiote",
+              "description": "Probiotiques et aliments fermentés quotidiens"
+            },
+            "vitaminD": {
+              "title": "Vitamine D",
+              "description": "Supplémentation en vitamine D3 en période hivernale"
+            }
+          }
+        },
+        "emptyState": {
+          "title": "Programme vide",
+          "description": "Commencez à construire le Programme d'Hygiène Vitale en ajoutant des conseils depuis la bibliothèque",
+          "addButton": "Ajouter un conseil"
+        },
+        "edit": {
+          "titleLabel": "Titre",
+          "descriptionLabel": "Description",
+          "cancelButton": "Annuler",
+          "saveButton": "Enregistrer"
+        }
+      },
+      "phvGenerator": {
+        "libraryTitle": "Bibliothèque de Conseils",
+        "programTitle": "Programme d'Hygiène Vitale",
+        "generatePdf": "Générer PDF",
+        "dragDropHint": "Glissez-déposez des conseils ici pour construire le programme",
+        "sampleAdvice": {
+          "antiInflammatory": "Alimentation Anti-inflammatoire",
+          "stressManagement": "Gestion du Stress",
+          "restorativeSleep": "Sommeil Réparateur",
+          "liverDetox": "Détox Foie"
+        }
+      }
+    }
+  },
+  "calendar": {
+    "today": "Aujourd'hui",
+    "month": "Mois",
+    "week": "Semaine",
+    "day": "Jour",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "newAppointment": "Nouveau rendez-vous",
+    "newAppointmentDescription": "Créer un nouveau rendez-vous pour un patient",
+    "patient": "Patient",
+    "selectPatient": "Sélectionner un patient",
+    "service": "Service",
+    "selectService": "Sélectionner un service",
+    "date": "Date",
+    "selectDate": "Sélectionner une date",
+    "time": "Heure",
+    "min": "min",
+    "notes": "Notes (optionnel)",
+    "notesPlaceholder": "Ajouter des notes ou remarques pour ce rendez-vous...",
+    "appointmentSummary": "Résumé du rendez-vous",
+    "cancel": "Annuler",
+    "createAppointment": "Créer le rendez-vous",
+    "appointmentCreationFailed": "Échec de la création du rendez-vous : "
+  },
+  "appointment": {
+    "new": "Nouveau rendez-vous",
+    "create": "Créer",
+    "patient": "Patient",
+    "selectPatient": "Sélectionner un patient",
+    "service": "Service",
+    "selectService": "Sélectionner un service",
+    "dateTime": "Date & Heure",
+    "failedToCreate": "Échec de la création du rendez-vous : {error}"
+  },
+  "patients": {
+    "new": "Nouveau Patient",
+    "add": "Ajouter un Patient",
+    "createDescription": "Créer un nouveau dossier patient. Cliquez sur enregistrer lorsque vous avez terminé.",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "save": "Enregistrer les modifications",
+    "search": "Rechercher des patients...",
+    "name": "Nom",
+    "contact": "Contact",
+    "added": "Ajouté",
+    "actions": "Actions",
+    "noPatients": "Aucun patient trouvé.",
+    "viewHistory": "Voir l'historique",
+    "newAppointment": "Nouveau Rendez-vous",
+    "failedToCreate": "Échec de la création du patient : {error}"
+  },
+  "booking": {
+    "title": "Prendre rendez-vous",
+    "confirmed": "Réservation confirmée !",
+    "confirmationEmail": "Vous recevrez un email de confirmation sous peu.",
+    "bookAnother": "Prendre un autre rendez-vous",
+    "selectService": "Sélectionnez un service",
+    "selectDateTime": "Sélectionnez une date et une heure",
+    "enterDetails": "Entrez vos informations",
+    "selectServicePlaceholder": "Sélectionner un service",
+    "next": "Suivant",
+    "back": "Retour",
+    "confirmBooking": "Confirmer la réservation",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "step": {
+      "service": "Service",
+      "dateTime": "Date & Heure",
+      "information": "Informations"
+    },
+    "chooseConsultationType": "Choisissez votre type de consultation",
+    "selectServiceDescription": "Sélectionnez le service qui correspond à vos besoins",
+    "selectDateAndTime": "Sélectionnez une date et un créneau horaire",
+    "chooseBestTime": "Choisissez l'horaire qui vous convient le mieux",
+    "yourInformation": "Vos informations",
+    "fillDetailsToComplete": "Remplissez vos coordonnées pour finaliser la réservation",
+    "summary": "Récapitulatif",
+    "service": "Service",
+    "date": "Date",
+    "time": "Heure",
+    "duration": "Durée",
+    "minutes": "minutes",
+    "price": "Prix",
+    "continue": "Continuer",
+    "firstNamePlaceholder": "Votre prénom",
+    "lastNamePlaceholder": "Votre nom",
+    "emailPlaceholder": "votre@email.com",
+    "phonePlaceholder": "+33 6 12 34 56 78",
+    "confirmingInProgress": "Confirmation en cours...",
+    "noSlotsAvailable": "Aucun créneau disponible pour cette date",
+    "bookingSuccess": {
+      "title": "Réservation confirmée !",
+      "subtitle": "Votre rendez-vous a été réservé avec succès",
+      "confirmationSent": "Un email de confirmation a été envoyé à {email}"
+    },
+    "min": "min"
+  },
+  "billing": {
+    "invoicePreview": "Aperçu de la facture",
+    "invoiceNumber": "Facture N°",
+    "date": "Date",
+    "patient": "Patient",
+    "phone": "Téléphone",
+    "description": "Description",
+    "quantity": "Qté",
+    "total": "Total",
+    "vatNotice": "TVA non applicable, art. 293 B du Code Général des Impôts",
+    "practitionerTypes": {
+      "osteopath": "Ostéopathe D.O.",
+      "naturopath": "Naturopathe",
+      "sophrologist": "Sophrologue",
+      "default": "Praticien"
+    },
+    "specialties": {
+      "osteopath": "Spécialisé en ostéopathie structurelle et tissulaire.",
+      "naturopath": "Spécialisé en naturopathie et médecine naturelle.",
+      "sophrologist": "Spécialisé en sophrologie et relaxation."
+    },
+    "services": {
+      "osteopath": "Consultation d'ostéopathie",
+      "naturopath": "Consultation de naturopathie",
+      "sophrologist": "Consultation de sophrologie",
+      "default": "Consultation"
+    }
+  },
+  "common": {
+    "welcome": "Bienvenue",
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "search": "Rechercher",
+    "close": "Fermer",
+    "submit": "Soumettre",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "continue": "Continuer",
+    "yes": "Oui",
+    "no": "Non",
+    "ok": "OK",
+    "error": "Erreur",
+    "success": "Succès",
+    "warning": "Attention",
+    "info": "Information",
+    "required": "Requis",
+    "optional": "Optionnel",
+    "select": "Sélectionner",
+    "add": "Ajouter",
+    "remove": "Retirer",
+    "update": "Mettre à jour",
+    "create": "Créer",
+    "view": "Voir",
+    "download": "Télécharger",
+    "upload": "Téléverser",
+    "export": "Exporter",
+    "import": "Importer",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "actions": "Actions",
+    "name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "date": "Date",
+    "time": "Heure",
+    "status": "Statut",
+    "description": "Description",
+    "notes": "Notes",
+    "settings": "Paramètres",
+    "profile": "Profil",
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "languageChanged": "Langue modifiée avec succès",
+    "languageChangeFailed": "Échec du changement de langue"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "today": "Aujourd'hui",
+    "thisWeek": "Cette semaine",
+    "totalPatients": "Total patients",
+    "consultation": "consultation",
+    "consultations": "consultations",
+    "patient": "patient",
+    "patients": "patients",
+    "consultationDetails": {
+      "loading": "Chargement...",
+      "notFound": "Consultation non trouvée",
+      "practitioner": "Praticien",
+      "savingConsultation": "Enregistrement de la consultation...",
+      "finishingAndBilling": "Finalisation et facturation de la consultation..."
+    },
+    "consultationsPage": {
+      "title": "Consultations",
+      "table": {
+        "date": "Date",
+        "patient": "Patient",
+        "status": "Statut",
+        "note": "Note",
+        "actions": "Actions",
+        "noConsultations": "Aucune consultation trouvée.",
+        "noteSaved": "Note enregistrée",
+        "noNote": "Pas de note",
+        "open": "Ouvrir"
+      }
+    },
+    "patientsPage": {
+      "title": "Patients"
+    },
+    "upcomingAppointments": "Prochains rendez-vous",
+    "noAppointments": "Aucun rendez-vous à venir",
+    "googleBooking": {
+      "title": "Augmentez vos réservations de 40% !",
+      "description": "Ajoutez votre lien de réservation directement sur votre profil Google Business. Vos patients peuvent prendre rendez-vous en un clic depuis Google.",
+      "seeButton": "Voir le tutoriel (2 min)",
+      "dialogTitle": "Boostez vos réservations avec Google Business",
+      "dialogDescription": "Ajoutez un bouton \"Prendre rendez-vous\" directement sur votre profil Google. Simple, rapide et efficace pour convertir les visiteurs en patients.",
+      "step1": {
+        "title": "Trouvez-vous sur Google",
+        "description": "Connectez-vous à votre compte Gmail professionnel, puis tapez le nom de votre cabinet dans Google. Vous verrez apparaître votre tableau de bord de gestion directement dans les résultats de recherche."
+      },
+      "step2": {
+        "title": "Cliquez sur \"Réservations\" puis \"Ajouter un lien\"",
+        "description": "Cliquez sur le bouton \"Réservations\" dans votre tableau de bord, puis sur \"Ajouter un autre lien\". Google met à disposition un champ spécifique appelé \"Liens vers vos outils de réservation en ligne\"."
+      },
+      "step3": {
+        "title": "Collez votre lien Postur",
+        "description": "Copiez-collez simplement votre lien Postur personnel dans le champ prévu à cet effet. Dès que vous validez, le bouton bleu \"Réserver en ligne\" apparaît sur votre profil public."
+      },
+      "bookingLink": "Votre lien de réservation :",
+      "copy": "Copier",
+      "linkCopied": "Lien copié dans le presse-papiers !",
+      "successTitle": "C'est instantané !",
+      "successDescription": "Une fois le lien ajouté, vos patients verront immédiatement le bouton \"Prendre rendez-vous\" sur votre profil Google. Plus besoin d'appeler, ils réservent directement en ligne !",
+      "needHelp": "Besoin d'aide ?",
+      "supportTeam": "Notre équipe est là pour vous accompagner",
+      "helpCenter": "Centre d'aide"
+    },
+    "calendar": {
+      "title": "Calendrier"
+    },
+    "settings": {
+      "title": "Paramètres",
+      "tabs": {
+        "profile": "Profil",
+        "availability": "Disponibilités",
+        "services": "Services",
+        "billing": "Facturation"
+      },
+      "profile": {
+        "title": "Profil professionnel",
+        "description": "Gérez vos informations publiques."
+      },
+      "availability": {
+        "title": "Disponibilités",
+        "description": "Configurez votre planning hebdomadaire."
+      },
+      "services": {
+        "title": "Services & Tarifs",
+        "description": "Configurez les services que vous proposez."
+      },
+      "billingSettings": {
+        "title": "Paramètres de facturation",
+        "placeholder": "Configuration de la facturation."
+      }
+    },
+    "billing": {
+      "title": "Facturation",
+      "newInvoice": "Nouvelle facture",
+      "createInvoice": "Créer une facture",
+      "invoicePreview": "Prévisualisation de la facture",
+      "invoiceNumber": "N° facture",
+      "date": "Date",
+      "patient": "Patient",
+      "phone": "Tél",
+      "description": "Description",
+      "quantity": "Qte",
+      "total": "Total",
+      "vatNotice": "TVA non applicable, art. 293 B du CGI",
+      "practitionerTypes": {
+        "osteopath": "Ostéopathe D.O.",
+        "naturopath": "Naturopathe",
+        "sophrologist": "Sophrologue",
+        "default": "Praticien"
+      },
+      "specialties": {
+        "osteopath": "Spécialisé en ostéopathie structurelle et tissulaire.",
+        "naturopath": "Spécialisé en naturopathie et médecines naturelles.",
+        "sophrologist": "Spécialisé en sophrologie et relaxation."
+      },
+      "services": {
+        "osteopath": "Consultation Ostéopathie",
+        "naturopath": "Consultation Naturopathie",
+        "sophrologist": "Consultation Sophrologie",
+        "default": "Consultation"
+      },
+      "stats": {
+        "totalRevenue": "Revenu total (Année)",
+        "pendingPayment": "En attente de paiement"
+      },
+      "table": {
+        "number": "Numéro",
+        "patient": "Patient",
+        "date": "Date",
+        "amount": "Montant",
+        "status": "Statut",
+        "actions": "Actions",
+        "noInvoices": "Aucune facture trouvée."
+      },
+      "form": {
+        "patient": "Patient",
+        "selectPatient": "Sélectionner un patient",
+        "amount": "Montant (€)",
+        "create": "Créer"
+      },
+      "actions": {
+        "actions": "Actions",
+        "preview": "Prévisualiser",
+        "send": "Envoyer",
+        "markAsPaid": "Marquer comme payé",
+        "delete": "Supprimer"
+      },
+      "toasts": {
+        "invoiceCreated": "Facture créée avec succès",
+        "statusUpdated": "Statut mis à jour",
+        "invoiceDeleted": "Facture supprimée avec succès"
+      }
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Postur",
+      "description": "Gérez votre cabinet en toute simplicité.",
+      "tabSignIn": "Connexion",
+      "tabSignUp": "Inscription",
+      "emailLabel": "Email",
+      "emailPlaceholder": "docteur@exemple.com",
+      "passwordLabel": "Mot de passe",
+      "nameLabel": "Nom complet",
+      "namePlaceholder": "Dr. Jean Dupont",
+      "signInButton": "Se connecter",
+      "signUpButton": "Créer un compte",
+      "termsText": "En continuant, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité."
+    },
+    "onboarding": {
+      "welcomeTitle": "Bienvenue sur Postur",
+      "welcomeDescription": "Votre logiciel de gestion pour ostéopathes",
+      "osteopathTitle": "Ostéopathe",
+      "osteopathDescription": "Gestion complète de vos consultations d'ostéopathie : schéma corporel, historique des traumatismes, notes de consultation et bien plus.",
+      "continueButton": "Continuer vers le Dashboard"
+    }
+  },
+  "sidebar": {
+    "appName": "Postur",
+    "appDescription": "Gestion de cabinet",
+    "dashboard": "Tableau de bord",
+    "calendar": "Calendrier",
+    "patients": "Patients",
+    "consultations": "Consultations",
+    "billing": "Facturation",
+    "settings": "Paramètres"
+  },
+  "navigation": {
+    "settings": "Paramètres",
+    "logout": "Déconnexion"
+  },
+  "errors": {
+    "unauthorized": "Non authentifié",
+    "notFound": "Ressource introuvable",
+    "invalidInput": "Données d'entrée invalides",
+    "serverError": "Une erreur interne s'est produite",
+    "failedToCreate": "Échec de la création de la ressource",
+    "failedToUpdate": "Échec de la mise à jour de la ressource",
+    "failedToDelete": "Échec de la suppression de la ressource",
+    "practitionerNotFound": "Praticien introuvable",
+    "serviceNotFound": "Service introuvable",
+    "invoiceNotFound": "Facture introuvable",
+    "appointmentNotFound": "Rendez-vous introuvable",
+    "patientNotFound": "Patient introuvable",
+    "consultationNotFound": "Consultation introuvable",
+    "invalidDate": "Date invalide",
+    "invalidTimeSlot": "Créneau horaire invalide",
+    "slotNotAvailable": "Ce créneau horaire n'est pas disponible",
+    "missingRequiredField": "Champ requis manquant",
+    "emailAlreadyExists": "Cet email est déjà utilisé",
+    "weakPassword": "Le mot de passe est trop faible",
+    "invalidCredentials": "Identifiants invalides",
+    "sessionExpired": "Votre session a expiré",
+    "accessDenied": "Accès refusé",
+    "resourceNotOwned": "Vous n'avez pas la permission d'accéder à cette ressource",
+    "duplicateEntry": "Cette entrée existe déjà",
+    "operationFailed": "L'opération a échoué",
+    "networkError": "Erreur réseau",
+    "timeoutError": "Délai d'attente dépassé",
+    "validationError": "Erreur de validation",
+    "databaseError": "Erreur de base de données"
+  }
+}

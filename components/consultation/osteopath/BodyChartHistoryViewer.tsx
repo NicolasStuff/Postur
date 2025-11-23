@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
-import { fr } from "date-fns/locale"
+import { fr, enUS } from "date-fns/locale"
 import { History, ChevronDown, ChevronUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { useTranslations, useLocale } from "next-intl"
 
 interface BodyChartHistoryEntry {
     id: string
@@ -20,12 +21,15 @@ interface BodyChartHistoryViewerProps {
 }
 
 export function BodyChartHistoryViewer({ history, muscleLabels }: BodyChartHistoryViewerProps) {
+    const t = useTranslations('consultation.osteopath.history')
+    const locale = useLocale()
+    const dateLocale = locale === 'fr' ? fr : enUS
     const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
 
     if (!history || history.length === 0) {
         return (
             <div className="text-sm text-slate-500 text-center py-8">
-                Aucun historique de sélection disponible
+                {t('noHistory')}
             </div>
         )
     }
@@ -50,9 +54,9 @@ export function BodyChartHistoryViewer({ history, muscleLabels }: BodyChartHisto
         <div className="space-y-3">
             <div className="flex items-center gap-2 mb-4">
                 <History className="h-4 w-4 text-slate-600" />
-                <h3 className="font-medium text-slate-900">Historique des Sélections</h3>
+                <h3 className="font-medium text-slate-900">{t('title')}</h3>
                 <Badge variant="secondary" className="ml-auto">
-                    {history.length} {history.length > 1 ? 'entrées' : 'entrée'}
+                    {history.length} {history.length > 1 ? t('entries') : t('entry')}
                 </Badge>
             </div>
 
@@ -68,17 +72,17 @@ export function BodyChartHistoryViewer({ history, muscleLabels }: BodyChartHisto
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1">
                                         <span className="text-xs font-medium text-slate-900">
-                                            {format(new Date(entry.createdAt), "d MMMM yyyy 'à' HH:mm", { locale: fr })}
+                                            {format(new Date(entry.createdAt), "d MMMM yyyy 'à' HH:mm", { locale: dateLocale })}
                                         </span>
                                         {index === 0 && (
                                             <Badge variant="default" className="text-xs">
-                                                Actuel
+                                                {t('current')}
                                             </Badge>
                                         )}
                                     </div>
 
                                     <div className="text-xs text-slate-600 mb-2">
-                                        {entry.selectedParts.length} {entry.selectedParts.length > 1 ? 'zones sélectionnées' : 'zone sélectionnée'}
+                                        {entry.selectedParts.length} {entry.selectedParts.length > 1 ? t('zonesSelected') : t('zoneSelected')}
                                     </div>
 
                                     {/* Changes summary */}
@@ -103,7 +107,7 @@ export function BodyChartHistoryViewer({ history, muscleLabels }: BodyChartHisto
                                             {changes.added.length > 0 && (
                                                 <div>
                                                     <div className="text-xs font-medium text-green-700 mb-1">
-                                                        Ajouté{changes.added.length > 1 ? 's' : ''} :
+                                                        {changes.added.length > 1 ? t('addedPlural') : t('added')} :
                                                     </div>
                                                     <div className="flex flex-wrap gap-1">
                                                         {changes.added.map(part => (
@@ -118,7 +122,7 @@ export function BodyChartHistoryViewer({ history, muscleLabels }: BodyChartHisto
                                             {changes.removed.length > 0 && (
                                                 <div>
                                                     <div className="text-xs font-medium text-red-700 mb-1">
-                                                        Retiré{changes.removed.length > 1 ? 's' : ''} :
+                                                        {changes.removed.length > 1 ? t('removedPlural') : t('removed')} :
                                                     </div>
                                                     <div className="flex flex-wrap gap-1">
                                                         {changes.removed.map(part => (
@@ -133,7 +137,7 @@ export function BodyChartHistoryViewer({ history, muscleLabels }: BodyChartHisto
                                             {!previousEntry && (
                                                 <div>
                                                     <div className="text-xs font-medium text-slate-700 mb-1">
-                                                        Zones sélectionnées :
+                                                        {t('selectedZones')} :
                                                     </div>
                                                     <div className="flex flex-wrap gap-1">
                                                         {entry.selectedParts.map(part => (

@@ -9,6 +9,7 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { createPublicAppointment, getPublicAvailability } from "@/app/actions/booking"
 import { Loader2, CheckCircle2, Clock, Euro, ArrowLeft, Calendar as CalendarIcon, User } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useTranslations } from 'next-intl'
 
 interface CalendlyStyleBookingProps {
     practitioner: any
@@ -16,6 +17,7 @@ interface CalendlyStyleBookingProps {
 }
 
 export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookingProps) {
+    const t = useTranslations('booking')
     const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1)
     const [isSuccess, setIsSuccess] = useState(false)
     const [selectedService, setSelectedService] = useState<any>(null)
@@ -141,10 +143,10 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                     <CheckCircle2 className="h-16 w-16 text-green-600" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-3">
-                    Réservation confirmée !
+                    {t('bookingSuccess.title')}
                 </h2>
                 <p className="text-lg text-gray-600 mb-2">
-                    Votre rendez-vous a été réservé avec succès
+                    {t('bookingSuccess.subtitle')}
                 </p>
                 <div className="bg-gray-50 rounded-lg p-6 my-6 max-w-md w-full">
                     <div className="space-y-3 text-left">
@@ -160,18 +162,18 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                         </div>
                         <div className="flex items-center gap-3">
                             <Clock className="h-5 w-5 text-gray-400" />
-                            <span className="text-gray-700">{selectedService?.name} - {selectedService?.duration}min</span>
+                            <span className="text-gray-700">{selectedService?.name} - {selectedService?.duration}{t('min')}</span>
                         </div>
                     </div>
                 </div>
                 <p className="text-gray-500 mb-8">
-                    Un email de confirmation a été envoyé à {patientDetails.email}
+                    {t('bookingSuccess.confirmationSent', { email: patientDetails.email })}
                 </p>
                 <Button
                     onClick={() => window.location.reload()}
                     className="bg-blue-600 hover:bg-blue-700"
                 >
-                    Prendre un autre rendez-vous
+                    {t('bookAnother')}
                 </Button>
             </div>
         )
@@ -192,7 +194,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                         )}>
                             1
                         </div>
-                        <span className="text-sm font-medium hidden sm:inline">Service</span>
+                        <span className="text-sm font-medium hidden sm:inline">{t('step.service')}</span>
                     </div>
                     <div className="flex-1 h-0.5 bg-gray-200 mx-2">
                         <div
@@ -212,7 +214,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                         )}>
                             2
                         </div>
-                        <span className="text-sm font-medium hidden sm:inline">Date & Heure</span>
+                        <span className="text-sm font-medium hidden sm:inline">{t('step.dateTime')}</span>
                     </div>
                     <div className="flex-1 h-0.5 bg-gray-200 mx-2">
                         <div
@@ -232,7 +234,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                         )}>
                             3
                         </div>
-                        <span className="text-sm font-medium hidden sm:inline">Informations</span>
+                        <span className="text-sm font-medium hidden sm:inline">{t('step.information')}</span>
                     </div>
                 </div>
             </div>
@@ -242,10 +244,10 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                 <div className="space-y-4 animate-in fade-in duration-300">
                     <div className="text-center mb-6">
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                            Choisissez votre type de consultation
+                            {t('chooseConsultationType')}
                         </h2>
                         <p className="text-gray-600">
-                            Sélectionnez le service qui correspond à vos besoins
+                            {t('selectServiceDescription')}
                         </p>
                     </div>
 
@@ -302,7 +304,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                         disabled={!selectedService}
                         className="w-full mt-6 h-12 text-base bg-blue-600 hover:bg-blue-700"
                     >
-                        Continuer
+                        {t('continue')}
                     </Button>
                 </div>
             )}
@@ -312,10 +314,10 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                 <div className="space-y-6 animate-in fade-in duration-300">
                     <div className="text-center mb-6">
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                            Sélectionnez une date et un créneau
+                            {t('selectDateAndTime')}
                         </h2>
                         <p className="text-gray-600">
-                            Choisissez le moment qui vous convient le mieux
+                            {t('chooseBestTime')}
                         </p>
                     </div>
 
@@ -353,7 +355,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                                         ))
                                     ) : (
                                         <div className="col-span-full text-center py-8 text-gray-500">
-                                            Aucun créneau disponible pour cette date
+                                            {t('noSlotsAvailable')}
                                         </div>
                                     )}
                                 </div>
@@ -372,14 +374,14 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                             className="flex items-center gap-2"
                         >
                             <ArrowLeft className="h-4 w-4" />
-                            Retour
+                            {t('back')}
                         </Button>
                         <Button
                             onClick={() => setCurrentStep(3)}
                             disabled={!date || !timeSlot}
                             className="flex-1 h-12 text-base bg-blue-600 hover:bg-blue-700"
                         >
-                            Continuer
+                            {t('continue')}
                         </Button>
                     </div>
                 </div>
@@ -390,34 +392,34 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                 <div className="space-y-6 animate-in fade-in duration-300">
                     <div className="text-center mb-6">
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                            Vos informations
+                            {t('yourInformation')}
                         </h2>
                         <p className="text-gray-600">
-                            Remplissez vos coordonnées pour finaliser la réservation
+                            {t('fillDetailsToComplete')}
                         </p>
                     </div>
 
                     <div className="bg-blue-50 rounded-xl p-6 mb-6">
-                        <h3 className="font-semibold text-gray-900 mb-3">Récapitulatif</h3>
+                        <h3 className="font-semibold text-gray-900 mb-3">{t('summary')}</h3>
                         <div className="space-y-2 text-sm text-gray-700">
                             <div className="flex justify-between">
-                                <span className="text-gray-600">Service :</span>
+                                <span className="text-gray-600">{t('service')} :</span>
                                 <span className="font-medium">{selectedService?.name}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-600">Date :</span>
+                                <span className="text-gray-600">{t('date')} :</span>
                                 <span className="font-medium">{date && formatDate(date)}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-600">Heure :</span>
+                                <span className="text-gray-600">{t('time')} :</span>
                                 <span className="font-medium">{timeSlot}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-600">Durée :</span>
-                                <span className="font-medium">{selectedService?.duration} minutes</span>
+                                <span className="text-gray-600">{t('duration')} :</span>
+                                <span className="font-medium">{selectedService?.duration} {t('minutes')}</span>
                             </div>
                             <div className="flex justify-between pt-2 border-t border-blue-200">
-                                <span className="text-gray-600">Prix :</span>
+                                <span className="text-gray-600">{t('price')} :</span>
                                 <span className="font-semibold text-lg">{Number(selectedService?.price)} €</span>
                             </div>
                         </div>
@@ -427,7 +429,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="firstName" className="text-gray-700">
-                                    Prénom *
+                                    {t('firstName')} *
                                 </Label>
                                 <Input
                                     id="firstName"
@@ -437,12 +439,12 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                                         firstName: e.target.value
                                     })}
                                     className="h-11"
-                                    placeholder="Votre prénom"
+                                    placeholder={t('firstNamePlaceholder')}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="lastName" className="text-gray-700">
-                                    Nom *
+                                    {t('lastName')} *
                                 </Label>
                                 <Input
                                     id="lastName"
@@ -452,13 +454,13 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                                         lastName: e.target.value
                                     })}
                                     className="h-11"
-                                    placeholder="Votre nom"
+                                    placeholder={t('lastNamePlaceholder')}
                                 />
                             </div>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="email" className="text-gray-700">
-                                Email *
+                                {t('email')} *
                             </Label>
                             <Input
                                 id="email"
@@ -469,12 +471,12 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                                     email: e.target.value
                                 })}
                                 className="h-11"
-                                placeholder="votre@email.com"
+                                placeholder={t('emailPlaceholder')}
                             />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="phone" className="text-gray-700">
-                                Téléphone *
+                                {t('phone')} *
                             </Label>
                             <Input
                                 id="phone"
@@ -485,7 +487,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                                     phone: e.target.value
                                 })}
                                 className="h-11"
-                                placeholder="+33 6 12 34 56 78"
+                                placeholder={t('phonePlaceholder')}
                             />
                         </div>
                     </div>
@@ -499,7 +501,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                             className="flex items-center gap-2"
                         >
                             <ArrowLeft className="h-4 w-4" />
-                            Retour
+                            {t('back')}
                         </Button>
                         <Button
                             onClick={handleConfirm}
@@ -509,10 +511,10 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                             {mutation.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Confirmation en cours...
+                                    {t('confirmingInProgress')}
                                 </>
                             ) : (
-                                "Confirmer la réservation"
+                                t('confirmBooking')
                             )}
                         </Button>
                     </div>

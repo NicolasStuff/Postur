@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
+import { getErrorMessage } from "@/lib/i18n/errors";
 
 export async function getInvoices() {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -23,7 +24,9 @@ export async function getInvoices() {
 
 export async function createInvoice(data: { patientId: string, amount: number }) {
     const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) throw new Error("Unauthorized");
+    if (!session) {
+        throw new Error(await getErrorMessage("unauthorized"));
+    }
 
     // Generate Invoice Number (Simplified)
     const count = await prisma.invoice.count({ where: { userId: session.user.id } });
@@ -42,13 +45,17 @@ export async function createInvoice(data: { patientId: string, amount: number })
 
 export async function updateInvoiceStatus(invoiceId: string, status: 'DRAFT' | 'SENT' | 'PAID') {
     const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) throw new Error("Unauthorized");
+    if (!session) {
+        throw new Error(await getErrorMessage("unauthorized"));
+    }
 
     // Verify ownership
     const invoice = await prisma.invoice.findFirst({
         where: { id: invoiceId, userId: session.user.id }
     });
-    if (!invoice) throw new Error("Invoice not found");
+    if (!invoice) {
+        throw new Error(await getErrorMessage("invoiceNotFound"));
+    }
 
     return await prisma.invoice.update({
         where: { id: invoiceId },
@@ -58,13 +65,17 @@ export async function updateInvoiceStatus(invoiceId: string, status: 'DRAFT' | '
 
 export async function deleteInvoice(invoiceId: string) {
     const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) throw new Error("Unauthorized");
+    if (!session) {
+        throw new Error(await getErrorMessage("unauthorized"));
+    }
 
     // Verify ownership
     const invoice = await prisma.invoice.findFirst({
         where: { id: invoiceId, userId: session.user.id }
     });
-    if (!invoice) throw new Error("Invoice not found");
+    if (!invoice) {
+        throw new Error(await getErrorMessage("invoiceNotFound"));
+    }
 
     return await prisma.invoice.delete({
         where: { id: invoiceId }
@@ -73,7 +84,9 @@ export async function deleteInvoice(invoiceId: string) {
 
 export async function getInvoiceDetails(invoiceId: string) {
     const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) throw new Error("Unauthorized");
+    if (!session) {
+        throw new Error(await getErrorMessage("unauthorized"));
+    }
 
     const invoice = await prisma.invoice.findFirst({
         where: { id: invoiceId, userId: session.user.id },
@@ -93,7 +106,9 @@ export async function getInvoiceDetails(invoiceId: string) {
         }
     });
 
-    if (!invoice) throw new Error("Invoice not found");
+    if (!invoice) {
+        throw new Error(await getErrorMessage("invoiceNotFound"));
+    }
 
     return {
         ...invoice,

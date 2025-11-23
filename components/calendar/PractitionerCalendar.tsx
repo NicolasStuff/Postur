@@ -9,9 +9,12 @@ import { useQuery } from '@tanstack/react-query'
 import { getAppointments } from '@/app/actions/appointments'
 import { CreateAppointmentDialog } from './CreateAppointmentDialog'
 import { useRouter } from 'next/navigation'
+import { useTranslations, useLocale } from 'next-intl'
 
 export function PractitionerCalendar() {
     const router = useRouter()
+    const t = useTranslations('calendar')
+    const locale = useLocale()
     const [dateRange, setDateRange] = useState<{ start: Date, end: Date }>({
         start: new Date(),
         end: new Date(new Date().setDate(new Date().getDate() + 7))
@@ -53,15 +56,24 @@ export function PractitionerCalendar() {
                 <FullCalendar
                     plugins={[ dayGridPlugin, timeGridPlugin, interactionPlugin ]}
                     initialView="timeGridWeek"
+                    locale={locale}
                     headerToolbar={{
                         left: 'prev,next today',
                         center: 'title',
                         right: 'dayGridMonth,timeGridWeek,timeGridDay'
                     }}
+                    buttonText={{
+                        today: t('today'),
+                        month: t('month'),
+                        week: t('week'),
+                        day: t('day'),
+                        prev: t('previous'),
+                        next: t('next')
+                    }}
                     slotMinTime="08:00:00"
                     slotMaxTime="20:00:00"
                     allDaySlot={false}
-                    editable={false} // Drag & drop logic would need another update handler
+                    editable={false}
                     selectable={true}
                     selectMirror={true}
                     dayMaxEvents={true}
@@ -74,8 +86,8 @@ export function PractitionerCalendar() {
                     eventClick={handleEventClick}
                 />
             </div>
-            <CreateAppointmentDialog 
-                open={createDialogOpen} 
+            <CreateAppointmentDialog
+                open={createDialogOpen}
                 onOpenChange={setCreateDialogOpen}
                 initialDate={selectedDate}
             />

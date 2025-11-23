@@ -1,5 +1,6 @@
 "use server"
 import { prisma } from "@/lib/prisma";
+import { getErrorMessage } from "@/lib/i18n/errors";
 
 export async function getPractitionerBySlug(slug: string) {
     const user = await prisma.user.findUnique({
@@ -28,10 +29,10 @@ export async function getPractitionerBySlug(slug: string) {
 }
 
 export async function getPublicAvailability(userId: string, date: Date) {
-    const startOfDay = new Date(date); 
+    const startOfDay = new Date(date);
     startOfDay.setHours(0,0,0,0);
-    
-    const endOfDay = new Date(date); 
+
+    const endOfDay = new Date(date);
     endOfDay.setHours(23,59,59,999);
 
     return await prisma.appointment.findMany({
@@ -45,20 +46,24 @@ export async function getPublicAvailability(userId: string, date: Date) {
     })
 }
 
-export async function createPublicAppointment(data: { 
-    slug: string, 
-    serviceId: string, 
-    start: Date, 
-    firstName: string, 
-    lastName: string, 
-    email: string, 
-    phone: string 
+export async function createPublicAppointment(data: {
+    slug: string,
+    serviceId: string,
+    start: Date,
+    firstName: string,
+    lastName: string,
+    email: string,
+    phone: string
 }) {
     const practitioner = await prisma.user.findUnique({ where: { slug: data.slug }, include: { services: true } });
-    if (!practitioner) throw new Error("Practitioner not found");
+    if (!practitioner) {
+        throw new Error(await getErrorMessage("practitionerNotFound"));
+    }
 
     const service = practitioner.services.find(s => s.id === data.serviceId);
-    if (!service) throw new Error("Service not found");
+    if (!service) {
+        throw new Error(await getErrorMessage("serviceNotFound"));
+    }
 
     // Find or create patient
     let patient = await prisma.patient.findUnique({

@@ -1,0 +1,407 @@
+{
+  "consultation": {
+    "shared": {
+      "save": "Save",
+      "finishAndBill": "Finish & Bill",
+      "consultationSaved": "Consultation saved successfully",
+      "consultationSaveError": "Error saving consultation",
+      "consultationBilled": "Consultation billed successfully",
+      "consultationBillError": "Error billing consultation",
+      "practitionerTypes": {
+        "osteopath": "Osteopath",
+        "naturopath": "Naturopath",
+        "sophrologist": "Sophrologist"
+      },
+      "notes": "Notes",
+      "consultationHistory": "Consultation History",
+      "consultation": "Consultation",
+      "noConsultations": "No consultations found",
+      "editor": {
+        "bold": "Bold",
+        "italic": "Italic",
+        "strikethrough": "Strikethrough",
+        "bulletList": "Bullet List",
+        "orderedList": "Numbered List",
+        "undo": "Undo",
+        "redo": "Redo"
+      }
+    }
+  },
+  "booking": {
+    "title": "Book Appointment",
+    "confirmed": "Booking Confirmed!",
+    "confirmationEmail": "You will receive a confirmation email shortly.",
+    "bookAnother": "Book Another",
+    "selectService": "Select a service",
+    "selectDateTime": "Select a date and time",
+    "enterDetails": "Enter your details",
+    "selectServicePlaceholder": "Select Service",
+    "next": "Next",
+    "back": "Back",
+    "confirmBooking": "Confirm Booking",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone",
+    "step": {
+      "service": "Service",
+      "dateTime": "Date & Time",
+      "information": "Information"
+    },
+    "chooseConsultationType": "Choose your consultation type",
+    "selectServiceDescription": "Select the service that fits your needs",
+    "selectDateAndTime": "Select a date and time slot",
+    "chooseBestTime": "Choose the time that works best for you",
+    "yourInformation": "Your information",
+    "fillDetailsToComplete": "Fill in your details to complete the booking",
+    "summary": "Summary",
+    "service": "Service",
+    "date": "Date",
+    "time": "Time",
+    "duration": "Duration",
+    "minutes": "minutes",
+    "price": "Price",
+    "continue": "Continue",
+    "firstNamePlaceholder": "Your first name",
+    "lastNamePlaceholder": "Your last name",
+    "emailPlaceholder": "your@email.com",
+    "phonePlaceholder": "+1 234 567 8900",
+    "confirmingInProgress": "Confirming...",
+    "noSlotsAvailable": "No slots available for this date",
+    "bookingSuccess": {
+      "title": "Booking Confirmed!",
+      "subtitle": "Your appointment has been successfully booked",
+      "confirmationSent": "A confirmation email has been sent to {email}"
+    },
+    "min": "min"
+  },
+  "calendar": {
+    "today": "Today",
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "previous": "Previous",
+    "next": "Next",
+    "newAppointment": "New Appointment",
+    "newAppointmentDescription": "Create a new appointment for a patient",
+    "patient": "Patient",
+    "selectPatient": "Select patient",
+    "service": "Service",
+    "selectService": "Select service",
+    "date": "Date",
+    "selectDate": "Select date",
+    "time": "Time",
+    "min": "min",
+    "notes": "Notes (optional)",
+    "notesPlaceholder": "Add notes or remarks for this appointment...",
+    "appointmentSummary": "Appointment Summary",
+    "cancel": "Cancel",
+    "createAppointment": "Create Appointment",
+    "appointmentCreationFailed": "Failed to create appointment: "
+  },
+  "appointment": {
+    "new": "New Appointment",
+    "create": "Create",
+    "patient": "Patient",
+    "selectPatient": "Select patient",
+    "service": "Service",
+    "selectService": "Select service",
+    "dateTime": "Date & Time",
+    "failedToCreate": "Failed to create appointment: {error}"
+  },
+  "patients": {
+    "new": "New Patient",
+    "add": "Add Patient",
+    "createDescription": "Create a new patient record. Click save when you're done.",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone",
+    "save": "Save changes",
+    "search": "Search patients...",
+    "name": "Name",
+    "contact": "Contact",
+    "added": "Added",
+    "actions": "Actions",
+    "noPatients": "No patients found.",
+    "viewHistory": "View History",
+    "newAppointment": "New Appointment",
+    "failedToCreate": "Failed to create patient: {error}"
+  },
+  "billing": {
+    "invoicePreview": "Invoice Preview",
+    "invoiceNumber": "Invoice No",
+    "date": "Date",
+    "patient": "Patient",
+    "phone": "Tel",
+    "description": "Description",
+    "quantity": "Qty",
+    "total": "Total",
+    "vatNotice": "VAT not applicable, art. 293 B of the French Tax Code",
+    "practitionerTypes": {
+      "osteopath": "Osteopath D.O.",
+      "naturopath": "Naturopath",
+      "sophrologist": "Sophrologist",
+      "default": "Practitioner"
+    },
+    "specialties": {
+      "osteopath": "Specialized in structural and tissue osteopathy.",
+      "naturopath": "Specialized in naturopathy and natural medicine.",
+      "sophrologist": "Specialized in sophrology and relaxation."
+    },
+    "services": {
+      "osteopath": "Osteopathy Consultation",
+      "naturopath": "Naturopathy Consultation",
+      "sophrologist": "Sophrology Consultation",
+      "default": "Consultation"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "today": "Today",
+    "thisWeek": "This week",
+    "totalPatients": "Total patients",
+    "consultation": "consultation",
+    "consultations": "consultations",
+    "patient": "patient",
+    "patients": "patients",
+    "upcomingAppointments": "Upcoming appointments",
+    "noAppointments": "No upcoming appointments",
+    "consultationDetails": {
+      "loading": "Loading...",
+      "notFound": "Consultation not found",
+      "practitioner": "Practitioner",
+      "savingConsultation": "Saving consultation...",
+      "finishingAndBilling": "Finishing and billing consultation..."
+    },
+    "consultationsPage": {
+      "title": "Consultations",
+      "table": {
+        "date": "Date",
+        "patient": "Patient",
+        "status": "Status",
+        "note": "Note",
+        "actions": "Actions",
+        "noConsultations": "No consultations found.",
+        "noteSaved": "Note saved",
+        "noNote": "No note",
+        "open": "Open"
+      }
+    },
+    "patientsPage": {
+      "title": "Patients"
+    },
+    "googleBooking": {
+      "title": "Increase your bookings by 40%!",
+      "description": "Add your booking link directly to your Google Business profile. Your patients can book appointments with one click from Google.",
+      "seeButton": "View tutorial (2 min)",
+      "dialogTitle": "Boost your bookings with Google Business",
+      "dialogDescription": "Add a \"Book appointment\" button directly to your Google profile. Simple, fast and effective to convert visitors into patients.",
+      "step1": {
+        "title": "Find yourself on Google",
+        "description": "Log in to your professional Gmail account, then type your practice name in Google. You will see your management dashboard appear directly in the search results."
+      },
+      "step2": {
+        "title": "Click on \"Bookings\" then \"Add a link\"",
+        "description": "Click on the \"Bookings\" button in your dashboard, then on \"Add another link\". Google provides a specific field called \"Links to your online booking tools\"."
+      },
+      "step3": {
+        "title": "Paste your Postur link",
+        "description": "Simply copy and paste your personal Postur link into the designated field. As soon as you validate, the blue \"Book online\" button will appear on your public profile."
+      },
+      "bookingLink": "Your booking link:",
+      "copy": "Copy",
+      "linkCopied": "Link copied to clipboard!",
+      "successTitle": "It's instant!",
+      "successDescription": "Once the link is added, your patients will immediately see the \"Book appointment\" button on your Google profile. No need to call, they book directly online!",
+      "needHelp": "Need help?",
+      "supportTeam": "Our team is here to support you",
+      "helpCenter": "Help Center"
+    },
+    "calendar": {
+      "title": "Calendar"
+    },
+    "settings": {
+      "title": "Settings",
+      "tabs": {
+        "profile": "Profile",
+        "availability": "Availability",
+        "services": "Services",
+        "billing": "Billing"
+      },
+      "profile": {
+        "title": "Professional Profile",
+        "description": "Manage your public information."
+      },
+      "availability": {
+        "title": "Availability",
+        "description": "Configure your weekly schedule."
+      },
+      "services": {
+        "title": "Services & Pricing",
+        "description": "Configure the services you offer."
+      },
+      "billingSettings": {
+        "title": "Billing Settings",
+        "placeholder": "Billing configuration placeholder."
+      }
+    },
+    "billing": {
+      "title": "Billing",
+      "newInvoice": "New Invoice",
+      "createInvoice": "Create Invoice",
+      "stats": {
+        "totalRevenue": "Total Revenue (Year)",
+        "pendingPayment": "Pending Payment"
+      },
+      "table": {
+        "number": "Number",
+        "patient": "Patient",
+        "date": "Date",
+        "amount": "Amount",
+        "status": "Status",
+        "actions": "Actions",
+        "noInvoices": "No invoices found."
+      },
+      "form": {
+        "patient": "Patient",
+        "selectPatient": "Select Patient",
+        "amount": "Amount (€)",
+        "create": "Create"
+      },
+      "actions": {
+        "actions": "Actions",
+        "preview": "Preview",
+        "send": "Send",
+        "markAsPaid": "Mark as paid",
+        "delete": "Delete"
+      },
+      "toasts": {
+        "invoiceCreated": "Invoice created successfully",
+        "statusUpdated": "Status updated",
+        "invoiceDeleted": "Invoice deleted successfully"
+      }
+    }
+  },
+  "common": {
+    "welcome": "Welcome",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "close": "Close",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "continue": "Continue",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information",
+    "required": "Required",
+    "optional": "Optional",
+    "select": "Select",
+    "add": "Add",
+    "remove": "Remove",
+    "update": "Update",
+    "create": "Create",
+    "view": "View",
+    "download": "Download",
+    "upload": "Upload",
+    "export": "Export",
+    "import": "Import",
+    "filter": "Filter",
+    "sort": "Sort",
+    "actions": "Actions",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "date": "Date",
+    "time": "Time",
+    "status": "Status",
+    "description": "Description",
+    "notes": "Notes",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "languageChanged": "Language changed successfully",
+    "languageChangeFailed": "Failed to change language"
+  },
+  "auth": {
+    "signin": {
+      "title": "Postur",
+      "description": "Manage your practice with ease.",
+      "tabSignIn": "Sign In",
+      "tabSignUp": "Sign Up",
+      "emailLabel": "Email",
+      "emailPlaceholder": "doctor@example.com",
+      "passwordLabel": "Password",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "Dr. John Smith",
+      "signInButton": "Sign In",
+      "signUpButton": "Create Account",
+      "termsText": "By continuing, you agree to our Terms of Service and Privacy Policy."
+    },
+    "onboarding": {
+      "welcomeTitle": "Welcome to Postur",
+      "welcomeDescription": "Your practice management software for osteopaths",
+      "osteopathTitle": "Osteopath",
+      "osteopathDescription": "Complete management of your osteopathy consultations: body chart, trauma history, consultation notes and much more.",
+      "continueButton": "Continue to Dashboard"
+    }
+  },
+  "sidebar": {
+    "appName": "Postur",
+    "appDescription": "Practice Management",
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "patients": "Patients",
+    "consultations": "Consultations",
+    "billing": "Billing",
+    "settings": "Settings"
+  },
+  "navigation": {
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "errors": {
+    "unauthorized": "Unauthorized",
+    "notFound": "Resource not found",
+    "invalidInput": "Invalid input data",
+    "serverError": "An internal server error occurred",
+    "failedToCreate": "Failed to create resource",
+    "failedToUpdate": "Failed to update resource",
+    "failedToDelete": "Failed to delete resource",
+    "practitionerNotFound": "Practitioner not found",
+    "serviceNotFound": "Service not found",
+    "invoiceNotFound": "Invoice not found",
+    "appointmentNotFound": "Appointment not found",
+    "patientNotFound": "Patient not found",
+    "consultationNotFound": "Consultation not found",
+    "invalidDate": "Invalid date",
+    "invalidTimeSlot": "Invalid time slot",
+    "slotNotAvailable": "This time slot is not available",
+    "missingRequiredField": "Missing required field",
+    "emailAlreadyExists": "This email is already in use",
+    "weakPassword": "Password is too weak",
+    "invalidCredentials": "Invalid credentials",
+    "sessionExpired": "Your session has expired",
+    "accessDenied": "Access denied",
+    "resourceNotOwned": "You don't have permission to access this resource",
+    "duplicateEntry": "This entry already exists",
+    "operationFailed": "Operation failed",
+    "networkError": "Network error occurred",
+    "timeoutError": "Request timed out",
+    "validationError": "Validation error",
+    "databaseError": "Database error occurred"
+  }
+}

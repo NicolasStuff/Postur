@@ -16,8 +16,10 @@ import { getPatients } from "@/app/actions/patients"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { InvoicePreview } from "@/components/billing/InvoicePreview"
 import { toast } from "sonner"
+import { useTranslations } from 'next-intl'
 
 export default function BillingPage() {
+  const t = useTranslations('dashboard.billing')
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [newInvoice, setNewInvoice] = useState({ patientId: "", amount: 60 })
@@ -32,7 +34,7 @@ export default function BillingPage() {
       onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['invoices'] })
           setOpen(false)
-          toast.success("Facture créée avec succès")
+          toast.success(t('toasts.invoiceCreated'))
       }
   })
 
@@ -41,7 +43,7 @@ export default function BillingPage() {
           updateInvoiceStatus(id, status),
       onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['invoices'] })
-          toast.success("Statut mis à jour")
+          toast.success(t('toasts.statusUpdated'))
       }
   })
 
@@ -49,7 +51,7 @@ export default function BillingPage() {
       mutationFn: deleteInvoice,
       onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['invoices'] })
-          toast.success("Facture supprimée avec succès")
+          toast.success(t('toasts.invoiceDeleted'))
       }
   })
 
@@ -64,16 +66,16 @@ export default function BillingPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Billing</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4"/> New Invoice</Button></DialogTrigger>
+            <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4"/> {t('newInvoice')}</Button></DialogTrigger>
             <DialogContent>
-                <DialogHeader><DialogTitle>Create Invoice</DialogTitle></DialogHeader>
+                <DialogHeader><DialogTitle>{t('createInvoice')}</DialogTitle></DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label>Patient</Label>
+                        <Label>{t('form.patient')}</Label>
                         <Select onValueChange={(v) => setNewInvoice({...newInvoice, patientId: v})}>
-                            <SelectTrigger><SelectValue placeholder="Select Patient" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t('form.selectPatient')} /></SelectTrigger>
                             <SelectContent>
                                 {patients?.map(p => (
                                     <SelectItem key={p.id} value={p.id}>{p.firstName} {p.lastName}</SelectItem>
@@ -82,12 +84,12 @@ export default function BillingPage() {
                         </Select>
                     </div>
                     <div className="grid gap-2">
-                        <Label>Amount (€)</Label>
+                        <Label>{t('form.amount')}</Label>
                         <Input type="number" value={newInvoice.amount} onChange={(e) => setNewInvoice({...newInvoice, amount: parseFloat(e.target.value)})} />
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button onClick={() => mutation.mutate(newInvoice)} disabled={mutation.isPending || !newInvoice.patientId}>Create</Button>
+                    <Button onClick={() => mutation.mutate(newInvoice)} disabled={mutation.isPending || !newInvoice.patientId}>{t('form.create')}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -95,11 +97,11 @@ export default function BillingPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
           <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Total Revenue (Year)</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">{t('stats.totalRevenue')}</CardTitle></CardHeader>
               <CardContent><div className="text-2xl font-bold">€{invoices?.reduce((acc, inv) => acc + Number(inv.amount), 0).toFixed(2)}</div></CardContent>
           </Card>
           <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Pending Payment</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">{t('stats.pendingPayment')}</CardTitle></CardHeader>
               <CardContent><div className="text-2xl font-bold">€{invoices?.filter(i => i.status === 'SENT').reduce((acc, inv) => acc + Number(inv.amount), 0).toFixed(2)}</div></CardContent>
           </Card>
       </div>
@@ -108,16 +110,16 @@ export default function BillingPage() {
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead>Number</TableHead>
-                    <TableHead>Patient</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t('table.number')}</TableHead>
+                    <TableHead>{t('table.patient')}</TableHead>
+                    <TableHead>{t('table.date')}</TableHead>
+                    <TableHead>{t('table.amount')}</TableHead>
+                    <TableHead>{t('table.status')}</TableHead>
+                    <TableHead className="text-right">{t('table.actions')}</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {invoices?.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">No invoices found.</TableCell></TableRow>}
+                {invoices?.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">{t('table.noInvoices')}</TableCell></TableRow>}
                 {invoices?.map((invoice) => (
                     <TableRow key={invoice.id}>
                         <TableCell className="font-medium">{invoice.number}</TableCell>
@@ -135,10 +137,10 @@ export default function BillingPage() {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <DropdownMenuLabel>{t('actions.actions')}</DropdownMenuLabel>
                                     <DropdownMenuItem onClick={() => handlePreview(invoice.id)}>
                                         <Eye className="mr-2 h-4 w-4" />
-                                        Prévisualiser
+                                        {t('actions.preview')}
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     {invoice.status === 'DRAFT' && (
@@ -146,7 +148,7 @@ export default function BillingPage() {
                                             onClick={() => updateStatusMutation.mutate({ id: invoice.id, status: 'SENT' })}
                                         >
                                             <Send className="mr-2 h-4 w-4" />
-                                            Envoyer
+                                            {t('actions.send')}
                                         </DropdownMenuItem>
                                     )}
                                     {invoice.status === 'SENT' && (
@@ -154,7 +156,7 @@ export default function BillingPage() {
                                             onClick={() => updateStatusMutation.mutate({ id: invoice.id, status: 'PAID' })}
                                         >
                                             <CheckCircle className="mr-2 h-4 w-4" />
-                                            Marquer comme payé
+                                            {t('actions.markAsPaid')}
                                         </DropdownMenuItem>
                                     )}
                                     <DropdownMenuSeparator />
@@ -163,7 +165,7 @@ export default function BillingPage() {
                                         className="text-destructive"
                                     >
                                         <Trash2 className="mr-2 h-4 w-4" />
-                                        Supprimer
+                                        {t('actions.delete')}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>

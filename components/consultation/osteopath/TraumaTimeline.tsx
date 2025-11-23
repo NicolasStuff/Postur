@@ -1,4 +1,7 @@
+"use client"
+
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { useTranslations } from "next-intl"
 
 interface TraumaTimelineProps {
     history: any
@@ -11,6 +14,8 @@ interface TraumaEvent {
 }
 
 export function TraumaTimeline({ history }: TraumaTimelineProps) {
+    const t = useTranslations('consultation.osteopath.timeline')
+
     // Parse history data - expect array of events or use empty array
     let events: TraumaEvent[] = []
 
@@ -24,7 +29,7 @@ export function TraumaTimeline({ history }: TraumaTimelineProps) {
     if (events.length === 0) {
         return (
             <div className="h-full flex items-center justify-center">
-                <p className="text-sm text-slate-400">Aucun événement traumatique enregistré</p>
+                <p className="text-sm text-slate-400">{t('noEvents')}</p>
             </div>
         )
     }

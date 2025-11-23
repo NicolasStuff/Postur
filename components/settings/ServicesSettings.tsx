@@ -16,8 +16,10 @@ import { Plus, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createService, getServices } from "@/app/actions/services"
+import { useTranslations } from "next-intl"
 
 export function ServicesSettings() {
+    const t = useTranslations('settings.services')
     const queryClient = useQueryClient()
     const [open, setOpen] = useState(false)
     const [formData, setFormData] = useState({ name: "", duration: 30, price: 50 })
@@ -36,29 +38,29 @@ export function ServicesSettings() {
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">My Services</h3>
+                <h3 className="text-lg font-medium">{t('title')}</h3>
                 <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogTrigger asChild><Button size="sm"><Plus className="mr-2 h-4 w-4"/> Add Service</Button></DialogTrigger>
+                    <DialogTrigger asChild><Button size="sm"><Plus className="mr-2 h-4 w-4"/> {t('addService')}</Button></DialogTrigger>
                     <DialogContent>
-                        <DialogHeader><DialogTitle>Add Service</DialogTitle></DialogHeader>
+                        <DialogHeader><DialogTitle>{t('dialogTitle')}</DialogTitle></DialogHeader>
                         <div className="grid gap-4 py-4">
                             <div className="grid gap-2">
-                                <Label>Name</Label>
+                                <Label>{t('name')}</Label>
                                 <Input value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="grid gap-2">
-                                    <Label>Duration (min)</Label>
+                                    <Label>{t('duration')}</Label>
                                     <Input type="number" value={formData.duration} onChange={(e) => setFormData({...formData, duration: parseInt(e.target.value)})} />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label>Price (€)</Label>
+                                    <Label>{t('price')}</Label>
                                     <Input type="number" value={formData.price} onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value)})} />
                                 </div>
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button onClick={() => mutation.mutate(formData)}>Save</Button>
+                            <Button onClick={() => mutation.mutate(formData)}>{t('save')}</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
@@ -68,22 +70,22 @@ export function ServicesSettings() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Duration</TableHead>
-                            <TableHead>Price</TableHead>
+                            <TableHead>{t('name')}</TableHead>
+                            <TableHead>{t('duration')}</TableHead>
+                            <TableHead>{t('price')}</TableHead>
                             <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {services?.length === 0 && (
                              <TableRow>
-                                <TableCell colSpan={4} className="text-center text-muted-foreground">No services added yet.</TableCell>
+                                <TableCell colSpan={4} className="text-center text-muted-foreground">{t('noServices')}</TableCell>
                              </TableRow>
                         )}
                         {services?.map((service) => (
                             <TableRow key={service.id}>
                                 <TableCell className="font-medium">{service.name}</TableCell>
-                                <TableCell>{service.duration} min</TableCell>
+                                <TableCell>{service.duration} {t('min')}</TableCell>
                                 <TableCell>€{Number(service.price)}</TableCell>
                                 <TableCell>
                                     <Button variant="ghost" size="icon" className="text-red-500"><Trash2 className="h-4 w-4"/></Button>

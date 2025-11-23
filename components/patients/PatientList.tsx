@@ -11,8 +11,10 @@ import { useQuery } from "@tanstack/react-query"
 import { getPatients } from "@/app/actions/patients"
 import { useState } from "react"
 import { CreateAppointmentDialog } from "@/components/calendar/CreateAppointmentDialog"
+import { useTranslations } from "next-intl"
 
 export function PatientList() {
+  const t = useTranslations('patients')
   const [search, setSearch] = useState("")
   const [appointmentDialogOpen, setAppointmentDialogOpen] = useState(false)
   const [selectedPatientId, setSelectedPatientId] = useState<string | undefined>()
@@ -42,10 +44,10 @@ export function PatientList() {
        <div className="flex items-center gap-2">
         <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input 
-                type="search" 
-                placeholder="Search patients..." 
-                className="pl-8" 
+            <Input
+                type="search"
+                placeholder={t('search')}
+                className="pl-8"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
             />
@@ -56,17 +58,17 @@ export function PatientList() {
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Added</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t('name')}</TableHead>
+                    <TableHead>{t('contact')}</TableHead>
+                    <TableHead>{t('added')}</TableHead>
+                    <TableHead className="text-right">{t('actions')}</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {filteredPatients?.length === 0 && (
                     <TableRow>
                         <TableCell colSpan={4} className="text-center text-muted-foreground h-24">
-                            No patients found.
+                            {t('noPatients')}
                         </TableCell>
                     </TableRow>
                 )}
@@ -87,8 +89,8 @@ export function PatientList() {
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4"/></Button></DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem>View History</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleNewAppointment(patient.id)}>New Appointment</DropdownMenuItem>
+                                    <DropdownMenuItem>{t('viewHistory')}</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleNewAppointment(patient.id)}>{t('newAppointment')}</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </TableCell>

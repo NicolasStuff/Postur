@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { RotateCcw } from "lucide-react"
 
-const bpa: Record<string, any> = { 
+const bpa: Record<string, any> = {
     fr: {
         tete: "Tête (ant.)",
         couG: "Cou (G)",

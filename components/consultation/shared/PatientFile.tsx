@@ -1,7 +1,8 @@
 import { format } from "date-fns"
-import { fr } from "date-fns/locale"
+import { fr, enUS } from "date-fns/locale"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { User, Mail, Phone, MapPin, Calendar } from "lucide-react"
+import { useTranslations, useLocale } from "next-intl"
 
 interface PatientFileProps {
     patient: any // Replace with proper type
@@ -35,8 +36,9 @@ function extractTextFromTipTap(content: any): string {
 }
 
 export function PatientFile({ patient }: PatientFileProps) {
-    // Calculate age if birthDate exists (we'll need to add this to the schema later)
-    // For now, we'll skip age if not available
+    const t = useTranslations('consultation.shared')
+    const locale = useLocale()
+    const dateLocale = locale === 'fr' ? fr : enUS
 
     return (
         <div className="h-full flex flex-col overflow-hidden">
@@ -70,7 +72,7 @@ export function PatientFile({ patient }: PatientFileProps) {
             {/* Patient Notes */}
             {patient.notes && (
                 <div className="px-4 py-3 border-b bg-blue-50/50">
-                    <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-2">Notes</h4>
+                    <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-2">{t('notes')}</h4>
                     <p className="text-sm text-slate-600">{patient.notes}</p>
                 </div>
             )}
@@ -78,7 +80,7 @@ export function PatientFile({ patient }: PatientFileProps) {
             {/* Appointment History */}
             <div className="flex-1 overflow-hidden flex flex-col">
                 <div className="px-4 py-2.5 border-b bg-slate-50">
-                    <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Historique des Consultations</h4>
+                    <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">{t('consultationHistory')}</h4>
                 </div>
                 <ScrollArea className="flex-1">
                     <div className="p-3 space-y-2">
@@ -91,11 +93,11 @@ export function PatientFile({ patient }: PatientFileProps) {
                                     <div className="flex items-center gap-2 mb-1.5">
                                         <Calendar className="h-3 w-3 text-slate-400" />
                                         <span className="text-xs font-semibold text-slate-600">
-                                            {format(new Date(appointment.start), 'dd/MM/yyyy', { locale: fr })}
+                                            {format(new Date(appointment.start), 'dd/MM/yyyy', { locale: dateLocale })}
                                         </span>
                                     </div>
                                     <div className="text-sm text-slate-700 font-medium">
-                                        {appointment.service?.name || 'Consultation'}
+                                        {appointment.service?.name || t('consultation')}
                                     </div>
                                     {appointment.note && (
                                         <div className="mt-1 text-xs text-slate-500 line-clamp-2">
@@ -105,7 +107,7 @@ export function PatientFile({ patient }: PatientFileProps) {
                                 </div>
                             ))
                         ) : (
-                            <p className="text-sm text-slate-400 text-center py-4">Aucune consultation antérieure</p>
+                            <p className="text-sm text-slate-400 text-center py-4">{t('noConsultations')}</p>
                         )}
                     </div>
                 </ScrollArea>

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers/Providers";
+import { LocaleProvider } from "@/components/providers/LocaleProvider";
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,19 +21,26 @@ export const metadata: Metadata = {
   description: "Zero-manual-entry PMS for holistic practitioners.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background font-sans`}
       >
-        <Providers>
-            {children}
-        </Providers>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <LocaleProvider initialLocale={locale as 'fr' | 'en'}>
+            <Providers>
+                {children}
+            </Providers>
+          </LocaleProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { prisma } from "@/lib/prisma"
 import { startOfDay, endOfDay, startOfWeek, endOfWeek } from "date-fns"
+import { getErrorMessage } from "@/lib/i18n/errors"
 
 export async function getDashboardData() {
   const session = await auth.api.getSession({
@@ -11,7 +12,7 @@ export async function getDashboardData() {
   })
 
   if (!session?.user?.id) {
-    throw new Error("Non authentifié")
+    throw new Error(await getErrorMessage("unauthorized"))
   }
 
   const userId = session.user.id

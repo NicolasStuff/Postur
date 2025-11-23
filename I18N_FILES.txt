@@ -1,0 +1,90 @@
+# FICHIERS DU SYSTÈME I18N
+
+## Fichiers de configuration
+
+1. /middleware.ts
+   - Middleware next-intl avec gestion cookie et DB
+   - Détection automatique de la langue
+   
+2. /next.config.ts
+   - Configuration next-intl plugin (déjà présent)
+   
+3. /i18n/config.ts
+   - Types TypeScript (Locale)
+   - Configuration des langues supportées
+   - Noms affichables des langues
+   
+4. /i18n/routing.ts
+   - Configuration de routage next-intl
+   - Locales et locale par défaut
+   
+5. /i18n/request.ts
+   - getRequestConfig avec intégration getUserLocale()
+   - Chargement des messages de traduction
+
+## Actions serveur
+
+6. /app/actions/locale.ts
+   - updateUserLocale(locale): Mise à jour en DB et cookie
+   - getUserLocale(): Récupération depuis DB ou cookie
+
+## API Routes
+
+7. /app/api/user/profile/route.ts
+   - GET endpoint pour le profil utilisateur
+   - Retourne la langue de l'utilisateur
+
+## Hooks
+
+8. /lib/hooks/useUserLocale.ts
+   - Hook client pour récupérer la locale utilisateur
+   - Fait un appel à /api/user/profile
+
+## Composants
+
+9. /components/LanguageSwitcher.tsx
+   - Composant dropdown pour changer de langue
+   - Intègre updateUserLocale() et router.refresh()
+
+## Layout
+
+10. /app/layout.tsx
+    - NextIntlClientProvider avec locale et messages
+    - Utilisation de getLocale() et getMessages()
+
+## Fichiers de traduction
+
+11. /messages/fr.json
+    - Toutes les traductions françaises
+    - Inclut common.languageChanged et languageChangeFailed
+    
+12. /messages/en.json
+    - Toutes les traductions anglaises
+    - Inclut common.languageChanged et languageChangeFailed
+
+## Base de données
+
+13. /prisma/schema.prisma
+    - Model User avec champ language: String @default("fr")
+    - Déjà présent, pas de modification nécessaire
+
+## Documentation
+
+14. /I18N_SETUP.md
+    - Documentation complète du système i18n
+    - Architecture, utilisation, exemples
+    
+15. /I18N_SUMMARY.md
+    - Résumé de la configuration
+    - Guide rapide d'utilisation
+    
+16. /I18N_FILES.txt
+    - Ce fichier - Liste de tous les fichiers i18n
+
+## Dépendances package.json
+
+- next-intl: ^4.5.5 (déjà installé)
+- next: 16.0.3
+- react: 19.2.0
+
+TOTAL: 16 fichiers (3 nouveaux, 13 modifiés/documentés)

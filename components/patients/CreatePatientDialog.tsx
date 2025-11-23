@@ -17,8 +17,10 @@ import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createPatient } from "@/app/actions/patients"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 
 export function CreatePatientDialog() {
+  const t = useTranslations('patients')
   const [open, setOpen] = useState(false)
   const queryClient = useQueryClient()
   const [formData, setFormData] = useState({
@@ -36,7 +38,7 @@ export function CreatePatientDialog() {
       setFormData({ firstName: "", lastName: "", email: "", phone: "" })
     },
     onError: (error) => {
-      alert("Failed to create patient: " + error.message)
+      alert(t('failedToCreate', { error: error.message }))
     }
   })
 
@@ -48,20 +50,20 @@ export function CreatePatientDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button><Plus className="mr-2 h-4 w-4"/> New Patient</Button>
+        <Button><Plus className="mr-2 h-4 w-4"/> {t('new')}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
             <DialogHeader>
-            <DialogTitle>Add Patient</DialogTitle>
+            <DialogTitle>{t('add')}</DialogTitle>
             <DialogDescription>
-                Create a new patient record. Click save when you're done.
+                {t('createDescription')}
             </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="firstName" className="text-right">
-                First Name
+                {t('firstName')}
                 </Label>
                 <Input
                 id="firstName"
@@ -73,7 +75,7 @@ export function CreatePatientDialog() {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="lastName" className="text-right">
-                Last Name
+                {t('lastName')}
                 </Label>
                 <Input
                 id="lastName"
@@ -85,7 +87,7 @@ export function CreatePatientDialog() {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="email" className="text-right">
-                Email
+                {t('email')}
                 </Label>
                 <Input
                 id="email"
@@ -97,7 +99,7 @@ export function CreatePatientDialog() {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="phone" className="text-right">
-                Phone
+                {t('phone')}
                 </Label>
                 <Input
                 id="phone"
@@ -110,7 +112,7 @@ export function CreatePatientDialog() {
             <DialogFooter>
             <Button type="submit" disabled={mutation.isPending}>
                 {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save changes
+                {t('save')}
             </Button>
             </DialogFooter>
         </form>

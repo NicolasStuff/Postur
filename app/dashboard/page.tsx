@@ -2,11 +2,15 @@ import { getDashboardData } from "@/app/actions/dashboard"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, Users, CalendarCheck } from "lucide-react"
 import { format } from "date-fns"
-import { fr } from "date-fns/locale"
+import { fr, enUS } from "date-fns/locale"
 import { GoogleBookingTutorial } from "@/components/dashboard/GoogleBookingTutorial"
+import { getTranslations, getLocale } from 'next-intl/server'
 
 export default async function DashboardPage() {
   const data = await getDashboardData()
+  const locale = await getLocale()
+  const dateLocale = locale === 'fr' ? fr : enUS
+  const t = await getTranslations('dashboard')
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
@@ -17,34 +21,40 @@ export default async function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aujourd&apos;hui</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('today')}</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.todayAppointments}</div>
-            <p className="text-xs text-muted-foreground">consultation{data.todayAppointments > 1 ? "s" : ""}</p>
+            <p className="text-xs text-muted-foreground">
+              {data.todayAppointments > 1 ? t('consultations') : t('consultation')}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cette semaine</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('thisWeek')}</CardTitle>
             <CalendarCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.weekAppointments}</div>
-            <p className="text-xs text-muted-foreground">consultation{data.weekAppointments > 1 ? "s" : ""}</p>
+            <p className="text-xs text-muted-foreground">
+              {data.weekAppointments > 1 ? t('consultations') : t('consultation')}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total patients</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('totalPatients')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.totalPatients}</div>
-            <p className="text-xs text-muted-foreground">patient{data.totalPatients > 1 ? "s" : ""}</p>
+            <p className="text-xs text-muted-foreground">
+              {data.totalPatients > 1 ? t('patients') : t('patient')}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -52,11 +62,11 @@ export default async function DashboardPage() {
       {/* Upcoming Appointments */}
       <Card>
         <CardHeader>
-          <CardTitle>Prochains rendez-vous</CardTitle>
+          <CardTitle>{t('upcomingAppointments')}</CardTitle>
         </CardHeader>
         <CardContent>
           {data.upcomingAppointments.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucun rendez-vous à venir</p>
+            <p className="text-sm text-muted-foreground">{t('noAppointments')}</p>
           ) : (
             <div className="space-y-3">
               {data.upcomingAppointments.map((appointment) => (
@@ -74,10 +84,10 @@ export default async function DashboardPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium">
-                      {format(new Date(appointment.start), "HH:mm", { locale: fr })}
+                      {format(new Date(appointment.start), "HH:mm", { locale: dateLocale })}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(appointment.start), "dd MMM yyyy", { locale: fr })}
+                      {format(new Date(appointment.start), "dd MMM yyyy", { locale: dateLocale })}
                     </p>
                   </div>
                 </div>

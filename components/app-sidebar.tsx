@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -33,40 +34,42 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   }
 }
 
-const navMain = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Calendrier",
-    url: "/dashboard/calendar",
-    icon: Calendar,
-  },
-  {
-    title: "Patients",
-    url: "/dashboard/patients",
-    icon: Users,
-  },
-  {
-    title: "Consultations",
-    url: "/dashboard/consultations",
-    icon: FileText,
-  },
-  {
-    title: "Facturation",
-    url: "/dashboard/billing",
-    icon: CreditCard,
-  },
-  {
-    title: "Paramètres",
-    url: "/dashboard/settings",
-    icon: Settings,
-  },
-]
-
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
+  const t = useTranslations('sidebar')
+
+  const navMain = [
+    {
+      title: t('dashboard'),
+      url: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: t('calendar'),
+      url: "/dashboard/calendar",
+      icon: Calendar,
+    },
+    {
+      title: t('patients'),
+      url: "/dashboard/patients",
+      icon: Users,
+    },
+    {
+      title: t('consultations'),
+      url: "/dashboard/consultations",
+      icon: FileText,
+    },
+    {
+      title: t('billing'),
+      url: "/dashboard/billing",
+      icon: CreditCard,
+    },
+    {
+      title: t('settings'),
+      url: "/dashboard/settings",
+      icon: Settings,
+    },
+  ]
+
   const defaultUser = {
     name: "Jean Dupont",
     email: "jean.dupont@example.com",
@@ -84,8 +87,8 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                   <Image src="/images/logo.svg" alt="Postur" width={32} height={32} />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Postur</span>
-                  <span className="truncate text-xs">Gestion de cabinet</span>
+                  <span className="truncate font-semibold">{t('appName')}</span>
+                  <span className="truncate text-xs">{t('appDescription')}</span>
                 </div>
               </Link>
             </SidebarMenuButton>

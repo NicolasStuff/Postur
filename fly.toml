@@ -1,7 +1,7 @@
-# fly.toml - Configuration Fly.io pour TheraFlow
+# fly.toml - Configuration Fly.io pour Postur
 # Voir https://fly.io/docs/reference/configuration/ pour la documentation
 
-app = "theraflow" # Remplacez par le nom de votre app Fly.io
+app = "postur"
 primary_region = "cdg" # Paris - Changez selon votre région préférée
 
 # Build configuration

@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { createPublicAppointment, getPublicAvailability } from "@/app/actions/booking"
 import { Loader2, CheckCircle2 } from "lucide-react"
+import { useTranslations } from 'next-intl'
 
 interface BookingFlowProps {
     practitioner: any
@@ -17,6 +18,7 @@ interface BookingFlowProps {
 }
 
 export function BookingFlow({ practitioner, slug }: BookingFlowProps) {
+    const t = useTranslations('booking')
     const [step, setStep] = useState<'service' | 'datetime' | 'details' | 'success'>('service')
     const [selectedServiceId, setSelectedServiceId] = useState<string>("")
     const [date, setDate] = useState<Date | undefined>(new Date())
@@ -123,9 +125,9 @@ export function BookingFlow({ practitioner, slug }: BookingFlowProps) {
         return (
             <Card className="text-center p-8">
                 <div className="flex justify-center mb-4"><CheckCircle2 className="h-16 w-16 text-green-500" /></div>
-                <CardTitle className="text-2xl mb-2">Booking Confirmed!</CardTitle>
-                <CardDescription>You will receive a confirmation email shortly.</CardDescription>
-                <Button className="mt-6" onClick={() => window.location.reload()}>Book Another</Button>
+                <CardTitle className="text-2xl mb-2">{t('confirmed')}</CardTitle>
+                <CardDescription>{t('confirmationEmail')}</CardDescription>
+                <Button className="mt-6" onClick={() => window.location.reload()}>{t('bookAnother')}</Button>
             </Card>
         )
     }
@@ -133,11 +135,11 @@ export function BookingFlow({ practitioner, slug }: BookingFlowProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Book Appointment</CardTitle>
+                <CardTitle>{t('title')}</CardTitle>
                 <CardDescription>
-                    {step === 'service' && "Select a service"}
-                    {step === 'datetime' && "Select a date and time"}
-                    {step === 'details' && "Enter your details"}
+                    {step === 'service' && t('selectService')}
+                    {step === 'datetime' && t('selectDateTime')}
+                    {step === 'details' && t('enterDetails')}
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -145,15 +147,15 @@ export function BookingFlow({ practitioner, slug }: BookingFlowProps) {
                     <div className="space-y-4">
                         <Select onValueChange={setSelectedServiceId} value={selectedServiceId}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select Service" />
+                                <SelectValue placeholder={t('selectServicePlaceholder')} />
                             </SelectTrigger>
                             <SelectContent>
                                 {practitioner.services.map((s: any) => (
-                                    <SelectItem key={s.id} value={s.id}>{s.name} - {s.duration}min (€{Number(s.price)})</SelectItem>
+                                    <SelectItem key={s.id} value={s.id}>{s.name} - {s.duration}{t('min')} (€{Number(s.price)})</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
-                        <Button className="w-full" disabled={!selectedServiceId} onClick={() => setStep('datetime')}>Next</Button>
+                        <Button className="w-full" disabled={!selectedServiceId} onClick={() => setStep('datetime')}>{t('next')}</Button>
                     </div>
                 )}
 
@@ -174,8 +176,8 @@ export function BookingFlow({ practitioner, slug }: BookingFlowProps) {
                             ))}
                         </div>
                         <div className="flex gap-2">
-                            <Button variant="outline" onClick={() => setStep('service')}>Back</Button>
-                            <Button className="flex-1" disabled={!timeSlot} onClick={() => setStep('details')}>Next</Button>
+                            <Button variant="outline" onClick={() => setStep('service')}>{t('back')}</Button>
+                            <Button className="flex-1" disabled={!timeSlot} onClick={() => setStep('details')}>{t('next')}</Button>
                         </div>
                     </div>
                 )}
@@ -184,27 +186,27 @@ export function BookingFlow({ practitioner, slug }: BookingFlowProps) {
                      <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>First Name</Label>
+                                <Label>{t('firstName')}</Label>
                                 <Input value={patientDetails.firstName} onChange={(e) => setPatientDetails({...patientDetails, firstName: e.target.value})} />
                             </div>
                             <div className="space-y-2">
-                                <Label>Last Name</Label>
+                                <Label>{t('lastName')}</Label>
                                 <Input value={patientDetails.lastName} onChange={(e) => setPatientDetails({...patientDetails, lastName: e.target.value})} />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label>Email</Label>
+                            <Label>{t('email')}</Label>
                             <Input type="email" value={patientDetails.email} onChange={(e) => setPatientDetails({...patientDetails, email: e.target.value})} />
                         </div>
                         <div className="space-y-2">
-                            <Label>Phone</Label>
+                            <Label>{t('phone')}</Label>
                             <Input value={patientDetails.phone} onChange={(e) => setPatientDetails({...patientDetails, phone: e.target.value})} />
                         </div>
                         <div className="flex gap-2">
-                            <Button variant="outline" onClick={() => setStep('datetime')}>Back</Button>
+                            <Button variant="outline" onClick={() => setStep('datetime')}>{t('back')}</Button>
                             <Button className="flex-1" onClick={handleConfirm} disabled={mutation.isPending}>
                                 {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Confirm Booking
+                                {t('confirmBooking')}
                             </Button>
                         </div>
                      </div>

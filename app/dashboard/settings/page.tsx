@@ -8,25 +8,28 @@ import { AvailabilitySettings } from "@/components/settings/AvailabilitySettings
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { useTranslations } from 'next-intl'
 
 export default function SettingsPage() {
+  const t = useTranslations('dashboard.settings')
+
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-      
+      <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
+
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="availability">Availability</TabsTrigger>
-          <TabsTrigger value="services">Services</TabsTrigger>
-          <TabsTrigger value="billing">Billing</TabsTrigger>
+          <TabsTrigger value="profile">{t('tabs.profile')}</TabsTrigger>
+          <TabsTrigger value="availability">{t('tabs.availability')}</TabsTrigger>
+          <TabsTrigger value="services">{t('tabs.services')}</TabsTrigger>
+          <TabsTrigger value="billing">{t('tabs.billing')}</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="profile" className="space-y-4">
              <Card>
                 <CardHeader>
-                    <CardTitle>Professional Profile</CardTitle>
-                    <CardDescription>Manage your public information.</CardDescription>
+                    <CardTitle>{t('profile.title')}</CardTitle>
+                    <CardDescription>{t('profile.description')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <ProfileSettings />
@@ -37,34 +40,34 @@ export default function SettingsPage() {
         <TabsContent value="availability">
             <Card>
                 <CardHeader>
-                    <CardTitle>Availability</CardTitle>
-                    <CardDescription>Configure your weekly schedule.</CardDescription>
+                    <CardTitle>{t('availability.title')}</CardTitle>
+                    <CardDescription>{t('availability.description')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <AvailabilitySettings />
                 </CardContent>
             </Card>
         </TabsContent>
-        
+
         <TabsContent value="services">
             <Card>
                 <CardHeader>
-                    <CardTitle>Services & Pricing</CardTitle>
-                    <CardDescription>Configure the services you offer.</CardDescription>
+                    <CardTitle>{t('services.title')}</CardTitle>
+                    <CardDescription>{t('services.description')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ServicesSettings />
                 </CardContent>
             </Card>
         </TabsContent>
-        
+
         <TabsContent value="billing">
              <Card>
                 <CardHeader>
-                    <CardTitle>Billing Settings</CardTitle>
+                    <CardTitle>{t('billingSettings.title')}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-muted-foreground">Billing configuration placeholder.</p>
+                    <p className="text-muted-foreground">{t('billingSettings.placeholder')}</p>
                 </CardContent>
              </Card>
         </TabsContent>

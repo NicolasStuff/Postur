@@ -2,6 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import { useTranslations } from 'next-intl'
 
 interface InvoicePreviewProps {
   open: boolean
@@ -31,46 +32,48 @@ interface InvoicePreviewProps {
   } | null
 }
 
-const getPractitionerTitle = (type: string | null) => {
+const getPractitionerTitle = (type: string | null, t: any) => {
   switch (type) {
     case 'OSTEOPATH':
-      return 'Ostéopathe D.O.'
+      return t('practitionerTypes.osteopath')
     case 'NATUROPATH':
-      return 'Naturopathe'
+      return t('practitionerTypes.naturopath')
     case 'SOPHROLOGIST':
-      return 'Sophrologue'
+      return t('practitionerTypes.sophrologist')
     default:
-      return 'Praticien'
+      return t('practitionerTypes.default')
   }
 }
 
-const getPractitionerSpecialty = (type: string | null) => {
+const getPractitionerSpecialty = (type: string | null, t: any) => {
   switch (type) {
     case 'OSTEOPATH':
-      return 'Spécialisé en ostéopathie structurelle et tissulaire.'
+      return t('specialties.osteopath')
     case 'NATUROPATH':
-      return 'Spécialisé en naturopathie et médecines naturelles.'
+      return t('specialties.naturopath')
     case 'SOPHROLOGIST':
-      return 'Spécialisé en sophrologie et relaxation.'
+      return t('specialties.sophrologist')
     default:
       return ''
   }
 }
 
-const getServiceDescription = (type: string | null) => {
+const getServiceDescription = (type: string | null, t: any) => {
   switch (type) {
     case 'OSTEOPATH':
-      return 'Consultation Ostéopathie'
+      return t('services.osteopath')
     case 'NATUROPATH':
-      return 'Consultation Naturopathie'
+      return t('services.naturopath')
     case 'SOPHROLOGIST':
-      return 'Consultation Sophrologie'
+      return t('services.sophrologist')
     default:
-      return 'Consultation'
+      return t('services.default')
   }
 }
 
 export function InvoicePreview({ open, onOpenChange, invoice }: InvoicePreviewProps) {
+  const t = useTranslations('billing')
+
   if (!invoice) return null
 
   const formattedDate = new Date(invoice.date).toLocaleDateString('fr-FR', {
@@ -83,7 +86,7 @@ export function InvoicePreview({ open, onOpenChange, invoice }: InvoicePreviewPr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Prévisualisation de la facture</DialogTitle>
+          <DialogTitle>{t('invoicePreview')}</DialogTitle>
         </DialogHeader>
 
         {/* Invoice Preview */}
@@ -91,10 +94,10 @@ export function InvoicePreview({ open, onOpenChange, invoice }: InvoicePreviewPr
           {/* Header */}
           <div className="flex justify-between items-start">
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold">{invoice.user.name || 'Praticien'}</h2>
-              <p className="text-sm font-medium">{getPractitionerTitle(invoice.user.practitionerType)}</p>
-              <p className="text-sm">{getPractitionerSpecialty(invoice.user.practitionerType)}</p>
-              <p className="text-sm">Tél : {invoice.user.email}</p>
+              <h2 className="text-2xl font-bold">{invoice.user.name || t('practitionerTypes.default')}</h2>
+              <p className="text-sm font-medium">{getPractitionerTitle(invoice.user.practitionerType, t)}</p>
+              <p className="text-sm">{getPractitionerSpecialty(invoice.user.practitionerType, t)}</p>
+              <p className="text-sm">{t('phone')}: {invoice.user.email}</p>
             </div>
             <div className="text-right">
               <h1 className="text-4xl font-bold">
@@ -108,14 +111,14 @@ export function InvoicePreview({ open, onOpenChange, invoice }: InvoicePreviewPr
           {/* Invoice Details */}
           <div className="flex justify-end space-x-12 text-sm">
             <div className="text-right space-y-1">
-              <p className="font-semibold">N° facture: {invoice.number}</p>
-              <p>Date: {formattedDate}</p>
+              <p className="font-semibold">{t('invoiceNumber')}: {invoice.number}</p>
+              <p>{t('date')}: {formattedDate}</p>
             </div>
           </div>
 
           {/* Patient Info */}
           <div className="space-y-1 text-sm">
-            <p className="font-semibold">Patient</p>
+            <p className="font-semibold">{t('patient')}</p>
             <p>
               {invoice.patient.firstName} {invoice.patient.lastName}
             </p>
@@ -130,20 +133,20 @@ export function InvoicePreview({ open, onOpenChange, invoice }: InvoicePreviewPr
               <thead className="bg-gray-100">
                 <tr>
                   <th className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold">
-                    Description
+                    {t('description')}
                   </th>
                   <th className="border border-gray-300 px-4 py-2 text-center text-sm font-semibold w-24">
-                    Qte
+                    {t('quantity')}
                   </th>
                   <th className="border border-gray-300 px-4 py-2 text-right text-sm font-semibold w-32">
-                    Total
+                    {t('total')}
                   </th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td className="border border-gray-300 px-4 py-2 text-sm">
-                    {getServiceDescription(invoice.user.practitionerType)}
+                    {getServiceDescription(invoice.user.practitionerType, t)}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-center text-sm">1</td>
                   <td className="border border-gray-300 px-4 py-2 text-right text-sm">
@@ -158,7 +161,7 @@ export function InvoicePreview({ open, onOpenChange, invoice }: InvoicePreviewPr
               <div className="w-64 space-y-2">
                 <Separator />
                 <div className="flex justify-between items-center">
-                  <span className="font-bold">Total</span>
+                  <span className="font-bold">{t('total')}</span>
                   <span className="font-bold text-lg">{invoice.amount.toFixed(2)}€</span>
                 </div>
               </div>
@@ -167,7 +170,7 @@ export function InvoicePreview({ open, onOpenChange, invoice }: InvoicePreviewPr
 
           {/* VAT Notice */}
           <div className="mt-6 text-xs text-gray-600">
-            <p>TVA non applicable, art. 293 B du CGI</p>
+            <p>{t('vatNotice')}</p>
           </div>
         </div>
       </DialogContent>

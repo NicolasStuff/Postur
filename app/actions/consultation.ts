@@ -2,6 +2,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
+import { getErrorMessage } from "@/lib/i18n/errors";
 
 export async function getConsultations() {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -75,7 +76,9 @@ export async function getConsultation(appointmentId: string) {
 
 export async function saveConsultationNote(appointmentId: string, content: any) {
     const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) throw new Error("Unauthorized");
+    if (!session) {
+        throw new Error(await getErrorMessage("unauthorized"));
+    }
 
     return await prisma.consultationNote.upsert({
         where: { appointmentId },
@@ -91,7 +94,9 @@ export async function saveConsultationNote(appointmentId: string, content: any) 
 
 export async function saveBodyChartHistory(appointmentId: string, selectedParts: string[]) {
     const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) throw new Error("Unauthorized");
+    if (!session) {
+        throw new Error(await getErrorMessage("unauthorized"));
+    }
 
     // Verify the appointment belongs to the user
     const appointment = await prisma.appointment.findUnique({
@@ -99,7 +104,9 @@ export async function saveBodyChartHistory(appointmentId: string, selectedParts:
         include: { note: true }
     });
 
-    if (!appointment) throw new Error("Appointment not found");
+    if (!appointment) {
+        throw new Error(await getErrorMessage("appointmentNotFound"));
+    }
 
     // Get the consultation note ID (create if doesn't exist)
     let note = appointment.note;
@@ -136,7 +143,9 @@ export async function saveBodyChartHistory(appointmentId: string, selectedParts:
 
 export async function getBodyChartHistory(appointmentId: string) {
     const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) throw new Error("Unauthorized");
+    if (!session) {
+        throw new Error(await getErrorMessage("unauthorized"));
+    }
 
     const appointment = await prisma.appointment.findUnique({
         where: { id: appointmentId, userId: session.user.id },

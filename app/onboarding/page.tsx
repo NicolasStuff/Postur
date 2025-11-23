@@ -7,8 +7,10 @@ import { cn } from "@/lib/utils";
 import { Activity, Loader2 } from "lucide-react";
 import { updateUserProfile } from "@/app/actions/user";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function OnboardingPage() {
+  const t = useTranslations('auth.onboarding');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -26,9 +28,9 @@ export default function OnboardingPage() {
   return (
     <div className="space-y-8">
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Bienvenue sur Postur</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('welcomeTitle')}</h1>
         <p className="text-muted-foreground text-lg">
-          Votre logiciel de gestion pour ostéopathes
+          {t('welcomeDescription')}
         </p>
       </div>
 
@@ -38,11 +40,11 @@ export default function OnboardingPage() {
             <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center mb-4 bg-blue-500/10")}>
               <Activity className={cn("w-6 h-6 text-blue-500")} />
             </div>
-            <CardTitle>Ostéopathe</CardTitle>
+            <CardTitle>{t('osteopathTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
             <CardDescription className="text-base">
-              Gestion complète de vos consultations d'ostéopathie : schéma corporel, historique des traumatismes, notes de consultation et bien plus.
+              {t('osteopathDescription')}
             </CardDescription>
           </CardContent>
         </Card>
@@ -56,7 +58,7 @@ export default function OnboardingPage() {
           onClick={handleContinue}
         >
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Continuer vers le Dashboard
+          {t('continueButton')}
         </Button>
       </div>
     </div>

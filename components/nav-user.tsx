@@ -4,9 +4,12 @@ import {
   ChevronsUpDown,
   Settings,
   LogOut,
+  Languages,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { LanguageSwitcher } from "@/components/ui/language-switcher"
 
 import {
   Avatar,
@@ -41,6 +44,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const router = useRouter()
+  const t = useTranslations('navigation')
 
   const handleLogout = async () => {
     try {
@@ -109,14 +113,18 @@ export function NavUser({
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/settings">
                   <Settings />
-                  Paramètres
+                  {t('settings')}
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
+            <div className="px-2 py-1.5">
+              <LanguageSwitcher />
+            </div>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
-              Déconnexion
+              {t('logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

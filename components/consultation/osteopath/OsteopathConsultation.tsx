@@ -13,6 +13,7 @@ import { useState, useEffect, useRef } from "react"
 import { saveBodyChartHistory, getBodyChartHistory } from "@/app/actions/consultation"
 import { bodyPartLabels } from "@/lib/bodyChartLabels"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
 
 interface OsteopathConsultationProps {
     consultation: any
@@ -20,6 +21,8 @@ interface OsteopathConsultationProps {
 }
 
 export function OsteopathConsultation({ consultation, onSave }: OsteopathConsultationProps) {
+    const t = useTranslations('consultation.osteopath')
+
     // Initialize state with existing consultation data
     const [editorContent, setEditorContent] = useState<any>(() => {
         return consultation?.note?.content?.editor || null
@@ -76,7 +79,7 @@ export function OsteopathConsultation({ consultation, onSave }: OsteopathConsult
                     await loadHistory() // Reload history after save
                 } catch (error) {
                     console.error("Failed to save body chart history:", error)
-                    toast.error("Erreur lors de la sauvegarde de l'historique")
+                    toast.error(t('errors.historySaveFailed'))
                 }
             }
         }, 5000) // Wait 5 seconds before saving to history
@@ -101,12 +104,12 @@ export function OsteopathConsultation({ consultation, onSave }: OsteopathConsult
                         <SheetTrigger asChild>
                             <Button variant="outline" size="sm" className="h-8 text-xs">
                                 <Clock className="h-3.5 w-3.5 mr-1.5" />
-                                Timeline
+                                {t('toolbar.timeline')}
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left" className="w-[600px] sm:max-w-[600px]">
                             <SheetHeader>
-                                <SheetTitle>Timeline Traumatique</SheetTitle>
+                                <SheetTitle>{t('toolbar.traumaticTimeline')}</SheetTitle>
                             </SheetHeader>
                             <div className="mt-4">
                                 <TraumaTimeline history={consultation.patient.medicalHistory} />
@@ -118,12 +121,12 @@ export function OsteopathConsultation({ consultation, onSave }: OsteopathConsult
                         <SheetTrigger asChild>
                             <Button variant="outline" size="sm" className="h-8 text-xs">
                                 <User className="h-3.5 w-3.5 mr-1.5" />
-                                Dossier Patient
+                                {t('toolbar.patientFile')}
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left" className="w-[400px] sm:max-w-[400px]">
                             <SheetHeader>
-                                <SheetTitle>Dossier Patient</SheetTitle>
+                                <SheetTitle>{t('toolbar.patientFile')}</SheetTitle>
                             </SheetHeader>
                             <div className="mt-4">
                                 <PatientFile patient={consultation.patient} />
@@ -135,12 +138,12 @@ export function OsteopathConsultation({ consultation, onSave }: OsteopathConsult
                         <SheetTrigger asChild>
                             <Button variant="outline" size="sm" className="h-8 text-xs">
                                 <History className="h-3.5 w-3.5 mr-1.5" />
-                                Historique Schéma
+                                {t('toolbar.historyChart')}
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left" className="w-[500px] sm:max-w-[500px]">
                             <SheetHeader>
-                                <SheetTitle>Historique des Sélections</SheetTitle>
+                                <SheetTitle>{t('toolbar.historySelections')}</SheetTitle>
                             </SheetHeader>
                             <div className="mt-4 overflow-auto h-[calc(100vh-8rem)]">
                                 <BodyChartHistoryViewer
@@ -170,7 +173,7 @@ export function OsteopathConsultation({ consultation, onSave }: OsteopathConsult
                 <div className="w-[40%] overflow-hidden flex flex-col bg-white">
                     <div className="px-3 py-2 border-b bg-slate-50/30 flex items-center gap-2 shrink-0">
                         <FileText className="h-4 w-4 text-slate-500" />
-                        <span className="text-sm font-medium text-slate-700">Notes de Consultation</span>
+                        <span className="text-sm font-medium text-slate-700">{t('editor.title')}</span>
                     </div>
                     <div className="flex-1 overflow-hidden">
                         <ConsultationEditor

@@ -9,16 +9,7 @@ import { getUserProfile, updateUserProfile } from "@/app/actions/user"
 import { Loader2, Plus, Trash2, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-
-const DAYS = [
-    { id: 'mon', label: 'Monday' },
-    { id: 'tue', label: 'Tuesday' },
-    { id: 'wed', label: 'Wednesday' },
-    { id: 'thu', label: 'Thursday' },
-    { id: 'fri', label: 'Friday' },
-    { id: 'sat', label: 'Saturday' },
-    { id: 'sun', label: 'Sunday' },
-]
+import { useTranslations } from "next-intl"
 
 interface TimeSlot {
     start: string
@@ -33,8 +24,19 @@ interface DaySchedule {
 type WeeklySchedule = Record<string, DaySchedule>
 
 export function AvailabilitySettings() {
+    const t = useTranslations('settings.availability')
     const queryClient = useQueryClient()
     const { data: user, isLoading } = useQuery({ queryKey: ['userProfile'], queryFn: () => getUserProfile() })
+
+    const DAYS = [
+        { id: 'mon', label: t('days.monday') },
+        { id: 'tue', label: t('days.tuesday') },
+        { id: 'wed', label: t('days.wednesday') },
+        { id: 'thu', label: t('days.thursday') },
+        { id: 'fri', label: t('days.friday') },
+        { id: 'sat', label: t('days.saturday') },
+        { id: 'sun', label: t('days.sunday') },
+    ]
 
     // Initialize state from JSON
     const [schedule, setSchedule] = useState<WeeklySchedule>(() => {
@@ -85,10 +87,10 @@ export function AvailabilitySettings() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['userProfile'] })
-            toast.success("Availability updated successfully!")
+            toast.success(t('availabilityUpdateSuccess'))
         },
         onError: (err) => {
-            toast.error("Failed to update: " + err.message)
+            toast.error(t('availabilityUpdateError') + ': ' + err.message)
         }
     })
 
@@ -167,30 +169,30 @@ export function AvailabilitySettings() {
 
                             <div className="flex-1 space-y-3">
                                 {!daySchedule.isOpen ? (
-                                    <div className="text-muted-foreground text-sm pt-2">Unavailable</div>
+                                    <div className="text-muted-foreground text-sm pt-2">{t('unavailable')}</div>
                                 ) : (
                                     <div className="space-y-3">
                                         {daySchedule.slots.map((slot, index) => (
                                             <div key={index} className="flex items-center gap-2">
                                                 <div className="flex items-center gap-2">
                                                     <Clock className="w-4 h-4 text-muted-foreground" />
-                                                    <Input 
-                                                        type="time" 
-                                                        value={slot.start} 
+                                                    <Input
+                                                        type="time"
+                                                        value={slot.start}
                                                         onChange={(e) => updateSlot(day.id, index, 'start', e.target.value)}
                                                         className="w-32"
                                                     />
                                                     <span className="text-muted-foreground">-</span>
-                                                    <Input 
-                                                        type="time" 
-                                                        value={slot.end} 
+                                                    <Input
+                                                        type="time"
+                                                        value={slot.end}
                                                         onChange={(e) => updateSlot(day.id, index, 'end', e.target.value)}
                                                         className="w-32"
                                                     />
                                                 </div>
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
                                                     onClick={() => removeSlot(day.id, index)}
                                                     className="text-muted-foreground hover:text-destructive"
                                                 >
@@ -198,14 +200,14 @@ export function AvailabilitySettings() {
                                                 </Button>
                                             </div>
                                         ))}
-                                        <Button 
-                                            variant="outline" 
-                                            size="sm" 
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
                                             onClick={() => addSlot(day.id)}
                                             className="mt-2"
                                         >
                                             <Plus className="w-4 h-4 mr-2" />
-                                            Add Hours
+                                            {t('addHours')}
                                         </Button>
                                     </div>
                                 )}
@@ -218,7 +220,7 @@ export function AvailabilitySettings() {
             <div className="flex justify-end">
                 <Button onClick={() => mutation.mutate()} disabled={mutation.isPending} size="lg">
                     {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
-                    Save Availability
+                    {t('saveAvailability')}
                 </Button>
             </div>
         </div>

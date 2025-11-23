@@ -2,6 +2,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
+import { getErrorMessage } from "@/lib/i18n/errors";
 
 export async function getAppointments(start: Date, end: Date) {
     const session = await auth.api.getSession({
@@ -35,7 +36,9 @@ export async function createAppointment(data: { patientId: string, serviceId: st
     const session = await auth.api.getSession({
         headers: await headers()
     })
-    if (!session) throw new Error("Unauthorized");
+    if (!session) {
+        throw new Error(await getErrorMessage("unauthorized"));
+    }
 
     return await prisma.appointment.create({
         data: {
