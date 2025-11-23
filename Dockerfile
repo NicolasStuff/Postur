@@ -5,16 +5,22 @@ FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
+# Installer pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 # Copier les fichiers de configuration des dépendances
-COPY package.json package-lock.json* ./
+COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma
 
 # Installer les dépendances
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
 WORKDIR /app
+
+# Installer pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copier les dépendances installées
 COPY --from=deps /app/node_modules ./node_modules
@@ -25,10 +31,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
 # Générer le client Prisma
-RUN npx prisma generate
+RUN pnpm prisma generate
 
 # Build l'application Next.js
-RUN npm run build
+RUN pnpm build
 
 # Stage 3: Runner
 FROM node:20-alpine AS runner

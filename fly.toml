@@ -17,14 +17,12 @@ primary_region = "cdg" # Paris - Changez selon votre région préférée
   processes = ["app"]
 
   # Health check
-  [http_service.checks]
-    [http_service.checks.alive]
-      type = "http"
-      method = "GET"
-      path = "/api/health"
-      interval = "30s"
-      timeout = "5s"
-      grace_period = "30s"
+  [[http_service.checks]]
+    grace_period = "30s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/api/health"
 
 # Configuration des machines virtuelles
 [[vm]]
