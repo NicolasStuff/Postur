@@ -193,38 +193,14 @@ export function BodyChart({ className, value = [], onChange, readOnly = false }:
 
     const isSelected = (partName: string) => selectedParts.includes(partName)
 
-    const parts = getBodyPart('fr').filter(p => p.face === view)
+    const partsAnt = getBodyPart('fr').filter(p => p.face === 'ant')
+    const partsPost = getBodyPart('fr').filter(p => p.face === 'post')
 
     return (
-        <div className={cn("flex flex-col h-full bg-white rounded-lg border", className)}>
-            <div className="flex justify-center gap-2 p-2 border-b">
-                <Button 
-                    variant={view === 'ant' ? 'default' : 'outline'} 
-                    size="sm" 
-                    onClick={() => setView('ant')}
-                >
-                    Anterior
-                </Button>
-                <Button 
-                    variant={view === 'post' ? 'default' : 'outline'} 
-                    size="sm" 
-                    onClick={() => setView('post')}
-                >
-                    Posterior
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => { setSelectedParts([]); onChange?.([]) }}
-                    title="Reset"
-                >
-                    <RotateCcw className="h-4 w-4" />
-                </Button>
-            </div>
-            
-            <div className="flex-1 relative overflow-auto p-4 flex items-center justify-center">
-                <svg viewBox="0 0 400 800" className="h-full w-auto max-h-[700px]">
-                    {parts.map((part) => (
+        <div className={cn("flex h-full w-full gap-4", className)}>
+            <div className="flex-1 relative flex items-center justify-center">
+                <svg viewBox="0 0 400 800" className="h-full w-auto max-h-[600px]">
+                    {partsAnt.map((part) => (
                         <path
                             key={part.id}
                             d={part.d}
@@ -239,8 +215,22 @@ export function BodyChart({ className, value = [], onChange, readOnly = false }:
                     ))}
                 </svg>
             </div>
-            <div className="p-2 border-t bg-slate-50 text-xs text-muted-foreground min-h-[40px]">
-                Selected: {selectedParts.join(', ') || 'None'}
+            <div className="flex-1 relative flex items-center justify-center">
+                <svg viewBox="0 0 400 800" className="h-full w-auto max-h-[600px]">
+                    {partsPost.map((part) => (
+                        <path
+                            key={part.id}
+                            d={part.d}
+                            className={cn(
+                                "transition-colors stroke-slate-400 stroke-[1px] cursor-pointer hover:opacity-80",
+                                isSelected(part.name) ? "fill-red-400" : "fill-slate-100 hover:fill-slate-200"
+                            )}
+                            onClick={() => togglePart(part.name)}
+                        >
+                            <title>{part.name}</title>
+                        </path>
+                    ))}
+                </svg>
             </div>
         </div>
     )

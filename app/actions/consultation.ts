@@ -30,6 +30,12 @@ export async function getConsultation(appointmentId: string) {
             note: true, 
             patient: {
                 include: { appointments: { orderBy: { start: 'desc' }, take: 5, include: { note: true } } }
+            },
+            user: {
+                select: {
+                    practitionerType: true,
+                    name: true
+                }
             } 
         }
     })

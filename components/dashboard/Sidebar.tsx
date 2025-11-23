@@ -12,24 +12,24 @@ export function Sidebar() {
     const pathname = usePathname()
 
     return (
-      <aside className="hidden w-64 flex-col border-r bg-background p-6 md:flex">
+      <aside className="hidden w-64 flex-col border-r bg-white p-6 md:flex">
         <div className="flex items-center gap-2 mb-8">
             <Image src="/images/logo.svg" alt="Logo" width={32} height={32} />
-            <span className="font-bold text-xl text-primary">TheraFlow</span>
+            <span className="font-bold text-xl text-slate-900">TheraFlow</span>
         </div>
         
         <nav className="flex-1 space-y-2">
-            <NavItem href="/dashboard/calendar" icon={<Calendar className="h-4 w-4" />} label="Calendrier" pathname={pathname} />
-            <NavItem href="/dashboard/patients" icon={<Users className="h-4 w-4" />} label="Patients" pathname={pathname} />
+            <NavItem href="/dashboard/calendar" icon={<Calendar className="h-5 w-5" />} label="Calendrier" pathname={pathname} />
+            <NavItem href="/dashboard/patients" icon={<Users className="h-5 w-5" />} label="Patients" pathname={pathname} />
             <NavItem 
                 href="/dashboard/consultations" 
-                icon={<FileText className="h-4 w-4" />} 
+                icon={<FileText className="h-5 w-5" />} 
                 label="Consultations" 
                 pathname={pathname} 
                 isActive={pathname.startsWith('/dashboard/consultation')}
             />
-            <NavItem href="/dashboard/billing" icon={<CreditCard className="h-4 w-4" />} label="Facturation" pathname={pathname} />
-            <NavItem href="/dashboard/settings" icon={<Settings className="h-4 w-4" />} label="Paramètres" pathname={pathname} />
+            <NavItem href="/dashboard/billing" icon={<CreditCard className="h-5 w-5" />} label="Facturation" pathname={pathname} />
+            <NavItem href="/dashboard/settings" icon={<Settings className="h-5 w-5" />} label="Paramètres" pathname={pathname} />
         </nav>
 
         <div className="mt-auto pt-6 border-t">
@@ -39,13 +39,9 @@ export function Sidebar() {
                     <AvatarFallback>DR</AvatarFallback>
                 </Avatar>
                 <div>
-                    <p className="text-sm font-medium">Dr. Martin</p>
-                    <p className="text-xs text-muted-foreground">Osteopath</p>
+                    <p className="text-sm font-medium text-slate-900">Jean Dupont</p>
                 </div>
              </div>
-             <Button variant="outline" className="w-full justify-start" size="sm">
-                <LogOut className="mr-2 h-4 w-4" /> Log out
-             </Button>
         </div>
       </aside>
     )
@@ -56,8 +52,8 @@ function NavItem({ href, icon, label, pathname, isActive }: { href: string, icon
     return (
         <Link href={href}>
             <span className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-sm font-medium",
-                active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-primary hover:bg-muted"
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all text-sm font-medium",
+                active ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
             )}>
                 {icon}
                 {label}
