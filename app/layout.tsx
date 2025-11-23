@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TheraFlow - Practice Management System",
+  title: "Postur - Practice Management System",
   description: "Zero-manual-entry PMS for holistic practitioners.",
 };
 

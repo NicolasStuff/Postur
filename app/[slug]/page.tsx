@@ -22,12 +22,12 @@ export default async function PublicBookingPage({ params }: { params: Promise<{ 
             <div className="flex items-center gap-3">
               <Image
                 src="/images/logo.svg"
-                alt="Osteoflow"
+                alt="Postur"
                 width={40}
                 height={40}
                 className="h-10 w-auto"
               />
-              <span className="text-xl font-bold text-gray-900">Osteoflow</span>
+              <span className="text-xl font-bold text-gray-900">Postur</span>
             </div>
             <div className="text-sm text-gray-500">
               Réservation en ligne
@@ -143,7 +143,7 @@ export default async function PublicBookingPage({ params }: { params: Promise<{ 
       <footer className="bg-white border-t border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-sm text-gray-500">
-            <p>Propulsé par <span className="font-semibold text-gray-900">Osteoflow</span></p>
+            <p>Propulsé par <span className="font-semibold text-gray-900">Postur</span></p>
             <p className="mt-2">Plateforme de gestion pour professionnels de santé</p>
           </div>
         </div>

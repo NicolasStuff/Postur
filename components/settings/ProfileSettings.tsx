@@ -49,7 +49,7 @@ export function ProfileSettings() {
             <div className="grid gap-2">
                 <Label>Public Booking URL (Slug)</Label>
                 <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-sm">theraflow.com/</span>
+                    <span className="text-muted-foreground text-sm">postur.com/</span>
                     <Input value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} placeholder="dr-martin" />
                 </div>
             </div>

@@ -199,7 +199,7 @@ export function BodyChart({ className, value = [], onChange, readOnly = false }:
     return (
         <div className={cn("flex h-full w-full gap-4", className)}>
             <div className="flex-1 relative flex items-center justify-center">
-                <svg viewBox="0 0 400 800" className="h-full w-auto max-h-[600px]">
+                <svg viewBox="0 0 400 850" className="h-full w-auto max-h-[700px]">
                     {partsAnt.map((part) => (
                         <path
                             key={part.id}
@@ -216,7 +216,7 @@ export function BodyChart({ className, value = [], onChange, readOnly = false }:
                 </svg>
             </div>
             <div className="flex-1 relative flex items-center justify-center">
-                <svg viewBox="0 0 400 800" className="h-full w-auto max-h-[600px]">
+                <svg viewBox="0 0 400 850" className="h-full w-auto max-h-[700px]">
                     {partsPost.map((part) => (
                         <path
                             key={part.id}

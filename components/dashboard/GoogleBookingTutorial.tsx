@@ -13,10 +13,19 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Lightbulb, ExternalLink, CheckCircle2, Copy } from "lucide-react"
 import { toast } from "sonner"
+import { useQuery } from "@tanstack/react-query"
+import { getUserProfile } from "@/app/actions/user"
 
 export function GoogleBookingTutorial() {
   const [open, setOpen] = useState(false)
-  const bookingLink = "https://osteoflow.fr/p/votre-nom" // This will be dynamic based on user
+  const { data: user } = useQuery({
+    queryKey: ['userProfile'],
+    queryFn: () => getUserProfile()
+  })
+
+  const bookingLink = user?.slug
+    ? `https://postur.fr/${user.slug}`
+    : "https://postur.fr/votre-nom"
 
   const copyBookingLink = () => {
     navigator.clipboard.writeText(bookingLink)
@@ -51,108 +60,84 @@ export function GoogleBookingTutorial() {
         </Card>
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[90vw] sm:max-w-6xl max-h-[95vh] overflow-y-auto p-8">
         <DialogHeader>
-          <DialogTitle className="text-2xl flex items-center gap-2">
-            <Lightbulb className="h-6 w-6 text-blue-600" />
+          <DialogTitle className="text-3xl flex items-center gap-3">
+            <Lightbulb className="h-8 w-8 text-blue-600" />
             Boostez vos réservations avec Google Business
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-base mt-3">
             Ajoutez un bouton &quot;Prendre rendez-vous&quot; directement sur votre fiche Google.
             Simple, rapide et efficace pour convertir vos visiteurs en patients.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 mt-4">
+        <div className="space-y-8 mt-6">
           {/* Step 1 */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
                 1
               </div>
-              <h3 className="font-semibold text-lg">Se trouver sur Google</h3>
+              <h3 className="font-semibold text-xl">Se trouver sur Google</h3>
             </div>
-            <p className="text-sm text-muted-foreground ml-10">
+            <p className="text-base text-muted-foreground">
               Connectez-vous à votre compte Gmail professionnel, puis tapez le nom de votre cabinet dans Google.
               Vous verrez apparaître votre tableau de bord de gestion directement dans les résultats de recherche.
             </p>
-            {/* Screenshot placeholder 1 */}
-            <div className="ml-10 bg-slate-100 border-2 border-dashed border-slate-300 rounded-lg p-12 flex flex-col items-center justify-center">
-              <div className="text-slate-400 text-sm font-medium mb-2">
-                📸 Screenshot 1 - À ajouter
-              </div>
-              <p className="text-xs text-slate-500 text-center">
-                Recherche Google montrant la fiche du cabinet
-              </p>
+            {/* Screenshot 1 */}
+            <div className="rounded-lg overflow-hidden border border-slate-300 shadow-sm">
+              <img
+                src="/images/referencement/google-search.png"
+                alt="Recherche Google montrant la fiche du cabinet"
+                className="w-full h-auto object-contain"
+              />
             </div>
           </div>
 
           {/* Step 2 */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
                 2
               </div>
-              <h3 className="font-semibold text-lg">Cliquer sur &quot;Éditer la fiche&quot;</h3>
+              <h3 className="font-semibold text-xl">Cliquer sur &quot;Réservations&quot; puis &quot;Ajouter un lien&quot;</h3>
             </div>
-            <p className="text-sm text-muted-foreground ml-10">
-              Une fois sur votre fiche, cliquez sur le bouton pour modifier vos informations.
+            <p className="text-base text-muted-foreground">
+              Cliquez sur le bouton &quot;Réservations&quot; dans votre tableau de bord, puis sur &quot;Ajouter un autre lien&quot;.
+              Google propose un champ spécifique appelé &quot;Liens vers vos outils de réservation en ligne&quot;.
             </p>
-            {/* Screenshot placeholder 2 */}
-            <div className="ml-10 bg-slate-100 border-2 border-dashed border-slate-300 rounded-lg p-12 flex flex-col items-center justify-center">
-              <div className="text-slate-400 text-sm font-medium mb-2">
-                📸 Screenshot 2 - À ajouter
-              </div>
-              <p className="text-xs text-slate-500 text-center">
-                Bouton &quot;Éditer la fiche&quot; dans Google Business
-              </p>
+            {/* Screenshot 2 */}
+            <div className="rounded-lg overflow-hidden border border-slate-300 shadow-sm">
+              <img
+                src="/images/referencement/google-reservation.png"
+                alt="Configuration de la réservation dans Google Business"
+                className="w-full h-auto object-contain"
+              />
             </div>
           </div>
 
           {/* Step 3 */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
                 3
               </div>
-              <h3 className="font-semibold text-lg">Trouver le champ &quot;Rendez-vous&quot;</h3>
+              <h3 className="font-semibold text-xl">Coller votre lien Postur</h3>
             </div>
-            <p className="text-sm text-muted-foreground ml-10">
-              Google propose un champ spécifique (distinct du site web) appelé &quot;Liens pour prendre rendez-vous&quot;
-              ou &quot;Appointment links&quot;. C&apos;est là que vous allez ajouter votre lien.
-            </p>
-            {/* Screenshot placeholder 3 */}
-            <div className="ml-10 bg-slate-100 border-2 border-dashed border-slate-300 rounded-lg p-12 flex flex-col items-center justify-center">
-              <div className="text-slate-400 text-sm font-medium mb-2">
-                📸 Screenshot 3 - À ajouter
-              </div>
-              <p className="text-xs text-slate-500 text-center">
-                Champ &quot;Liens pour prendre rendez-vous&quot; dans l&apos;interface
-              </p>
-            </div>
-          </div>
-
-          {/* Step 4 */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                4
-              </div>
-              <h3 className="font-semibold text-lg">Coller votre lien OsteoFlow</h3>
-            </div>
-            <p className="text-sm text-muted-foreground ml-10 mb-3">
-              Copiez et collez simplement votre lien personnel OsteoFlow.
-              Dès que vous validez, le bouton bleu &quot;Prendre rendez-vous&quot; apparaîtra sur votre fiche publique.
+            <p className="text-base text-muted-foreground">
+              Copiez et collez simplement votre lien personnel Postur dans le champ prévu à cet effet.
+              Dès que vous validez, le bouton bleu &quot;Réserver en ligne&quot; apparaîtra sur votre fiche publique.
             </p>
 
             {/* Booking link card */}
-            <div className="ml-10 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-xs text-blue-700 font-medium mb-1">
+                  <p className="text-sm text-blue-700 font-medium mb-2">
                     Votre lien de réservation :
                   </p>
-                  <code className="text-sm text-blue-900 font-mono">
+                  <code className="text-base text-blue-900 font-mono">
                     {bookingLink}
                   </code>
                 </div>
@@ -170,13 +155,13 @@ export function GoogleBookingTutorial() {
           </div>
 
           {/* Success message */}
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
-            <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
+          <div className="bg-green-50 border border-green-200 rounded-lg p-5 flex items-start gap-4">
+            <CheckCircle2 className="h-6 w-6 text-green-600 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-green-900 mb-1">
+              <p className="text-base font-semibold text-green-900 mb-2">
                 C&apos;est instantané !
               </p>
-              <p className="text-sm text-green-700">
+              <p className="text-base text-green-700">
                 Une fois le lien ajouté, vos patients verront immédiatement le bouton
                 &quot;Prendre rendez-vous&quot; sur votre fiche Google. Plus besoin d&apos;appeler,
                 ils réservent directement en ligne !

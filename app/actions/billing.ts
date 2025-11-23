@@ -39,3 +39,64 @@ export async function createInvoice(data: { patientId: string, amount: number })
         }
     })
 }
+
+export async function updateInvoiceStatus(invoiceId: string, status: 'DRAFT' | 'SENT' | 'PAID') {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session) throw new Error("Unauthorized");
+
+    // Verify ownership
+    const invoice = await prisma.invoice.findFirst({
+        where: { id: invoiceId, userId: session.user.id }
+    });
+    if (!invoice) throw new Error("Invoice not found");
+
+    return await prisma.invoice.update({
+        where: { id: invoiceId },
+        data: { status }
+    });
+}
+
+export async function deleteInvoice(invoiceId: string) {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session) throw new Error("Unauthorized");
+
+    // Verify ownership
+    const invoice = await prisma.invoice.findFirst({
+        where: { id: invoiceId, userId: session.user.id }
+    });
+    if (!invoice) throw new Error("Invoice not found");
+
+    return await prisma.invoice.delete({
+        where: { id: invoiceId }
+    });
+}
+
+export async function getInvoiceDetails(invoiceId: string) {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session) throw new Error("Unauthorized");
+
+    const invoice = await prisma.invoice.findFirst({
+        where: { id: invoiceId, userId: session.user.id },
+        include: {
+            patient: true,
+            user: {
+                select: {
+                    name: true,
+                    email: true,
+                    practitionerType: true,
+                    siret: true,
+                    companyName: true,
+                    companyAddress: true,
+                    isVatExempt: true
+                }
+            }
+        }
+    });
+
+    if (!invoice) throw new Error("Invoice not found");
+
+    return {
+        ...invoice,
+        amount: invoice.amount.toNumber()
+    };
+}

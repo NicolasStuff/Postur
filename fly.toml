@@ -1,0 +1,49 @@
+# fly.toml - Configuration Fly.io pour TheraFlow
+# Voir https://fly.io/docs/reference/configuration/ pour la documentation
+
+app = "theraflow" # Remplacez par le nom de votre app Fly.io
+primary_region = "cdg" # Paris - Changez selon votre région préférée
+
+# Build configuration
+[build]
+
+# Configuration HTTP service
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  # Health check
+  [http_service.checks]
+    [http_service.checks.alive]
+      type = "http"
+      method = "GET"
+      path = "/api/health"
+      interval = "30s"
+      timeout = "5s"
+      grace_period = "30s"
+
+# Configuration des machines virtuelles
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
+
+# Variables d'environnement (ne pas inclure les secrets ici)
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Configuration pour déploiement
+[deploy]
+  release_command = "npx prisma migrate deploy"
+  strategy = "rolling"
+
+# Métriques
+[[metrics]]
+  port = 9091
+  path = "/metrics"

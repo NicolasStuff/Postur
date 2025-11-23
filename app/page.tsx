@@ -21,7 +21,7 @@ export default function LandingPage() {
              <div className="h-8 w-8 bg-gradient-to-br from-primary to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
                 <div className="h-3 w-3 bg-white rounded-full"></div>
              </div>
-             <span className="text-lg font-bold tracking-tight">TheraFlow</span>
+             <span className="text-lg font-bold tracking-tight">Postur</span>
           </div>
 
           {/* Desktop Links */}
@@ -105,8 +105,8 @@ export default function LandingPage() {
                  <div className="relative rounded-2xl border border-white/20 bg-white/30 backdrop-blur-xl shadow-2xl shadow-blue-900/10 p-2 ring-1 ring-black/5">
                     <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-white border border-white/50">
                         <Image 
-                            src="/images/interface/Gemini_Generated_Image_wug50awug50awug5 (2).jpeg" 
-                            alt="TheraFlow Dashboard"
+                            src="/images/interface/Gemini_Generated_Image_wug50awug50awug5 (2).jpeg"
+                            alt="Postur Dashboard"
                             fill
                             className="object-cover"
                             priority
@@ -247,7 +247,7 @@ export default function LandingPage() {
         <section id="testimonials" className="py-24 bg-secondary/30 border-y border-border/50">
              <div className="container mx-auto px-6">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl font-bold text-foreground mb-4">Ils ont adopté TheraFlow</h2>
+                    <h2 className="text-3xl font-bold text-foreground mb-4">Ils ont adopté Postur</h2>
                     <p className="text-muted-foreground">Rejoignez plus de 2000 praticiens satisfaits.</p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-8">
@@ -285,7 +285,7 @@ export default function LandingPage() {
                     
                     <div className="relative z-10 max-w-2xl mx-auto">
                         <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Prêt à transformer votre cabinet ?</h2>
-                        <p className="text-lg text-slate-300 mb-10">Essayez TheraFlow gratuitement pendant 14 jours. Sans engagement, sans carte bancaire.</p>
+                        <p className="text-lg text-slate-300 mb-10">Essayez Postur gratuitement pendant 14 jours. Sans engagement, sans carte bancaire.</p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Link href="/signin">
                                 <Button className="h-14 px-8 text-lg rounded-full bg-white text-foreground hover:bg-slate-100 shadow-xl transition-transform hover:scale-105">
@@ -307,7 +307,7 @@ export default function LandingPage() {
                         <div className="h-6 w-6 bg-gradient-to-br from-primary to-blue-600 rounded-md flex items-center justify-center">
                             <div className="h-2 w-2 bg-white rounded-full"></div>
                         </div>
-                        <span className="text-lg font-bold tracking-tight text-foreground">TheraFlow</span>
+                        <span className="text-lg font-bold tracking-tight text-foreground">Postur</span>
                      </div>
                      <p className="max-w-sm text-muted-foreground">La solution de gestion moderne pour les praticiens de santé bien-être. Simplifiez votre quotidien.</p>
                  </div>
@@ -331,7 +331,7 @@ export default function LandingPage() {
                  </div>
              </div>
              <div className="container mx-auto px-6 pt-8 mt-12 border-t border-border text-center text-sm text-muted-foreground">
-                 &copy; 2025 TheraFlow. Tous droits réservés.
+                 &copy; 2025 Postur. Tous droits réservés.
              </div>
         </footer>
 

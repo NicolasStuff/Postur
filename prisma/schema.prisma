@@ -21,7 +21,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  // TheraFlow Specific Fields
+  // Postur Specific Fields
   role          Role      @default(USER) // USER = Practitioner
   
   // Professional Profile
@@ -35,6 +35,7 @@ model User {
   // Settings
   openingHours     Json?
   slotDuration     Int               @default(60)
+  language         String            @default("fr") // "fr" or "en"
 
   // Relations
   patients         Patient[]
@@ -83,7 +84,7 @@ model Verification {
   updatedAt  DateTime @updatedAt
 }
 
-// --- THERAFLOW MODELS ---
+// --- POSTUR MODELS ---
 
 enum Role {
   USER

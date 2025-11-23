@@ -81,10 +81,10 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Image src="/images/logo.svg" alt="TheraFlow" width={32} height={32} />
+                  <Image src="/images/logo.svg" alt="Postur" width={32} height={32} />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">TheraFlow</span>
+                  <span className="truncate font-semibold">Postur</span>
                   <span className="truncate text-xs">Gestion de cabinet</span>
                 </div>
               </Link>

@@ -1,4 +1,4 @@
-# PROJECT BLUEPRINT: "TheraFlow" - Vertical SaaS Technical Specification
+# PROJECT BLUEPRINT: "Postur" - Vertical SaaS Technical Specification
 
 ## 1. PROJECT IDENTITY & STACK
 
@@ -237,7 +237,7 @@ fullName String?
 
 // Professional Profile (Public Booking Page Info)
 
-slug String? @unique // e.g. theraflow.com/u/jean-dupont
+slug String? @unique // e.g. postur.com/u/jean-dupont
 
 practitionerType PractitionerType @default(OSTEOPATH)
 

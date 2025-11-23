@@ -20,23 +20,19 @@ interface OsteopathConsultationProps {
 }
 
 export function OsteopathConsultation({ consultation, onSave }: OsteopathConsultationProps) {
-    const [editorContent, setEditorContent] = useState<any>(null)
-    const [bodyChartParts, setBodyChartParts] = useState<string[]>([])
+    // Initialize state with existing consultation data
+    const [editorContent, setEditorContent] = useState<any>(() => {
+        return consultation?.note?.content?.editor || null
+    })
+    const [bodyChartParts, setBodyChartParts] = useState<string[]>(() => {
+        return consultation?.note?.content?.bodyChart || []
+    })
     const [showTimeline, setShowTimeline] = useState(false)
     const [showPatientFile, setShowPatientFile] = useState(false)
     const [showHistory, setShowHistory] = useState(false)
     const [history, setHistory] = useState<any[]>([])
     const editorRef = useRef<ConsultationEditorRef>(null)
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-    // Load initial state
-    useEffect(() => {
-        if (consultation?.note?.content) {
-            const content = consultation.note.content as any
-            if (content.editor) setEditorContent(content.editor)
-            if (content.bodyChart) setBodyChartParts(content.bodyChart)
-        }
-    }, [consultation])
 
     // Load history
     useEffect(() => {
