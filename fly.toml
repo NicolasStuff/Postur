@@ -6,6 +6,8 @@ primary_region = "cdg" # Paris - Changez selon votre région préférée
 
 # Build configuration
 [build]
+  [build.args]
+    NEXT_PUBLIC_APP_URL = "https://postur.fr"
 
 # Configuration HTTP service
 [http_service]

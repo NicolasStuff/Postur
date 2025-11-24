@@ -32,6 +32,10 @@ ENV NODE_ENV=production
 # Placeholder DATABASE_URL pour la génération de Prisma (sera remplacé au runtime)
 ENV DATABASE_URL="postgresql://placeholder:placeholder@placeholder:5432/placeholder"
 
+# Argument de build pour l'URL publique de l'application
+ARG NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+
 # Générer le client Prisma
 RUN pnpm prisma generate
 

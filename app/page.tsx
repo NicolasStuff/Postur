@@ -19,9 +19,15 @@ export default function LandingPage() {
       {/* Navbar (Sticky) */}
       <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-1 group">
+          <Link href="/" className="flex items-center gap-2 group">
+             <Image
+               src="/images/logo/logo.svg"
+               alt="Postur"
+               width={40}
+               height={40}
+               className="h-10 w-auto transition-transform group-hover:scale-105"
+             />
              <span className="text-xl font-bold tracking-tighter text-slate-900">POSTUR</span>
-             <div className="h-1.5 w-1.5 rounded-full bg-indigo-600 mt-1 group-hover:animate-pulse"></div>
           </Link>
 
           {/* Desktop Links */}
@@ -415,9 +421,15 @@ export default function LandingPage() {
         <footer className="bg-slate-50 border-t border-slate-100 py-16">
              <div className="container mx-auto px-6 grid md:grid-cols-4 gap-12">
                  <div className="col-span-2">
-                     <div className="flex items-center gap-1 mb-6">
+                     <div className="flex items-center gap-2 mb-6">
+                        <Image
+                          src="/images/logo/logo.svg"
+                          alt="Postur"
+                          width={40}
+                          height={40}
+                          className="h-10 w-auto"
+                        />
                         <span className="text-xl font-bold tracking-tighter text-slate-900">POSTUR</span>
-                        <div className="h-1.5 w-1.5 rounded-full bg-indigo-600 mt-1"></div>
                      </div>
                      <p className="max-w-sm text-slate-500 leading-relaxed">
                          Le logiciel moderne pour les ostéopathes exigeants. <br />

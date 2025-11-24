@@ -373,6 +373,55 @@
     "settings": "Settings",
     "logout": "Logout"
   },
+  "settings": {
+    "profile": {
+      "profileUpdateSuccess": "Profile updated successfully",
+      "profileUpdateError": "Error updating profile",
+      "publicBookingUrl": "Public booking URL",
+      "slugPlaceholder": "your-name",
+      "companyName": "Practice name",
+      "companyNamePlaceholder": "Smith Practice",
+      "address": "Address",
+      "addressPlaceholder": "123 Example Street, London",
+      "siret": "Business number",
+      "siretPlaceholder": "123 456 789 00000",
+      "saveChanges": "Save changes",
+      "languageUpdateSuccess": "Language updated successfully",
+      "languageUpdateError": "Error updating language",
+      "language": "Interface language",
+      "languageDescription": "Choose the dashboard display language",
+      "selectLanguage": "Select a language",
+      "french": "Français",
+      "english": "English"
+    },
+    "availability": {
+      "availabilityUpdateSuccess": "Availability updated successfully",
+      "availabilityUpdateError": "Error updating availability",
+      "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      },
+      "unavailable": "Closed",
+      "addHours": "Add hours",
+      "saveAvailability": "Save availability"
+    },
+    "services": {
+      "title": "Services offered",
+      "addService": "Add service",
+      "dialogTitle": "New service",
+      "name": "Service name",
+      "duration": "Duration (min)",
+      "price": "Price (€)",
+      "save": "Save",
+      "noServices": "No services configured",
+      "min": "min"
+    }
+  },
   "errors": {
     "unauthorized": "Unauthorized",
     "notFound": "Resource not found",

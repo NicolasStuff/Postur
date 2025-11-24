@@ -650,6 +650,55 @@
     "settings": "Paramètres",
     "logout": "Déconnexion"
   },
+  "settings": {
+    "profile": {
+      "profileUpdateSuccess": "Profil mis à jour avec succès",
+      "profileUpdateError": "Erreur lors de la mise à jour du profil",
+      "publicBookingUrl": "URL de réservation publique",
+      "slugPlaceholder": "votre-nom",
+      "companyName": "Nom du cabinet",
+      "companyNamePlaceholder": "Cabinet Dupont",
+      "address": "Adresse",
+      "addressPlaceholder": "123 rue Example, 75001 Paris",
+      "siret": "SIRET",
+      "siretPlaceholder": "123 456 789 00000",
+      "saveChanges": "Enregistrer les modifications",
+      "languageUpdateSuccess": "Langue mise à jour avec succès",
+      "languageUpdateError": "Erreur lors de la mise à jour de la langue",
+      "language": "Langue de l'interface",
+      "languageDescription": "Choisissez la langue d'affichage du tableau de bord",
+      "selectLanguage": "Sélectionner une langue",
+      "french": "Français",
+      "english": "English"
+    },
+    "availability": {
+      "availabilityUpdateSuccess": "Disponibilités mises à jour avec succès",
+      "availabilityUpdateError": "Erreur lors de la mise à jour des disponibilités",
+      "days": {
+        "monday": "Lundi",
+        "tuesday": "Mardi",
+        "wednesday": "Mercredi",
+        "thursday": "Jeudi",
+        "friday": "Vendredi",
+        "saturday": "Samedi",
+        "sunday": "Dimanche"
+      },
+      "unavailable": "Fermé",
+      "addHours": "Ajouter des horaires",
+      "saveAvailability": "Enregistrer les disponibilités"
+    },
+    "services": {
+      "title": "Services proposés",
+      "addService": "Ajouter un service",
+      "dialogTitle": "Nouveau service",
+      "name": "Nom du service",
+      "duration": "Durée (min)",
+      "price": "Prix (€)",
+      "save": "Enregistrer",
+      "noServices": "Aucun service configuré",
+      "min": "min"
+    }
+  },
   "errors": {
     "unauthorized": "Non authentifié",
     "notFound": "Ressource introuvable",
