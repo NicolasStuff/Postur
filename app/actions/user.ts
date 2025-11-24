@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { getErrorMessage } from "@/lib/i18n/errors";
+import { Prisma } from "@prisma/client";
 
 export async function getUserProfile() {
     const session = await auth.api.getSession({
@@ -22,7 +23,7 @@ export async function updateUserProfile(data: {
     siret?: string,
     slug?: string,
     practitionerType?: "OSTEOPATH",
-    openingHours?: unknown,
+    openingHours?: Prisma.InputJsonValue,
     language?: string
 }) {
     const session = await auth.api.getSession({

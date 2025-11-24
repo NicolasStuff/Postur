@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { getErrorMessage } from "@/lib/i18n/errors";
+import { Prisma } from "@prisma/client";
 
 export async function getConsultations() {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -74,7 +75,7 @@ export async function getConsultation(appointmentId: string) {
     }
 }
 
-export async function saveConsultationNote(appointmentId: string, content: unknown) {
+export async function saveConsultationNote(appointmentId: string, content: Prisma.InputJsonValue) {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) {
         throw new Error(await getErrorMessage("unauthorized"));

@@ -38,8 +38,6 @@ export function ConsultationHeader({ practitionerName, practitionerType, onSave,
     const getPractitionerLabel = () => {
         const typeMap: Record<string, string> = {
             'OSTEOPATH': t('practitionerTypes.osteopath'),
-            'NATUROPATH': t('practitionerTypes.naturopath'),
-            'SOPHROLOGIST': t('practitionerTypes.sophrologist'),
         }
         return typeMap[practitionerType] || practitionerType
     }

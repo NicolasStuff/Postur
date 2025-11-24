@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { createPublicAppointment, getPublicAvailability } from "@/app/actions/booking"
+import { createPublicAppointment, getPublicAvailability, PublicPractitioner } from "@/app/actions/booking"
 import { Loader2, CheckCircle2, Clock, Euro, ArrowLeft, Calendar as CalendarIcon, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslations } from 'next-intl'
@@ -19,15 +19,8 @@ interface Service {
     description?: string
 }
 
-interface Practitioner {
-    id: string
-    name: string
-    services: Service[]
-    openingHours: string | Record<string, string[]>
-}
-
 interface CalendlyStyleBookingProps {
-    practitioner: Practitioner
+    practitioner: PublicPractitioner
     slug: string
 }
 

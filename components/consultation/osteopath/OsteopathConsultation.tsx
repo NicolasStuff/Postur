@@ -14,19 +14,20 @@ import { saveBodyChartHistory, getBodyChartHistory } from "@/app/actions/consult
 import { bodyPartLabels } from "@/lib/bodyChartLabels"
 import { toast } from "sonner"
 import { useTranslations } from "next-intl"
+import { Prisma } from "@prisma/client"
 
 interface BodyChartHistoryItem {
     id: string
     createdAt: Date
-    bodyParts: string[]
+    selectedParts: string[]
 }
 
 interface Patient {
     id: string
     firstName: string
     lastName: string
-    email?: string
-    phone?: string
+    email?: string | null
+    phone?: string | null
     medicalHistory?: unknown
 }
 
@@ -34,27 +35,33 @@ interface Consultation {
     id: string
     patient: Patient
     note?: {
-        content?: {
-            editor?: unknown
-            bodyChart?: string[]
-        }
-    }
+        content?: Prisma.JsonValue
+    } | null
 }
 
 interface OsteopathConsultationProps {
     consultation: Consultation
-    onSave: (data: { editor: unknown; bodyChart: string[] }) => void
+    onSave: (data: Prisma.InputJsonValue) => void
 }
 
 export function OsteopathConsultation({ consultation, onSave }: OsteopathConsultationProps) {
     const t = useTranslations('consultation.osteopath')
 
+    // Helper to safely extract content from JsonValue
+    const getConsultationContent = () => {
+        const content = consultation?.note?.content
+        if (content && typeof content === 'object' && content !== null && !Array.isArray(content)) {
+            return content as { editor?: unknown; bodyChart?: string[] }
+        }
+        return {}
+    }
+
     // Initialize state with existing consultation data
     const [editorContent, setEditorContent] = useState<unknown>(() => {
-        return consultation?.note?.content?.editor || null
+        return getConsultationContent().editor || null
     })
     const [bodyChartParts, setBodyChartParts] = useState<string[]>(() => {
-        return consultation?.note?.content?.bodyChart || []
+        return getConsultationContent().bodyChart || []
     })
     const [showTimeline, setShowTimeline] = useState(false)
     const [showPatientFile, setShowPatientFile] = useState(false)
@@ -85,7 +92,7 @@ export function OsteopathConsultation({ consultation, onSave }: OsteopathConsult
         const timer = setTimeout(() => {
             if (editorContent || bodyChartParts.length > 0) {
                 onSave({
-                    editor: editorContent,
+                    editor: editorContent as Prisma.InputJsonValue,
                     bodyChart: bodyChartParts
                 })
             }

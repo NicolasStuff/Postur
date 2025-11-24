@@ -10,7 +10,8 @@ import { getAppointments } from '@/app/actions/appointments'
 import { CreateAppointmentDialog } from './CreateAppointmentDialog'
 import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
-import type { DatesSetArg, DateClickArg, EventClickArg, EventContentArg } from '@fullcalendar/core'
+import type { DatesSetArg, EventClickArg, EventContentArg } from '@fullcalendar/core'
+import type { DateClickArg } from '@fullcalendar/interaction'
 
 export function PractitionerCalendar() {
     const router = useRouter()

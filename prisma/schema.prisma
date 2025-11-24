@@ -93,8 +93,6 @@ enum Role {
 
 enum PractitionerType {
   OSTEOPATH
-  NATUROPATH
-  SOPHROLOGIST
 }
 
 enum AppointmentStatus {

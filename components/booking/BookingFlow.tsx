@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { createPublicAppointment, getPublicAvailability } from "@/app/actions/booking"
+import { createPublicAppointment, getPublicAvailability, PublicPractitioner } from "@/app/actions/booking"
 import { Loader2, CheckCircle2 } from "lucide-react"
 import { useTranslations } from 'next-intl'
 
@@ -19,15 +19,8 @@ interface Service {
     price: number | string
 }
 
-interface Practitioner {
-    id: string
-    name: string
-    services: Service[]
-    openingHours: string | Record<string, string[]>
-}
-
 interface BookingFlowProps {
-    practitioner: Practitioner
+    practitioner: PublicPractitioner
     slug: string
 }
 

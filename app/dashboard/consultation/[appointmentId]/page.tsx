@@ -3,6 +3,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { getConsultation, saveConsultationNote } from "@/app/actions/consultation"
 import { use } from "react"
+import { Prisma } from "@prisma/client"
 
 // Components
 import { ConsultationHeader } from "@/components/consultation/shared/ConsultationHeader"
@@ -17,7 +18,7 @@ export default function ConsultationPage({ params }: { params: Promise<{ appoint
   })
 
   const saveMutation = useMutation({
-      mutationFn: async (data: unknown) => {
+      mutationFn: async (data: Prisma.InputJsonValue) => {
           await saveConsultationNote(appointmentId, data)
       }
   })

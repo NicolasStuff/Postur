@@ -21,8 +21,9 @@ export function TraumaTimeline({ history }: TraumaTimelineProps) {
 
     if (history && Array.isArray(history)) {
         events = history
-    } else if (history && typeof history === 'object' && history.events) {
-        events = history.events
+    } else if (history && typeof history === 'object' && history !== null && 'events' in history) {
+        const historyObj = history as { events?: TraumaEvent[] }
+        events = historyObj.events || []
     }
 
     // If no events, show empty state

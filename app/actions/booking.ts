@@ -1,8 +1,30 @@
 "use server"
 import { prisma } from "@/lib/prisma";
 import { getErrorMessage } from "@/lib/i18n/errors";
+import { Prisma } from "@prisma/client";
 
-export async function getPractitionerBySlug(slug: string) {
+// Type pour le praticien retourné par getPractitionerBySlug
+type PractitionerType = "OSTEOPATH";
+
+export type PublicPractitioner = {
+    id: string;
+    name: string | null;
+    practitionerType: PractitionerType | null;
+    companyName: string | null;
+    companyAddress: string | null;
+    image: string | null;
+    openingHours: Prisma.JsonValue;
+    services: Array<{
+        id: string;
+        userId: string;
+        name: string;
+        duration: number;
+        price: number;
+        description?: string;
+    }>;
+};
+
+export async function getPractitionerBySlug(slug: string): Promise<PublicPractitioner | null> {
     const user = await prisma.user.findUnique({
         where: { slug },
         select: {

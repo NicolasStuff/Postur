@@ -36,10 +36,6 @@ const getPractitionerTitle = (type: string | null, t: ReturnType<typeof useTrans
   switch (type) {
     case 'OSTEOPATH':
       return t('practitionerTypes.osteopath')
-    case 'NATUROPATH':
-      return t('practitionerTypes.naturopath')
-    case 'SOPHROLOGIST':
-      return t('practitionerTypes.sophrologist')
     default:
       return t('practitionerTypes.default')
   }
@@ -49,10 +45,6 @@ const getPractitionerSpecialty = (type: string | null, t: ReturnType<typeof useT
   switch (type) {
     case 'OSTEOPATH':
       return t('specialties.osteopath')
-    case 'NATUROPATH':
-      return t('specialties.naturopath')
-    case 'SOPHROLOGIST':
-      return t('specialties.sophrologist')
     default:
       return ''
   }
@@ -62,10 +54,6 @@ const getServiceDescription = (type: string | null, t: ReturnType<typeof useTran
   switch (type) {
     case 'OSTEOPATH':
       return t('services.osteopath')
-    case 'NATUROPATH':
-      return t('services.naturopath')
-    case 'SOPHROLOGIST':
-      return t('services.sophrologist')
     default:
       return t('services.default')
   }
