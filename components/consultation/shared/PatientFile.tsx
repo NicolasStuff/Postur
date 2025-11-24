@@ -1,15 +1,15 @@
 import { format } from "date-fns"
 import { fr, enUS } from "date-fns/locale"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { User, Mail, Phone, MapPin, Calendar } from "lucide-react"
+import { Mail, Phone, MapPin, Calendar } from "lucide-react"
 import { useTranslations, useLocale } from "next-intl"
 
 interface PatientFileProps {
-    patient: any // Replace with proper type
+    patient: unknown
 }
 
 // Helper function to extract text from TipTap JSON content
-function extractTextFromTipTap(content: any): string {
+function extractTextFromTipTap(content: unknown): string {
     if (!content) return ""
 
     // Handle case where content has an 'editor' wrapper
@@ -19,7 +19,7 @@ function extractTextFromTipTap(content: any): string {
 
     let text = ""
 
-    const extractFromNode = (node: any): void => {
+    const extractFromNode = (node: Record<string, unknown>): void => {
         if (node.text) {
             text += node.text
         }
@@ -40,40 +40,43 @@ export function PatientFile({ patient }: PatientFileProps) {
     const locale = useLocale()
     const dateLocale = locale === 'fr' ? fr : enUS
 
+    // Type assertion for patient data
+    const patientData = patient as Record<string, unknown>
+
     return (
         <div className="h-full flex flex-col overflow-hidden">
             {/* Patient Info Header */}
             <div className="px-4 py-3 bg-slate-50 border-b">
                 <h3 className="text-lg font-semibold text-slate-900">
-                    {patient.firstName} {patient.lastName}
+                    {patientData.firstName as string} {patientData.lastName as string}
                 </h3>
                 <div className="mt-3 space-y-2">
-                    {patient.email && (
+                    {patientData.email && (
                         <div className="flex items-center gap-2 text-sm text-slate-600">
                             <Mail className="h-3.5 w-3.5 text-slate-400" />
-                            <span>{patient.email}</span>
+                            <span>{patientData.email as string}</span>
                         </div>
                     )}
-                    {patient.phone && (
+                    {patientData.phone && (
                         <div className="flex items-center gap-2 text-sm text-slate-600">
                             <Phone className="h-3.5 w-3.5 text-slate-400" />
-                            <span>{patient.phone}</span>
+                            <span>{patientData.phone as string}</span>
                         </div>
                     )}
-                    {patient.address && (
+                    {patientData.address && (
                         <div className="flex items-center gap-2 text-sm text-slate-600">
                             <MapPin className="h-3.5 w-3.5 text-slate-400" />
-                            <span>{patient.address}</span>
+                            <span>{patientData.address as string}</span>
                         </div>
                     )}
                 </div>
             </div>
 
             {/* Patient Notes */}
-            {patient.notes && (
+            {patientData.notes && (
                 <div className="px-4 py-3 border-b bg-blue-50/50">
                     <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-2">{t('notes')}</h4>
-                    <p className="text-sm text-slate-600">{patient.notes}</p>
+                    <p className="text-sm text-slate-600">{patientData.notes as string}</p>
                 </div>
             )}
 
@@ -84,8 +87,8 @@ export function PatientFile({ patient }: PatientFileProps) {
                 </div>
                 <ScrollArea className="flex-1">
                     <div className="p-3 space-y-2">
-                        {patient.appointments && patient.appointments.length > 0 ? (
-                            patient.appointments.map((appointment: any) => (
+                        {patientData.appointments && Array.isArray(patientData.appointments) && patientData.appointments.length > 0 ? (
+                            (patientData.appointments as Array<Record<string, unknown>>).map((appointment) => (
                                 <div
                                     key={appointment.id}
                                     className="rounded-lg border border-l-4 border-l-blue-500 bg-white p-2.5 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
@@ -93,15 +96,15 @@ export function PatientFile({ patient }: PatientFileProps) {
                                     <div className="flex items-center gap-2 mb-1.5">
                                         <Calendar className="h-3 w-3 text-slate-400" />
                                         <span className="text-xs font-semibold text-slate-600">
-                                            {format(new Date(appointment.start), 'dd/MM/yyyy', { locale: dateLocale })}
+                                            {format(new Date(appointment.start as string), 'dd/MM/yyyy', { locale: dateLocale })}
                                         </span>
                                     </div>
                                     <div className="text-sm text-slate-700 font-medium">
-                                        {appointment.service?.name || t('consultation')}
+                                        {(appointment.service as Record<string, unknown> | undefined)?.name as string || t('consultation')}
                                     </div>
                                     {appointment.note && (
                                         <div className="mt-1 text-xs text-slate-500 line-clamp-2">
-                                            {extractTextFromTipTap(appointment.note.content)}
+                                            {extractTextFromTipTap((appointment.note as Record<string, unknown>).content)}
                                         </div>
                                     )}
                                 </div>

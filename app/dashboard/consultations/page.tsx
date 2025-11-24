@@ -1,10 +1,9 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Eye, Loader2, FileText } from "lucide-react"
+import { Eye, Loader2 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { getConsultations } from "@/app/actions/consultation"
 import Link from "next/link"

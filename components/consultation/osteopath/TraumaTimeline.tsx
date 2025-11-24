@@ -4,7 +4,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { useTranslations } from "next-intl"
 
 interface TraumaTimelineProps {
-    history: any
+    history: unknown
 }
 
 interface TraumaEvent {

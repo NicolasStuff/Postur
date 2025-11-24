@@ -10,6 +10,7 @@ import { getAppointments } from '@/app/actions/appointments'
 import { CreateAppointmentDialog } from './CreateAppointmentDialog'
 import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
+import type { DatesSetArg, DateClickArg, EventClickArg, EventContentArg } from '@fullcalendar/core'
 
 export function PractitionerCalendar() {
     const router = useRouter()
@@ -27,16 +28,16 @@ export function PractitionerCalendar() {
         queryFn: () => getAppointments(dateRange.start, dateRange.end)
     })
 
-    const handleDatesSet = (arg: any) => {
+    const handleDatesSet = (arg: DatesSetArg) => {
         setDateRange({ start: arg.start, end: arg.end })
     }
 
-    const handleDateClick = (arg: any) => {
+    const handleDateClick = (arg: DateClickArg) => {
         setSelectedDate(arg.date)
         setCreateDialogOpen(true)
     }
 
-    const handleEventClick = (info: any) => {
+    const handleEventClick = (info: EventClickArg) => {
         // Navigate to consultation or show details
         const appointmentId = info.event.id
         router.push(`/dashboard/consultation/${appointmentId}`)
@@ -95,7 +96,7 @@ export function PractitionerCalendar() {
     )
 }
 
-function renderEventContent(eventInfo: any) {
+function renderEventContent(eventInfo: EventContentArg) {
   return (
     <div className="overflow-hidden text-xs font-medium p-1 h-full flex flex-col justify-center cursor-pointer">
       <div className="font-bold">{eventInfo.timeText}</div>

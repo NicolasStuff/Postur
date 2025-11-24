@@ -5,9 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ServicesSettings } from "@/components/settings/ServicesSettings"
 import { ProfileSettings } from "@/components/settings/ProfileSettings"
 import { AvailabilitySettings } from "@/components/settings/AvailabilitySettings"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
 import { useTranslations } from 'next-intl'
 
 export default function SettingsPage() {

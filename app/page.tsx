@@ -4,31 +4,15 @@ import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { ArrowRight, Check, Menu, X, Shield, Zap, Calendar, FileText, User, Lock, Upload, AlertCircle } from "lucide-react"
+import { ArrowRight, Check, Menu, Shield, Calendar, FileText, User, Lock } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export default function LandingPage() {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false)
-
-  const fadeIn = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5 }
-  }
-
-  const stagger = {
-    animate: {
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  }
-
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900 overflow-x-hidden">
       
@@ -125,7 +109,7 @@ export default function LandingPage() {
                   transition={{ duration: 0.6, delay: 0.2 }}
                   className="text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto mb-10"
                 >
-                  Le premier logiciel pour Ostéopathes qui combine Body Chart interactif, Facture-X native et Réservation en ligne. Sans l'usine à gaz.
+                  Le premier logiciel pour Ostéopathes qui combine Body Chart interactif, Facture-X native et Réservation en ligne. Sans l&apos;usine à gaz.
                 </motion.p>
                 
                 <motion.div 

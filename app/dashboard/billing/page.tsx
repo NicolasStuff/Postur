@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Plus, FileText, Loader2, MoreHorizontal, Eye, Send, CheckCircle, Trash2 } from "lucide-react"
+import { Plus, Loader2, MoreHorizontal, Eye, Send, CheckCircle, Trash2 } from "lucide-react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createInvoice, getInvoices, updateInvoiceStatus, deleteInvoice, getInvoiceDetails } from "@/app/actions/billing"
 import { useState } from "react"
@@ -24,7 +24,7 @@ export default function BillingPage() {
   const [open, setOpen] = useState(false)
   const [newInvoice, setNewInvoice] = useState({ patientId: "", amount: 60 })
   const [previewOpen, setPreviewOpen] = useState(false)
-  const [selectedInvoice, setSelectedInvoice] = useState<any>(null)
+  const [selectedInvoice, setSelectedInvoice] = useState<Awaited<ReturnType<typeof getInvoiceDetails>> | null>(null)
 
   const { data: invoices, isLoading } = useQuery({ queryKey: ['invoices'], queryFn: () => getInvoices() })
   const { data: patients } = useQuery({ queryKey: ['patients'], queryFn: () => getPatients() })

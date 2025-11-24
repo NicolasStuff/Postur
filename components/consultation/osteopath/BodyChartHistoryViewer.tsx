@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { format } from "date-fns"
 import { fr, enUS } from "date-fns/locale"
 import { History, ChevronDown, ChevronUp } from "lucide-react"

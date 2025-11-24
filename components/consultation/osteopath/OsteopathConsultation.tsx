@@ -15,16 +15,42 @@ import { bodyPartLabels } from "@/lib/bodyChartLabels"
 import { toast } from "sonner"
 import { useTranslations } from "next-intl"
 
+interface BodyChartHistoryItem {
+    id: string
+    createdAt: Date
+    bodyParts: string[]
+}
+
+interface Patient {
+    id: string
+    firstName: string
+    lastName: string
+    email?: string
+    phone?: string
+    medicalHistory?: unknown
+}
+
+interface Consultation {
+    id: string
+    patient: Patient
+    note?: {
+        content?: {
+            editor?: unknown
+            bodyChart?: string[]
+        }
+    }
+}
+
 interface OsteopathConsultationProps {
-    consultation: any
-    onSave: (data: any) => void
+    consultation: Consultation
+    onSave: (data: { editor: unknown; bodyChart: string[] }) => void
 }
 
 export function OsteopathConsultation({ consultation, onSave }: OsteopathConsultationProps) {
     const t = useTranslations('consultation.osteopath')
 
     // Initialize state with existing consultation data
-    const [editorContent, setEditorContent] = useState<any>(() => {
+    const [editorContent, setEditorContent] = useState<unknown>(() => {
         return consultation?.note?.content?.editor || null
     })
     const [bodyChartParts, setBodyChartParts] = useState<string[]>(() => {
@@ -33,16 +59,9 @@ export function OsteopathConsultation({ consultation, onSave }: OsteopathConsult
     const [showTimeline, setShowTimeline] = useState(false)
     const [showPatientFile, setShowPatientFile] = useState(false)
     const [showHistory, setShowHistory] = useState(false)
-    const [history, setHistory] = useState<any[]>([])
+    const [history, setHistory] = useState<BodyChartHistoryItem[]>([])
     const editorRef = useRef<ConsultationEditorRef>(null)
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-    // Load history
-    useEffect(() => {
-        if (consultation?.id) {
-            loadHistory()
-        }
-    }, [consultation?.id])
 
     const loadHistory = async () => {
         try {
@@ -52,6 +71,14 @@ export function OsteopathConsultation({ consultation, onSave }: OsteopathConsult
             console.error("Failed to load history:", error)
         }
     }
+
+    // Load history when consultation changes
+    useEffect(() => {
+        if (consultation?.id) {
+            loadHistory()
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadHistory is defined inside component but doesn't need to be a dependency
+    }, [consultation?.id])
 
     // Auto-save logic (simplified wrapper)
     useEffect(() => {
@@ -89,6 +116,7 @@ export function OsteopathConsultation({ consultation, onSave }: OsteopathConsult
                 clearTimeout(saveTimeoutRef.current)
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadHistory and t are stable, only need to react to bodyChartParts and consultation.id changes
     }, [bodyChartParts, consultation?.id])
 
     const handleQuickNote = (text: string) => {

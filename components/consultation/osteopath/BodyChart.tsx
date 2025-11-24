@@ -2,10 +2,8 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { RotateCcw } from "lucide-react"
 
-const bpa: Record<string, any> = {
+const bpa: Record<string, Record<string, string>> = {
     fr: {
         tete: "Tête (ant.)",
         couG: "Cou (G)",
@@ -52,7 +50,7 @@ const bpa: Record<string, any> = {
     }
 }
 
-const bpp: Record<string, any> = {
+const bpp: Record<string, Record<string, string>> = {
     fr: {
         tete: "Tête (post.)",
         trapG: "Trapèze gauche",
@@ -179,8 +177,6 @@ interface BodyChartProps {
 
 export function BodyChart({ className, value = [], onChange, readOnly = false }: BodyChartProps) {
     const [selectedParts, setSelectedParts] = useState<string[]>(value)
-    const [view, setView] = useState<'ant' | 'post'>('ant')
-
     const togglePart = (partName: string) => {
         if (readOnly) return
         const newParts = selectedParts.includes(partName) 

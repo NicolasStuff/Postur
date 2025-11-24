@@ -22,7 +22,7 @@ export async function updateUserProfile(data: {
     siret?: string,
     slug?: string,
     practitionerType?: "OSTEOPATH",
-    openingHours?: any,
+    openingHours?: unknown,
     language?: string
 }) {
     const session = await auth.api.getSession({

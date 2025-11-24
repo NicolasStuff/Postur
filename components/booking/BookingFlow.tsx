@@ -12,8 +12,22 @@ import { createPublicAppointment, getPublicAvailability } from "@/app/actions/bo
 import { Loader2, CheckCircle2 } from "lucide-react"
 import { useTranslations } from 'next-intl'
 
+interface Service {
+    id: string
+    name: string
+    duration: number
+    price: number | string
+}
+
+interface Practitioner {
+    id: string
+    name: string
+    services: Service[]
+    openingHours: string | Record<string, string[]>
+}
+
 interface BookingFlowProps {
-    practitioner: any
+    practitioner: Practitioner
     slug: string
 }
 
@@ -150,7 +164,7 @@ export function BookingFlow({ practitioner, slug }: BookingFlowProps) {
                                 <SelectValue placeholder={t('selectServicePlaceholder')} />
                             </SelectTrigger>
                             <SelectContent>
-                                {practitioner.services.map((s: any) => (
+                                {practitioner.services.map((s) => (
                                     <SelectItem key={s.id} value={s.id}>{s.name} - {s.duration}{t('min')} (€{Number(s.price)})</SelectItem>
                                 ))}
                             </SelectContent>

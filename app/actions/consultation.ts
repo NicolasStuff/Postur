@@ -74,7 +74,7 @@ export async function getConsultation(appointmentId: string) {
     }
 }
 
-export async function saveConsultationNote(appointmentId: string, content: any) {
+export async function saveConsultationNote(appointmentId: string, content: unknown) {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) {
         throw new Error(await getErrorMessage("unauthorized"));

@@ -21,7 +21,7 @@ export function ConsultationHeader({ practitionerName, practitionerType, onSave,
         try {
             await onSave()
             toast.success(t('consultationSaved'))
-        } catch (error) {
+        } catch {
             toast.error(t('consultationSaveError'))
         }
     }
@@ -30,7 +30,7 @@ export function ConsultationHeader({ practitionerName, practitionerType, onSave,
         try {
             await onFinishAndBill()
             toast.success(t('consultationBilled'))
-        } catch (error) {
+        } catch {
             toast.error(t('consultationBillError'))
         }
     }

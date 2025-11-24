@@ -6,7 +6,6 @@ import { use } from "react"
 
 // Components
 import { ConsultationHeader } from "@/components/consultation/shared/ConsultationHeader"
-import { PatientFile } from "@/components/consultation/shared/PatientFile"
 import { OsteopathConsultation } from "@/components/consultation/osteopath/OsteopathConsultation"
 
 export default function ConsultationPage({ params }: { params: Promise<{ appointmentId: string }> }) {
@@ -18,7 +17,7 @@ export default function ConsultationPage({ params }: { params: Promise<{ appoint
   })
 
   const saveMutation = useMutation({
-      mutationFn: async (data: any) => {
+      mutationFn: async (data: unknown) => {
           await saveConsultationNote(appointmentId, data)
       }
   })

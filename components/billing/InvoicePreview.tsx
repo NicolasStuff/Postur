@@ -32,7 +32,7 @@ interface InvoicePreviewProps {
   } | null
 }
 
-const getPractitionerTitle = (type: string | null, t: any) => {
+const getPractitionerTitle = (type: string | null, t: ReturnType<typeof useTranslations>) => {
   switch (type) {
     case 'OSTEOPATH':
       return t('practitionerTypes.osteopath')
@@ -45,7 +45,7 @@ const getPractitionerTitle = (type: string | null, t: any) => {
   }
 }
 
-const getPractitionerSpecialty = (type: string | null, t: any) => {
+const getPractitionerSpecialty = (type: string | null, t: ReturnType<typeof useTranslations>) => {
   switch (type) {
     case 'OSTEOPATH':
       return t('specialties.osteopath')
@@ -58,7 +58,7 @@ const getPractitionerSpecialty = (type: string | null, t: any) => {
   }
 }
 
-const getServiceDescription = (type: string | null, t: any) => {
+const getServiceDescription = (type: string | null, t: ReturnType<typeof useTranslations>) => {
   switch (type) {
     case 'OSTEOPATH':
       return t('services.osteopath')

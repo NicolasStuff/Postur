@@ -16,7 +16,6 @@ import { Plus, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createPatient } from "@/app/actions/patients"
-import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 
 export function CreatePatientDialog() {

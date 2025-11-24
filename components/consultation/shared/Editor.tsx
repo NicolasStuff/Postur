@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/tooltip"
 
 interface ConsultationEditorProps {
-    initialContent?: any
-    onChange?: (content: any) => void
+    initialContent?: unknown
+    onChange?: (content: unknown) => void
 }
 
 export interface ConsultationEditorRef {

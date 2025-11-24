@@ -89,7 +89,7 @@ export async function middleware(request: NextRequest) {
   if (isDashboardRoute(pathname)) {
     // Get the locale from user's cookie (set by the app when user changes language)
     const userLocaleCookie = request.cookies.get('NEXT_LOCALE')?.value
-    const locale = userLocaleCookie && routing.locales.includes(userLocaleCookie as any)
+    const locale = userLocaleCookie && routing.locales.includes(userLocaleCookie as (typeof routing.locales)[number])
       ? userLocaleCookie
       : routing.defaultLocale
 

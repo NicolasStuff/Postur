@@ -66,6 +66,7 @@ export function CreateAppointmentDialog({
   // Update date when initialDate changes
   useEffect(() => {
     if (initialDate) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing form state with prop changes
       setDate(initialDate)
       setTime({
         hour: String(initialDate.getHours()).padStart(2, '0'),
@@ -77,6 +78,7 @@ export function CreateAppointmentDialog({
   // Set preselected patient when provided
   useEffect(() => {
     if (preselectedPatientId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing form state with prop changes
       setPatientId(preselectedPatientId)
     }
   }, [preselectedPatientId])

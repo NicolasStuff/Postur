@@ -11,8 +11,23 @@ import { Loader2, CheckCircle2, Clock, Euro, ArrowLeft, Calendar as CalendarIcon
 import { cn } from "@/lib/utils"
 import { useTranslations } from 'next-intl'
 
+interface Service {
+    id: string
+    name: string
+    duration: number
+    price: number | string
+    description?: string
+}
+
+interface Practitioner {
+    id: string
+    name: string
+    services: Service[]
+    openingHours: string | Record<string, string[]>
+}
+
 interface CalendlyStyleBookingProps {
-    practitioner: any
+    practitioner: Practitioner
     slug: string
 }
 
@@ -20,7 +35,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
     const t = useTranslations('booking')
     const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1)
     const [isSuccess, setIsSuccess] = useState(false)
-    const [selectedService, setSelectedService] = useState<any>(null)
+    const [selectedService, setSelectedService] = useState<Service | null>(null)
     const [date, setDate] = useState<Date | undefined>(undefined)
     const [timeSlot, setTimeSlot] = useState<string>("")
     const [patientDetails, setPatientDetails] = useState({
@@ -252,7 +267,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
                     </div>
 
                     <div className="space-y-3">
-                        {practitioner.services.map((service: any) => (
+                        {practitioner.services.map((service) => (
                             <button
                                 key={service.id}
                                 onClick={() => setSelectedService(service)}

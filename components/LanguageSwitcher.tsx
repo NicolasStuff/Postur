@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { updateUserLocale, type LocaleType } from '@/app/actions/locale'
 import { localeNames, type Locale } from '@/i18n/config'

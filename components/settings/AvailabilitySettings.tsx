@@ -23,20 +23,20 @@ interface DaySchedule {
 
 type WeeklySchedule = Record<string, DaySchedule>
 
+const DAYS = [
+    { id: 'mon', key: 'monday' },
+    { id: 'tue', key: 'tuesday' },
+    { id: 'wed', key: 'wednesday' },
+    { id: 'thu', key: 'thursday' },
+    { id: 'fri', key: 'friday' },
+    { id: 'sat', key: 'saturday' },
+    { id: 'sun', key: 'sunday' },
+] as const
+
 export function AvailabilitySettings() {
     const t = useTranslations('settings.availability')
     const queryClient = useQueryClient()
     const { data: user, isLoading } = useQuery({ queryKey: ['userProfile'], queryFn: () => getUserProfile() })
-
-    const DAYS = [
-        { id: 'mon', label: t('days.monday') },
-        { id: 'tue', label: t('days.tuesday') },
-        { id: 'wed', label: t('days.wednesday') },
-        { id: 'thu', label: t('days.thursday') },
-        { id: 'fri', label: t('days.friday') },
-        { id: 'sat', label: t('days.saturday') },
-        { id: 'sun', label: t('days.sunday') },
-    ]
 
     // Initialize state from JSON
     const [schedule, setSchedule] = useState<WeeklySchedule>(() => {
@@ -68,6 +68,7 @@ export function AvailabilitySettings() {
                 }
             })
 
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing form state with server data
             setSchedule(newSchedule)
         }
     }, [user])
@@ -83,7 +84,7 @@ export function AvailabilitySettings() {
                 }
             })
 
-            await updateUserProfile({ openingHours: jsonConfig } as any)
+            await updateUserProfile({ openingHours: jsonConfig } as Record<string, unknown>)
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['userProfile'] })
@@ -152,7 +153,7 @@ export function AvailabilitySettings() {
                     return (
                         <div key={day.id} className="flex flex-col sm:flex-row sm:items-start gap-4 p-4 border rounded-lg bg-card">
                             <div className="flex items-center justify-between sm:w-40 pt-2">
-                                <Label className="font-medium text-base">{day.label}</Label>
+                                <Label className="font-medium text-base">{t(`days.${day.key}`)}</Label>
                                 <div 
                                     className={cn(
                                         "w-10 h-6 rounded-full p-1 cursor-pointer transition-colors duration-200 ease-in-out",

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import {
   Dialog,
   DialogContent,
@@ -87,9 +88,11 @@ export function GoogleBookingTutorial() {
             </p>
             {/* Screenshot 1 */}
             <div className="rounded-lg overflow-hidden border border-slate-300 shadow-sm">
-              <img
+              <Image
                 src="/images/referencement/google-search.png"
                 alt="Recherche Google montrant la fiche du cabinet"
+                width={1200}
+                height={800}
                 className="w-full h-auto object-contain"
               />
             </div>
@@ -109,9 +112,11 @@ export function GoogleBookingTutorial() {
             </p>
             {/* Screenshot 2 */}
             <div className="rounded-lg overflow-hidden border border-slate-300 shadow-sm">
-              <img
+              <Image
                 src="/images/referencement/google-reservation.png"
                 alt="Configuration de la réservation dans Google Business"
+                width={1200}
+                height={800}
                 className="w-full h-auto object-contain"
               />
             </div>
