@@ -55,7 +55,7 @@ function isDashboardRoute(pathname: string): boolean {
   return DASHBOARD_ROUTES.some((route) => pathname.startsWith(route))
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   /**

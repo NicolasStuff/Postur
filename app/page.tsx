@@ -143,12 +143,12 @@ export default function LandingPage() {
               className="relative max-w-5xl mx-auto perspective-1000"
             >
                  <div className="relative rounded-2xl bg-slate-900 p-2 shadow-2xl shadow-indigo-500/20 ring-1 ring-slate-900/5 transform transition-transform">
-                    <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-white">
-                        <Image 
-                            src="/images/interface/Gemini_Generated_Image_wug50awug50awug5 (2).jpeg"
-                            alt="Postur Dashboard"
+                    <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-white">
+                        <Image
+                            src="/images/landing-page/new/body-chart-consultation.png"
+                            alt="Postur Dashboard - Body Chart Interactif"
                             fill
-                            className="object-cover"
+                            className="object-contain"
                             priority
                         />
                         <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-transparent pointer-events-none mix-blend-overlay"></div>
@@ -196,11 +196,11 @@ export default function LandingPage() {
                              <p className="text-slate-600">Ne tapez plus &quot;Douleur lombaire&quot;. Cliquez sur les lombaires. Notre Body Chart interactif remplit le dossier pour vous automatiquement.</p>
                         </div>
                         <div className="flex-1 relative w-full h-48 md:h-auto bg-slate-50 rounded-xl border border-slate-100 overflow-hidden flex items-center justify-center">
-                             {/* Placeholder for Body Chart Visual */}
+                             {/* Body Chart Visual */}
                              <div className="relative w-full h-full">
-                                <Image 
-                                  src="/images/interface/Gemini_Generated_Image_hdxo9ghdxo9ghdxo.jpeg" 
-                                  alt="Body Chart"
+                                <Image
+                                  src="/images/landing-page/new/body-chart-consultation.png"
+                                  alt="Body Chart Interactif"
                                   fill
                                   className="object-cover opacity-90"
                                 />
@@ -251,22 +251,13 @@ export default function LandingPage() {
                              <Button variant="secondary" className="rounded-full text-indigo-900 font-medium">Voir un exemple</Button>
                         </div>
                         <div className="flex-1 relative w-full max-w-sm aspect-[4/3] bg-white rounded-xl overflow-hidden shadow-2xl border border-indigo-100/20">
-                             {/* Mockup Reservation */}
-                             <div className="absolute inset-0 flex flex-col">
-                                <div className="h-4 bg-slate-100 border-b flex items-center px-2 gap-1">
-                                    <div className="h-1.5 w-1.5 rounded-full bg-slate-300"></div>
-                                    <div className="h-1.5 w-1.5 rounded-full bg-slate-300"></div>
-                                </div>
-                                <div className="p-4 flex-1 bg-white">
-                                    <div className="h-4 w-1/2 bg-slate-100 rounded mb-2"></div>
-                                    <div className="h-2 w-1/3 bg-slate-100 rounded mb-6"></div>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        <div className="h-10 bg-indigo-50 rounded border border-indigo-100"></div>
-                                        <div className="h-10 bg-indigo-50 rounded border border-indigo-100"></div>
-                                        <div className="h-10 bg-indigo-50 rounded border border-indigo-100"></div>
-                                    </div>
-                                </div>
-                             </div>
+                             {/* Page de réservation */}
+                             <Image
+                                src="/images/landing-page/new/booking-page.png"
+                                alt="Page de réservation en ligne"
+                                fill
+                                className="object-cover"
+                             />
                         </div>
                      </motion.div>
                 </div>
@@ -282,10 +273,10 @@ export default function LandingPage() {
                     <div className="flex-1 relative group">
                         <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl transform rotate-2 group-hover:rotate-1 transition-transform opacity-10"></div>
                         <div className="relative bg-white rounded-2xl border border-slate-100 shadow-2xl overflow-hidden aspect-video">
-                            <Image 
-                                src="/images/interface/Gemini_Generated_Image_hdxo9ghdxo9ghdxo (1).jpeg" 
-                                alt="Body Chart Interface" 
-                                fill 
+                            <Image
+                                src="/images/landing-page/new/body-chart-consultation.png"
+                                alt="Body Chart Interface"
+                                fill
                                 className="object-cover"
                             />
                         </div>
@@ -313,10 +304,10 @@ export default function LandingPage() {
                     <div className="flex-1 relative group">
                         <div className="absolute inset-0 bg-gradient-to-l from-blue-500 to-indigo-500 rounded-2xl transform -rotate-2 group-hover:-rotate-1 transition-transform opacity-10"></div>
                         <div className="relative bg-white rounded-2xl border border-slate-100 shadow-2xl overflow-hidden aspect-video">
-                            <Image 
-                                src="/images/interface/Gemini_Generated_Image_wug50awug50awug5 (3).jpeg" 
-                                alt="Billing Interface" 
-                                fill 
+                            <Image
+                                src="/images/landing-page/new/billing-dashboard.png"
+                                alt="Interface de Facturation"
+                                fill
                                 className="object-cover"
                             />
                         </div>
