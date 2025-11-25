@@ -456,7 +456,7 @@ export default function LandingPage() {
                     <div className="mb-8">
                       <div className="flex items-baseline gap-2">
                         <span className="text-5xl font-semibold tracking-tight text-slate-900">29€</span>
-                        <span className="text-slate-500">/ mois HT</span>
+                        <span className="text-slate-500">/ mois TTC</span>
                       </div>
                     </div>
 
@@ -507,7 +507,7 @@ export default function LandingPage() {
                     <div className="mb-8">
                       <div className="flex items-baseline gap-2">
                         <span className="text-5xl font-semibold tracking-tight text-slate-900">39€</span>
-                        <span className="text-slate-500">/ mois HT</span>
+                        <span className="text-slate-500">/ mois TTC</span>
                       </div>
                     </div>
 
@@ -542,7 +542,7 @@ export default function LandingPage() {
               </div>
 
               <p className="text-center text-sm text-slate-400 mt-12">
-                Prix hors taxes. Sans engagement, annulable à tout moment.
+                Prix TTC. Sans engagement, annulable à tout moment.
               </p>
             </div>
           </section>
