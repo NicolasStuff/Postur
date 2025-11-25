@@ -1,20 +1,48 @@
-"use client"
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ServicesSettings } from "@/components/settings/ServicesSettings"
 import { ProfileSettings } from "@/components/settings/ProfileSettings"
 import { AvailabilitySettings } from "@/components/settings/AvailabilitySettings"
-import { useTranslations } from 'next-intl'
+import { BillingSettings } from "@/components/settings/BillingSettings"
+import { getTranslations } from 'next-intl/server'
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
+import { headers } from "next/headers"
+import { redirect } from "next/navigation"
 
-export default function SettingsPage() {
-  const t = useTranslations('dashboard.settings')
+interface SettingsPageProps {
+  searchParams: Promise<{ tab?: string; upgrade?: string }>
+}
+
+export default async function SettingsPage({ searchParams }: SettingsPageProps) {
+  const t = await getTranslations('dashboard.settings')
+  const params = await searchParams
+
+  // Fetch subscription data
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session) {
+    redirect("/signin")
+  }
+
+  const subscription = await prisma.subscription.findUnique({
+    where: { userId: session.user.id },
+    select: {
+      plan: true,
+      status: true,
+      currentPeriodEnd: true,
+      trialEndsAt: true,
+      cancelAtPeriodEnd: true,
+    },
+  })
+
+  const defaultTab = params.tab || "profile"
+  const showUpgradeModal = params.upgrade === "true"
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
 
-      <Tabs defaultValue="profile" className="space-y-4">
+      <Tabs defaultValue={defaultTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="profile">{t('tabs.profile')}</TabsTrigger>
           <TabsTrigger value="availability">{t('tabs.availability')}</TabsTrigger>
@@ -59,14 +87,10 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="billing">
-             <Card>
-                <CardHeader>
-                    <CardTitle>{t('billingSettings.title')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">{t('billingSettings.placeholder')}</p>
-                </CardContent>
-             </Card>
+            <BillingSettings
+              subscription={subscription}
+              showUpgradeModal={showUpgradeModal}
+            />
         </TabsContent>
       </Tabs>
     </div>

@@ -633,7 +633,58 @@
       "welcomeDescription": "Votre logiciel de gestion pour ostéopathes",
       "osteopathTitle": "Ostéopathe",
       "osteopathDescription": "Gestion complète de vos consultations d'ostéopathie : schéma corporel, historique des traumatismes, notes de consultation et bien plus.",
-      "continueButton": "Continuer vers le Dashboard"
+      "continueButton": "Continuer vers le Dashboard",
+      "back": "Retour",
+      "error": "Une erreur s'est produite"
+    }
+  },
+  "subscription": {
+    "choosePlan": "Choisissez votre formule",
+    "trialDescription": "14 jours d'essai gratuit, puis facturation mensuelle. Annulable à tout moment.",
+    "popular": "Populaire",
+    "month": "mois",
+    "startTrial": "Commencer l'essai gratuit",
+    "redirecting": "Redirection...",
+    "trialNote": "Vous ne serez pas débité pendant la période d'essai. Annulez à tout moment.",
+    "checkoutCanceled": "Le paiement a été annulé",
+    "checkoutError": "Erreur lors du paiement",
+    "features": {
+      "unlimitedPatients": "Patients illimités",
+      "unlimitedConsultations": "Consultations illimitées",
+      "bodyChart": "Schéma corporel interactif",
+      "invoicing": "Module Facture-X inclus",
+      "onlineBooking": "Page de réservation en ligne",
+      "prioritySupport": "Support prioritaire",
+      "everythingInPro": "Tout le plan Pro",
+      "aiConsultationSummary": "Résumé de consultation IA",
+      "aiDiagnosisSuggestions": "Suggestions de diagnostic IA",
+      "aiSmartNotes": "Notes intelligentes IA"
+    },
+    "trial": {
+      "daysRemaining": "{days} jours restants",
+      "banner": "Essai gratuit",
+      "expiresIn": "Expire dans {days} jours",
+      "expired": "Essai terminé"
+    },
+    "billing": {
+      "title": "Abonnement",
+      "currentPlan": "Plan actuel",
+      "manageBilling": "Gérer la facturation",
+      "changePlan": "Changer de plan",
+      "cancelSubscription": "Annuler l'abonnement",
+      "renewsOn": "Renouvellement le {date}",
+      "status": {
+        "trialing": "Essai",
+        "active": "Actif",
+        "past_due": "Paiement en retard",
+        "canceled": "Annulé",
+        "unpaid": "Impayé"
+      }
+    },
+    "upgrade": {
+      "title": "Passez à la version supérieure",
+      "description": "Débloquez les fonctionnalités IA pour optimiser votre pratique",
+      "cta": "Mettre à niveau"
     }
   },
   "sidebar": {

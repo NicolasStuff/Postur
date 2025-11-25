@@ -16,9 +16,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://postur.fr'
+
 export const metadata: Metadata = {
-  title: "Postur - Practice Management System",
-  description: "Zero-manual-entry PMS for holistic practitioners.",
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: 'Postur - Logiciel de Gestion de Cabinet pour Ostéopathes',
+    template: '%s | Postur',
+  },
+  description: 'Logiciel de gestion de cabinet pour ostéopathes avec Body Chart interactif, facturation Facture-X et réservation en ligne.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default async function RootLayout({

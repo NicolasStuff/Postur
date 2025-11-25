@@ -356,7 +356,58 @@
       "welcomeDescription": "Your practice management software for osteopaths",
       "osteopathTitle": "Osteopath",
       "osteopathDescription": "Complete management of your osteopathy consultations: body chart, trauma history, consultation notes and much more.",
-      "continueButton": "Continue to Dashboard"
+      "continueButton": "Continue to Dashboard",
+      "back": "Back",
+      "error": "An error occurred"
+    }
+  },
+  "subscription": {
+    "choosePlan": "Choose your plan",
+    "trialDescription": "14-day free trial, then billed monthly. Cancel anytime.",
+    "popular": "Popular",
+    "month": "month",
+    "startTrial": "Start free trial",
+    "redirecting": "Redirecting...",
+    "trialNote": "You won't be charged during the trial period. Cancel anytime.",
+    "checkoutCanceled": "Payment was canceled",
+    "checkoutError": "Payment error",
+    "features": {
+      "unlimitedPatients": "Unlimited patients",
+      "unlimitedConsultations": "Unlimited consultations",
+      "bodyChart": "Interactive body chart",
+      "invoicing": "Facture-X module included",
+      "onlineBooking": "Online booking page",
+      "prioritySupport": "Priority support",
+      "everythingInPro": "Everything in Pro",
+      "aiConsultationSummary": "AI consultation summary",
+      "aiDiagnosisSuggestions": "AI diagnosis suggestions",
+      "aiSmartNotes": "AI smart notes"
+    },
+    "trial": {
+      "daysRemaining": "{days} days remaining",
+      "banner": "Free trial",
+      "expiresIn": "Expires in {days} days",
+      "expired": "Trial ended"
+    },
+    "billing": {
+      "title": "Subscription",
+      "currentPlan": "Current plan",
+      "manageBilling": "Manage billing",
+      "changePlan": "Change plan",
+      "cancelSubscription": "Cancel subscription",
+      "renewsOn": "Renews on {date}",
+      "status": {
+        "trialing": "Trial",
+        "active": "Active",
+        "past_due": "Past due",
+        "canceled": "Canceled",
+        "unpaid": "Unpaid"
+      }
+    },
+    "upgrade": {
+      "title": "Upgrade your plan",
+      "description": "Unlock AI features to optimize your practice",
+      "cta": "Upgrade"
     }
   },
   "sidebar": {

@@ -42,6 +42,7 @@ model User {
   appointments     Appointment[]
   services         Service[]
   invoices         Invoice[]
+  subscription     Subscription?
 }
 
 model Session {
@@ -107,6 +108,21 @@ enum InvoiceStatus {
   DRAFT
   SENT
   PAID
+}
+
+// --- SUBSCRIPTION MODELS ---
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+}
+
+enum SubscriptionPlan {
+  PRO
+  PRO_IA
 }
 
 model Patient {
@@ -206,4 +222,37 @@ model Invoice {
   pdfUrl        String?
 
   createdAt     DateTime  @default(now())
+}
+
+model Subscription {
+  id                    String             @id @default(cuid())
+  userId                String             @unique
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stripeCustomerId      String             @unique
+  stripeSubscriptionId  String?            @unique
+  stripePriceId         String?
+
+  plan                  SubscriptionPlan   @default(PRO)
+  status                SubscriptionStatus @default(TRIALING)
+
+  trialEndsAt           DateTime?
+  currentPeriodEnd      DateTime?
+  cancelAtPeriodEnd     Boolean            @default(false)
+
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  @@index([stripeCustomerId])
+  @@index([status])
+}
+
+model WebhookEvent {
+  id            String   @id @default(cuid())
+  stripeEventId String   @unique
+  eventType     String
+  processed     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@index([stripeEventId])
 }

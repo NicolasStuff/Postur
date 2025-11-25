@@ -12,9 +12,11 @@ import {
 import Image from "next/image"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
+import { SubscriptionPlan, SubscriptionStatus } from "@prisma/client"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
+import { Badge } from "@/components/ui/badge"
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +27,13 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
+
+interface SubscriptionData {
+  plan: SubscriptionPlan
+  status: SubscriptionStatus
+  trialDaysRemaining: number
+}
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user?: {
@@ -32,10 +41,12 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
     email: string
     avatar: string
   }
+  subscription?: SubscriptionData | null
 }
 
-export function AppSidebar({ user, ...props }: AppSidebarProps) {
+export function AppSidebar({ user, subscription, ...props }: AppSidebarProps) {
   const t = useTranslations('sidebar')
+  const tSub = useTranslations('subscription')
 
   const navMain = [
     {
@@ -76,6 +87,31 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
     avatar: "https://github.com/shadcn.png",
   }
 
+  // Get subscription badge info
+  const getSubscriptionBadge = () => {
+    if (!subscription) return null
+
+    if (subscription.status === "TRIALING") {
+      return {
+        label: tSub("trial.banner"),
+        className: "bg-indigo-100 text-indigo-800 hover:bg-indigo-100",
+      }
+    }
+
+    if (subscription.status === "ACTIVE") {
+      return {
+        label: subscription.plan === "PRO_IA" ? "Pro + IA" : "Pro",
+        className: subscription.plan === "PRO_IA"
+          ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600"
+          : "bg-slate-100 text-slate-800 hover:bg-slate-100",
+      }
+    }
+
+    return null
+  }
+
+  const badge = getSubscriptionBadge()
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -87,7 +123,17 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                   <Image src="/images/logo.svg" alt="Postur" width={32} height={32} />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{t('appName')}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="truncate font-semibold">{t('appName')}</span>
+                    {badge && (
+                      <Badge
+                        variant="secondary"
+                        className={cn("text-[10px] px-1.5 py-0", badge.className)}
+                      >
+                        {badge.label}
+                      </Badge>
+                    )}
+                  </div>
                   <span className="truncate text-xs">{t('appDescription')}</span>
                 </div>
               </Link>
