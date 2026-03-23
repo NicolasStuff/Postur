@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { TrialBanner } from "@/components/subscription/TrialBanner"
+import { BillingSettings } from "@/components/settings/BillingSettings"
 import { SubscriptionStatus } from "@prisma/client"
 
 export default async function DashboardLayout({
@@ -36,6 +37,7 @@ export default async function DashboardLayout({
           plan: true,
           trialEndsAt: true,
           currentPeriodEnd: true,
+          cancelAtPeriodEnd: true,
         },
       },
     },
@@ -50,15 +52,6 @@ export default async function DashboardLayout({
   const subscription = dbUser.subscription
   const activeStatuses: SubscriptionStatus[] = ["TRIALING", "ACTIVE", "PAST_DUE"]
   const hasActiveSubscription = subscription && activeStatuses.includes(subscription.status)
-
-  // If no subscription or inactive, redirect to settings for upgrade
-  // Allow access to settings page to let user upgrade
-  const currentPath = (await headers()).get("x-pathname") || ""
-  const isSettingsPage = currentPath.includes("/settings")
-
-  if (!hasActiveSubscription && !isSettingsPage) {
-    redirect("/dashboard/settings?tab=billing&upgrade=true")
-  }
 
   // Calculate trial days remaining
   let trialDaysRemaining = 0
@@ -99,7 +92,11 @@ export default async function DashboardLayout({
           <Separator orientation="vertical" className="mr-2 h-4" />
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
-          {children}
+          {hasActiveSubscription ? (
+            children
+          ) : (
+            <BillingSettings subscription={null} showUpgradeModal />
+          )}
         </main>
       </SidebarInset>
     </SidebarProvider>
