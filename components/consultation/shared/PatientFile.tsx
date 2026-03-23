@@ -1,5 +1,6 @@
 import { format } from "date-fns"
 import { fr, enUS } from "date-fns/locale"
+import Link from "next/link"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Mail, Phone, MapPin, Calendar } from "lucide-react"
 import { useTranslations, useLocale } from "next-intl"
@@ -109,8 +110,9 @@ export function PatientFile({ patient }: PatientFileProps) {
                     <div className="p-3 space-y-2">
                         {patientData.appointments && patientData.appointments.length > 0 ? (
                             patientData.appointments.map((appointment) => (
-                                <div
+                                <Link
                                     key={appointment.id}
+                                    href={`/dashboard/consultation/${appointment.id}?from=patient`}
                                     className="rounded-lg border border-l-4 border-l-blue-500 bg-white p-2.5 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                                 >
                                     <div className="flex items-center gap-2 mb-1.5">
@@ -127,7 +129,7 @@ export function PatientFile({ patient }: PatientFileProps) {
                                             {extractTextFromTipTap(appointment.note.content)}
                                         </div>
                                     )}
-                                </div>
+                                </Link>
                             ))
                         ) : (
                             <p className="text-sm text-slate-400 text-center py-4">{t('noConsultations')}</p>

@@ -48,36 +48,51 @@ export function AppSidebar({ user, subscription, ...props }: AppSidebarProps) {
   const t = useTranslations('sidebar')
   const tSub = useTranslations('subscription')
 
-  const navMain = [
+  const navGroups = [
     {
-      title: t('dashboard'),
-      url: "/dashboard",
-      icon: LayoutDashboard,
+      label: t('sections.activity'),
+      items: [
+        {
+          title: t('dashboard'),
+          url: "/dashboard",
+          icon: LayoutDashboard,
+        },
+        {
+          title: t('consultations'),
+          url: "/dashboard/consultations",
+          icon: FileText,
+        },
+        {
+          title: t('calendar'),
+          url: "/dashboard/calendar",
+          icon: Calendar,
+        },
+      ],
     },
     {
-      title: t('calendar'),
-      url: "/dashboard/calendar",
-      icon: Calendar,
+      label: t('sections.patientCare'),
+      items: [
+        {
+          title: t('patients'),
+          url: "/dashboard/patients",
+          icon: Users,
+        },
+      ],
     },
     {
-      title: t('patients'),
-      url: "/dashboard/patients",
-      icon: Users,
-    },
-    {
-      title: t('consultations'),
-      url: "/dashboard/consultations",
-      icon: FileText,
-    },
-    {
-      title: t('billing'),
-      url: "/dashboard/billing",
-      icon: CreditCard,
-    },
-    {
-      title: t('settings'),
-      url: "/dashboard/settings",
-      icon: Settings,
+      label: t('sections.management'),
+      items: [
+        {
+          title: t('billing'),
+          url: "/dashboard/billing",
+          icon: CreditCard,
+        },
+        {
+          title: t('settings'),
+          url: "/dashboard/settings",
+          icon: Settings,
+        },
+      ],
     },
   ]
 
@@ -142,7 +157,9 @@ export function AppSidebar({ user, subscription, ...props }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMain} />
+        {navGroups.map((group) => (
+          <NavMain key={group.label} label={group.label} items={group.items} />
+        ))}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user || defaultUser} />

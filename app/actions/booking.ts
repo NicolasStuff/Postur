@@ -106,6 +106,20 @@ export async function createPublicAppointment(data: {
 
     const end = new Date(new Date(data.start).getTime() + service.duration * 60000);
 
+    const conflictingAppointment = await prisma.appointment.findFirst({
+        where: {
+            userId: practitioner.id,
+            status: { not: 'CANCELED' },
+            start: { lt: end },
+            end: { gt: data.start }
+        },
+        select: { id: true }
+    })
+
+    if (conflictingAppointment) {
+        throw new Error(await getErrorMessage("slotNotAvailable"));
+    }
+
     return await prisma.appointment.create({
         data: {
             userId: practitioner.id,

@@ -7,6 +7,8 @@
       "consultationSaveError": "Error saving consultation",
       "consultationBilled": "Consultation billed successfully",
       "consultationBillError": "Error billing consultation",
+      "alreadyBilled": "Already billed",
+      "billedWithNumber": "Invoice {number}",
       "practitionerTypes": {
         "osteopath": "Osteopath",
         "naturopath": "Naturopath",
@@ -176,15 +178,44 @@
     },
     "consultationsPage": {
       "title": "Consultations",
+      "description": "Quickly find consultations, clinical notes and sessions still to invoice.",
+      "results": "{count} results",
+      "patientFilter": "Patient: {patient}",
+      "searchPlaceholder": "Search by patient, phone, date or service...",
+      "filters": {
+        "all": "All",
+        "today": "Today",
+        "completed": "Completed",
+        "unbilled": "To bill",
+        "notesMissing": "Without note"
+      },
+      "sorting": {
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "patient": "By patient"
+      },
+      "statuses": {
+        "planned": "Planned",
+        "confirmed": "Confirmed",
+        "completed": "Completed",
+        "canceled": "Canceled",
+        "noshow": "No-show"
+      },
       "table": {
         "date": "Date",
         "patient": "Patient",
+        "service": "Service",
         "status": "Status",
         "note": "Note",
+        "billing": "Billing",
         "actions": "Actions",
         "noConsultations": "No consultations found.",
         "noteSaved": "Note saved",
         "noNote": "No note",
+        "noContact": "No contact",
+        "noService": "No service",
+        "billed": "Billed {number}",
+        "toBill": "To bill",
         "open": "Open"
       }
     },
@@ -279,7 +310,11 @@
       "toasts": {
         "invoiceCreated": "Invoice created successfully",
         "statusUpdated": "Status updated",
-        "invoiceDeleted": "Invoice deleted successfully"
+        "invoiceDeleted": "Invoice deleted successfully",
+        "invoiceCreateError": "Error creating invoice",
+        "statusUpdateError": "Error updating status",
+        "invoiceDeleteError": "Error deleting invoice",
+        "previewError": "Unable to open preview"
       }
     }
   },
@@ -418,7 +453,12 @@
     "patients": "Patients",
     "consultations": "Consultations",
     "billing": "Billing",
-    "settings": "Settings"
+    "settings": "Settings",
+    "sections": {
+      "activity": "Activity",
+      "patientCare": "Patient care",
+      "management": "Management"
+    }
   },
   "navigation": {
     "settings": "Settings",
@@ -487,6 +527,7 @@
     "appointmentNotFound": "Appointment not found",
     "patientNotFound": "Patient not found",
     "consultationNotFound": "Consultation not found",
+    "consultationAlreadyBilled": "This consultation has already been billed",
     "invalidDate": "Invalid date",
     "invalidTimeSlot": "Invalid time slot",
     "slotNotAvailable": "This time slot is not available",

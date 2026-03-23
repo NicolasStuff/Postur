@@ -41,7 +41,7 @@ export function PractitionerCalendar() {
     const handleEventClick = (info: EventClickArg) => {
         // Navigate to consultation or show details
         const appointmentId = info.event.id
-        router.push(`/dashboard/consultation/${appointmentId}`)
+        router.push(`/dashboard/consultation/${appointmentId}?from=calendar`)
     }
 
     const events = appointments?.map(apt => ({

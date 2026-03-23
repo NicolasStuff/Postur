@@ -35,6 +35,9 @@ export default function BillingPage() {
           queryClient.invalidateQueries({ queryKey: ['invoices'] })
           setOpen(false)
           toast.success(t('toasts.invoiceCreated'))
+      },
+      onError: (error: Error) => {
+          toast.error(error.message || t('toasts.invoiceCreateError'))
       }
   })
 
@@ -44,6 +47,9 @@ export default function BillingPage() {
       onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['invoices'] })
           toast.success(t('toasts.statusUpdated'))
+      },
+      onError: (error: Error) => {
+          toast.error(error.message || t('toasts.statusUpdateError'))
       }
   })
 
@@ -52,13 +58,21 @@ export default function BillingPage() {
       onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['invoices'] })
           toast.success(t('toasts.invoiceDeleted'))
+      },
+      onError: (error: Error) => {
+          toast.error(error.message || t('toasts.invoiceDeleteError'))
       }
   })
 
   const handlePreview = async (invoiceId: string) => {
-      const details = await getInvoiceDetails(invoiceId)
-      setSelectedInvoice(details)
-      setPreviewOpen(true)
+      try {
+          const details = await getInvoiceDetails(invoiceId)
+          setSelectedInvoice(details)
+          setPreviewOpen(true)
+      } catch (error) {
+          const message = error instanceof Error ? error.message : t('toasts.previewError')
+          toast.error(message)
+      }
   }
 
   if (isLoading) return <div className="p-8"><Loader2 className="animate-spin"/></div>
@@ -85,11 +99,26 @@ export default function BillingPage() {
                     </div>
                     <div className="grid gap-2">
                         <Label>{t('form.amount')}</Label>
-                        <Input type="number" value={newInvoice.amount} onChange={(e) => setNewInvoice({...newInvoice, amount: parseFloat(e.target.value)})} />
+                        <Input
+                          type="number"
+                          value={newInvoice.amount}
+                          onChange={(e) => {
+                            const nextAmount = Number.parseFloat(e.target.value)
+                            setNewInvoice({
+                              ...newInvoice,
+                              amount: Number.isNaN(nextAmount) ? 0 : nextAmount
+                            })
+                          }}
+                        />
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button onClick={() => mutation.mutate(newInvoice)} disabled={mutation.isPending || !newInvoice.patientId}>{t('form.create')}</Button>
+                    <Button
+                      onClick={() => mutation.mutate(newInvoice)}
+                      disabled={mutation.isPending || !newInvoice.patientId || newInvoice.amount <= 0}
+                    >
+                      {t('form.create')}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

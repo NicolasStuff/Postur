@@ -15,7 +15,7 @@ model User {
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime  @default(now()) @updatedAt
 
   // Better Auth Relations
   sessions      Session[]
@@ -174,11 +174,18 @@ model Appointment {
   start         DateTime
   end           DateTime
   status        AppointmentStatus @default(PLANNED)
+  notes         String?
+  completedAt   DateTime?
+  billedAt      DateTime?
 
   note          ConsultationNote?
+  invoice       Invoice?
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@index([userId, start])
+  @@index([userId, status, start])
 }
 
 model ConsultationNote {
@@ -213,15 +220,24 @@ model Invoice {
 
   patientId     String
   patient       Patient   @relation(fields: [patientId], references: [id])
+  appointmentId String?   @unique
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
 
   number        String
   date          DateTime  @default(now())
 
   amount        Decimal   @db.Decimal(10, 2)
   status        InvoiceStatus @default(DRAFT)
+  serviceName   String?
+  issuerSnapshot Json?
+  patientSnapshot Json?
   pdfUrl        String?
 
   createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  @@unique([userId, number])
+  @@index([userId, date])
 }
 
 model Subscription {

@@ -7,6 +7,8 @@
       "consultationSaveError": "Erreur lors de la sauvegarde de la consultation",
       "consultationBilled": "Consultation facturée avec succès",
       "consultationBillError": "Erreur lors de la facturation de la consultation",
+      "alreadyBilled": "Déjà facturée",
+      "billedWithNumber": "Facture {number}",
       "practitionerTypes": {
         "osteopath": "Ostéopathe",
         "naturopath": "Naturopathe",
@@ -478,15 +480,44 @@
     },
     "consultationsPage": {
       "title": "Consultations",
+      "description": "Retrouvez rapidement les consultations, notes cliniques et actes à facturer.",
+      "results": "{count} résultats",
+      "patientFilter": "Patient : {patient}",
+      "searchPlaceholder": "Rechercher un patient, un téléphone, une date ou un service...",
+      "filters": {
+        "all": "Toutes",
+        "today": "Aujourd'hui",
+        "completed": "Terminées",
+        "unbilled": "À facturer",
+        "notesMissing": "Sans note"
+      },
+      "sorting": {
+        "newest": "Plus récentes",
+        "oldest": "Plus anciennes",
+        "patient": "Par patient"
+      },
+      "statuses": {
+        "planned": "Planifié",
+        "confirmed": "Confirmé",
+        "completed": "Terminée",
+        "canceled": "Annulé",
+        "noshow": "Absence"
+      },
       "table": {
         "date": "Date",
         "patient": "Patient",
+        "service": "Service",
         "status": "Statut",
         "note": "Note",
+        "billing": "Facturation",
         "actions": "Actions",
         "noConsultations": "Aucune consultation trouvée.",
         "noteSaved": "Note enregistrée",
         "noNote": "Pas de note",
+        "noContact": "Aucun contact",
+        "noService": "Service non renseigné",
+        "billed": "Facturée {number}",
+        "toBill": "À facturer",
         "open": "Ouvrir"
       }
     },
@@ -609,7 +640,11 @@
       "toasts": {
         "invoiceCreated": "Facture créée avec succès",
         "statusUpdated": "Statut mis à jour",
-        "invoiceDeleted": "Facture supprimée avec succès"
+        "invoiceDeleted": "Facture supprimée avec succès",
+        "invoiceCreateError": "Erreur lors de la création de la facture",
+        "statusUpdateError": "Erreur lors de la mise à jour du statut",
+        "invoiceDeleteError": "Erreur lors de la suppression de la facture",
+        "previewError": "Impossible d'afficher l'aperçu"
       }
     }
   },
@@ -695,7 +730,12 @@
     "patients": "Patients",
     "consultations": "Consultations",
     "billing": "Facturation",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "sections": {
+      "activity": "Activité",
+      "patientCare": "Patientèle",
+      "management": "Gestion"
+    }
   },
   "navigation": {
     "settings": "Paramètres",
@@ -764,6 +804,7 @@
     "appointmentNotFound": "Rendez-vous introuvable",
     "patientNotFound": "Patient introuvable",
     "consultationNotFound": "Consultation introuvable",
+    "consultationAlreadyBilled": "Cette consultation a déjà été facturée",
     "invalidDate": "Date invalide",
     "invalidTimeSlot": "Créneau horaire invalide",
     "slotNotAvailable": "Ce créneau horaire n'est pas disponible",

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -173,7 +173,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
         })
     }
 
-    const timeSlots = useMemo(() => generateTimeSlots(), [selectedDate, appointments, practitioner.openingHours])
+    const timeSlots = generateTimeSlots()
 
     const handleDateClick = (day: number) => {
         if (!isDateAvailable(day)) return

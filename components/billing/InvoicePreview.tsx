@@ -13,6 +13,7 @@ interface InvoicePreviewProps {
     date: Date | string
     amount: number
     status: string
+    serviceName?: string | null
     patient: {
       firstName: string
       lastName: string
@@ -134,7 +135,7 @@ export function InvoicePreview({ open, onOpenChange, invoice }: InvoicePreviewPr
               <tbody>
                 <tr>
                   <td className="border border-gray-300 px-4 py-2 text-sm">
-                    {getServiceDescription(invoice.user.practitionerType, t)}
+                    {invoice.serviceName || getServiceDescription(invoice.user.practitionerType, t)}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-center text-sm">1</td>
                   <td className="border border-gray-300 px-4 py-2 text-right text-sm">
