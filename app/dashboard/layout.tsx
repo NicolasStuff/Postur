@@ -5,7 +5,6 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
-import { TrialBanner } from "@/components/subscription/TrialBanner"
 import { BillingSettings } from "@/components/settings/BillingSettings"
 import { SubscriptionStatus } from "@prisma/client"
 
@@ -80,14 +79,7 @@ export default async function DashboardLayout({
     <SidebarProvider>
       <AppSidebar user={userData} subscription={subscriptionData} />
       <SidebarInset>
-        {/* Trial Banner */}
-        {subscription && subscription.status !== "ACTIVE" && (
-          <TrialBanner
-            daysRemaining={trialDaysRemaining}
-            status={subscription.status}
-          />
-        )}
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
+<header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
         </header>
