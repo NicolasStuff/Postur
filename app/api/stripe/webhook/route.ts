@@ -94,13 +94,15 @@ export async function POST(req: Request) {
  */
 function getSubscriptionPeriodEnd(subscription: Stripe.Subscription): Date | null {
   // Try direct property (may not exist in newer API versions)
-  const periodEnd = (subscription as any).current_period_end;
+  const sub = subscription as unknown as Record<string, unknown>;
+  const periodEnd = sub.current_period_end;
   if (typeof periodEnd === "number") {
     return new Date(periodEnd * 1000);
   }
 
   // Fallback: use items period end
-  const itemPeriodEnd = (subscription.items?.data?.[0] as any)?.current_period_end;
+  const item = subscription.items?.data?.[0] as unknown as Record<string, unknown> | undefined;
+  const itemPeriodEnd = item?.current_period_end;
   if (typeof itemPeriodEnd === "number") {
     return new Date(itemPeriodEnd * 1000);
   }
@@ -222,7 +224,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
-  const subscriptionId = (invoice as any).subscription as string | null;
+  const subscriptionId = (invoice as unknown as Record<string, unknown>).subscription as string | null;
 
   if (!subscriptionId) return;
 

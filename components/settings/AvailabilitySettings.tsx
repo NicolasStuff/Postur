@@ -68,7 +68,6 @@ export function AvailabilitySettings() {
                 }
             })
 
-            // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing form state with server data
             setSchedule(newSchedule)
         }
     }, [user])

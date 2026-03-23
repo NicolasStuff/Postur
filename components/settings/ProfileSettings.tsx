@@ -27,7 +27,6 @@ export function ProfileSettings() {
     // Update form data when user profile loads
     useEffect(() => {
         if (user) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing form state with server data
             setFormData({
                 companyName: user.companyName || "",
                 companyAddress: user.companyAddress || "",

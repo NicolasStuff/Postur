@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -175,7 +175,7 @@ export function BillingSettings({ subscription, showUpgradeModal }: BillingSetti
           <div className="grid gap-2 text-sm">
             {subscription.status === "TRIALING" && subscription.trialEndsAt && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Fin de l'essai</span>
+                <span className="text-muted-foreground">Fin de l&apos;essai</span>
                 <span className="font-medium">{formatDate(subscription.trialEndsAt)}</span>
               </div>
             )}

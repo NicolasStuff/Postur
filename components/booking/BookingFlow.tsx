@@ -12,13 +12,6 @@ import { createPublicAppointment, getPublicAvailability, PublicPractitioner } fr
 import { Loader2, CheckCircle2 } from "lucide-react"
 import { useTranslations } from 'next-intl'
 
-interface Service {
-    id: string
-    name: string
-    duration: number
-    price: number | string
-}
-
 interface BookingFlowProps {
     practitioner: PublicPractitioner
     slug: string

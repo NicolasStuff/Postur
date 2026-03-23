@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Activity, Loader2, ArrowLeft } from "lucide-react";
 import { updateUserProfile } from "@/app/actions/user";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PlanSelector } from "@/components/subscription/PlanSelector";
 import { toast } from "sonner";
@@ -18,7 +18,6 @@ export default function OnboardingPage() {
   const tSubscription = useTranslations("subscription");
   const [step, setStep] = useState<Step>("practitioner");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // Handle checkout canceled

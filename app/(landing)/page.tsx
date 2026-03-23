@@ -2,11 +2,8 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, Check, Shield, Calendar, FileText, User, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { MobileMenu } from "@/components/landing/MobileMenu"
 import { FAQ } from "@/components/landing/FAQ"
-import { AnimatedDiv, AnimatedSection } from "@/components/landing/AnimatedSection"
 import { HeroSection } from "@/components/landing/HeroSection"
 
 // JSON-LD Structured Data

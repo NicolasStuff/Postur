@@ -10,10 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, Check, ArrowLeft } from "lucide-react"
-import { useTranslations } from "next-intl"
-
 export default function AuthPage() {
-  const t = useTranslations('auth.signin')
   const searchParams = useSearchParams()
   const defaultTab = searchParams.get('tab') === 'signin' ? 'signin' : 'signup'
 

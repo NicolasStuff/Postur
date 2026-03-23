@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { stripe, PLANS, getPlanByPriceId } from "@/lib/stripe";
+import { stripe, getPlanByPriceId } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
