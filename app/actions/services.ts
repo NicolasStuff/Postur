@@ -30,10 +30,12 @@ export async function createService(data: { name: string, duration: number, pric
         throw new Error(await getErrorMessage("unauthorized"));
     }
 
-    return await prisma.service.create({
+    const service = await prisma.service.create({
         data: {
             ...data,
             userId: session.user.id
         }
     })
+
+    return { ...service, price: service.price.toNumber() }
 }
