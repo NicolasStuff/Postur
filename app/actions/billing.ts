@@ -745,6 +745,10 @@ export async function deleteInvoice(invoiceId: string) {
       throw new Error(await getErrorMessage("invoiceNotFound"))
     }
 
+    if (invoice.status !== "DRAFT") {
+      throw new Error(await getErrorMessage("invoiceCannotDelete"))
+    }
+
     if (invoice.appointmentId) {
       await tx.appointment.update({
         where: { id: invoice.appointmentId },
@@ -779,6 +783,55 @@ export async function deleteInvoice(invoiceId: string) {
   })
 }
 
+export async function cancelInvoice(invoiceId: string) {
+  const userId = await requireSessionUserId()
+
+  return prisma.$transaction(async (tx) => {
+    const invoice = await tx.invoice.findFirst({
+      where: { id: invoiceId, userId },
+    })
+
+    if (!invoice) {
+      throw new Error(await getErrorMessage("invoiceNotFound"))
+    }
+
+    if (invoice.status === "DRAFT" || invoice.status === "CANCELLED") {
+      throw new Error(await getErrorMessage("invoiceCannotCancel"))
+    }
+
+    if (invoice.appointmentId) {
+      await tx.appointment.update({
+        where: { id: invoice.appointmentId },
+        data: { billedAt: null },
+      })
+    }
+
+    const updatedInvoice = await tx.invoice.update({
+      where: { id: invoiceId },
+      data: { status: "CANCELLED" },
+    })
+
+    await recordAuditEventSafe(tx, {
+      actorUserId: userId,
+      targetUserId: userId,
+      domain: "INVOICE",
+      action: "INVOICE_CANCELLED",
+      entityType: "Invoice",
+      entityId: invoiceId,
+      metadata: {
+        number: invoice.number,
+      },
+    })
+
+    return {
+      ...updatedInvoice,
+      amount: updatedInvoice.amount.toNumber(),
+      vatAmount: updatedInvoice.vatAmount?.toNumber() ?? 0,
+      vatRate: updatedInvoice.vatRate?.toNumber() ?? null,
+    }
+  })
+}
+
 export async function getInvoiceDetails(invoiceId: string) {
   const userId = await requireSessionUserId()
   const invoice = await getInvoiceDetailsRecord(invoiceId, userId)
@@ -789,7 +842,9 @@ export async function getInvoiceDetails(invoiceId: string) {
 export async function sendInvoiceByEmail(invoiceId: string, recipientEmail: string) {
   const reactPdf = await import("@react-pdf/renderer")
   const { InvoicePdfDocument } = await import("@/components/billing/InvoicePdfDocument")
+  const { RecapPdfDocument } = await import("@/components/billing/RecapPdfDocument")
   const { sendInvoiceEmail } = await import("@/lib/email")
+  const { normalizeConsultationContent } = await import("@/lib/consultation-note")
   const React = await import("react")
 
   const userId = await requireSessionUserId()
@@ -814,6 +869,43 @@ export async function sendInvoiceByEmail(invoiceId: string, recipientEmail: stri
   const document = InvoicePdfDocument({ invoice: mapped, locale: "fr" }) as any
   const buffer = await reactPdf.renderToBuffer(document)
 
+  // Generate recap PDF if a validated recap exists for this consultation
+  let recapPdfBuffer: Buffer | undefined
+  if (invoice.appointmentId) {
+    const note = await prisma.consultationNote.findUnique({
+      where: { appointmentId: invoice.appointmentId },
+      select: { content: true },
+    })
+    if (note) {
+      const content = normalizeConsultationContent(note.content)
+      if (content.ai.patientRecap?.validatedAt) {
+        const consultationDate = mapped.date.toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const recapDoc = RecapPdfDocument({
+          locale: "fr",
+          recap: content.ai.patientRecap,
+          patient: {
+            firstName: mapped.patient.firstName,
+            lastName: mapped.patient.lastName,
+          },
+          practitioner: {
+            name: mapped.user.name || issuerName,
+            companyName: mapped.user.companyName,
+            companyAddress: mapped.user.companyAddress,
+            siret: mapped.user.siret,
+          },
+          consultationDate,
+        }) as any
+        const recapBuffer = await reactPdf.renderToBuffer(recapDoc)
+        recapPdfBuffer = Buffer.from(recapBuffer)
+      }
+    }
+  }
+
   await sendInvoiceEmail({
     to: recipientEmail,
     invoiceNumber: mapped.number,
@@ -824,6 +916,7 @@ export async function sendInvoiceByEmail(invoiceId: string, recipientEmail: stri
     issuerAddress: mapped.user.companyAddress ?? null,
     issuerSiret: mapped.user.siret ?? null,
     pdfBuffer: Buffer.from(buffer),
+    recapPdfBuffer,
   })
 
   await recordAuditEventSafe(prisma, {
@@ -836,6 +929,7 @@ export async function sendInvoiceByEmail(invoiceId: string, recipientEmail: stri
     metadata: {
       invoiceNumber: mapped.number,
       recipientEmail,
+      hasRecapAttachment: Boolean(recapPdfBuffer),
     },
   })
 }

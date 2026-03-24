@@ -841,3 +841,50 @@ export async function generatePatientRecap(
 
   return recap
 }
+
+export async function saveValidatedRecap(
+  appointmentId: string,
+  recap: {
+    summary: string
+    advice: string[]
+    exercises: string[]
+    precautions: string[]
+    followUp: string
+    generatedAt: string
+    model: string
+  }
+) {
+  const userId = await requireCoreAppAccess()
+
+  const appointment = await prisma.appointment.findFirst({
+    where: {
+      id: appointmentId,
+      userId,
+    },
+    select: { id: true },
+  })
+
+  if (!appointment) {
+    throw new Error(await getErrorMessage("appointmentNotFound"))
+  }
+
+  await applyConsultationContentPatch(appointmentId, {
+    ai: {
+      patientRecap: {
+        ...recap,
+        validatedAt: new Date().toISOString(),
+        editedByPractitioner: true,
+      },
+    },
+  })
+
+  await recordAuditEventSafe(prisma, {
+    actorUserId: userId,
+    targetUserId: userId,
+    domain: "CONSULTATION",
+    action: "PATIENT_RECAP_VALIDATED",
+    entityType: "Appointment",
+    entityId: appointmentId,
+    metadata: {},
+  })
+}

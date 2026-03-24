@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { CheckCircle2, Download, FilePenLine, Loader2, Mail, Printer, Send, Trash2 } from "lucide-react"
+import { Ban, CheckCircle2, Download, FilePenLine, Loader2, Mail, Printer, Send, Trash2 } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useQuery } from "@tanstack/react-query"
 import { getInvoiceDetails } from "@/app/actions/billing"
@@ -23,8 +23,10 @@ interface InvoicePreviewSheetProps {
   onResend: () => void
   onMarkPaid: () => void
   onDelete: () => void
+  onCancel: () => void
   isUpdating: boolean
   isDeleting: boolean
+  isCancelling: boolean
 }
 
 export function InvoicePreviewSheet({
@@ -36,8 +38,10 @@ export function InvoicePreviewSheet({
   onResend,
   onMarkPaid,
   onDelete,
+  onCancel,
   isUpdating,
   isDeleting,
+  isCancelling,
 }: InvoicePreviewSheetProps) {
   const t = useTranslations("dashboard.billing")
 
@@ -51,6 +55,8 @@ export function InvoicePreviewSheet({
   const canSend = invoice?.status === "DRAFT"
   const canResend = invoice?.status === "SENT"
   const canMarkPaid = invoice?.status === "SENT"
+  const canDelete = invoice?.status === "DRAFT"
+  const canCancel = invoice?.status === "SENT" || invoice?.status === "PAID"
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -101,20 +107,38 @@ export function InvoicePreviewSheet({
                   {t("actions.markAsPaid")}
                 </Button>
               )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onDelete}
-                disabled={isDeleting}
-                className="ml-auto text-destructive hover:text-destructive"
-              >
-                {isDeleting ? (
-                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Trash2 className="mr-2 h-3.5 w-3.5" />
-                )}
-                {t("actions.delete")}
-              </Button>
+              {canDelete && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onDelete}
+                  disabled={isDeleting}
+                  className="ml-auto text-destructive hover:text-destructive"
+                >
+                  {isDeleting ? (
+                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="mr-2 h-3.5 w-3.5" />
+                  )}
+                  {t("actions.delete")}
+                </Button>
+              )}
+              {canCancel && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onCancel}
+                  disabled={isCancelling}
+                  className="ml-auto text-destructive hover:text-destructive"
+                >
+                  {isCancelling ? (
+                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Ban className="mr-2 h-3.5 w-3.5" />
+                  )}
+                  {t("actions.cancelInvoice")}
+                </Button>
+              )}
             </div>
 
             <PdfViewer url={`/api/invoices/${invoice.id}/pdf`} />

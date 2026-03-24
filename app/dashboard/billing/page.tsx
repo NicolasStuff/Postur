@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 
 import {
+  cancelInvoice,
   deleteInvoice,
   getBillingProfileStatus,
   getInvoiceDetails,
@@ -124,6 +125,20 @@ export default function BillingPage() {
     },
     onError: (error: Error) => {
       toast.error(error.message || t("toasts.invoiceDeleteError"))
+    },
+  })
+
+  const cancelMutation = useMutation({
+    mutationFn: cancelInvoice,
+    onSuccess: async (updatedInvoice) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["invoices"] }),
+        queryClient.invalidateQueries({ queryKey: ["invoiceDetails", updatedInvoice.id] }),
+      ])
+      toast.success(t("toasts.invoiceCancelled"))
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || t("toasts.invoiceCancelError"))
     },
   })
 
@@ -311,6 +326,7 @@ export default function BillingPage() {
                         updateStatusMutation.mutate({ id: invoice.id, status: "PAID" })
                       }
                       onDelete={() => deleteMutation.mutate(invoice.id)}
+                      onCancel={() => cancelMutation.mutate(invoice.id)}
                     />
                   </TableCell>
                 </TableRow>
@@ -356,8 +372,10 @@ export default function BillingPage() {
           previewInvoiceId && updateStatusMutation.mutate({ id: previewInvoiceId, status: "PAID" })
         }
         onDelete={() => previewInvoiceId && deleteMutation.mutate(previewInvoiceId)}
+        onCancel={() => previewInvoiceId && cancelMutation.mutate(previewInvoiceId)}
         isUpdating={updateStatusMutation.isPending}
         isDeleting={deleteMutation.isPending}
+        isCancelling={cancelMutation.isPending}
       />
 
       <InvoiceDraftDialog

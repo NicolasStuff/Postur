@@ -18,6 +18,10 @@ const statusConfig = {
     key: "statuses.paid" as const,
     className: "border-emerald-200 bg-emerald-50 text-emerald-700",
   },
+  CANCELLED: {
+    key: "statuses.cancelled" as const,
+    className: "border-red-200 bg-red-50 text-red-700",
+  },
 } as const
 
 export function InvoiceStatusBadge({ status }: { status: string }) {

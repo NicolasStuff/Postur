@@ -9,16 +9,26 @@ import { useTranslations } from "next-intl"
 import {
   confirmConsultationBilling,
   getConsultation,
+  getConsultationAIAccess,
   prepareConsultationBillingDraft,
   saveConsultationNote,
 } from "@/app/actions/consultation"
+import { createEmptyConsultationAIState } from "@/lib/consultation-note"
 import {
   OsteopathConsultation,
   OsteopathConsultationRef,
 } from "@/components/consultation/osteopath/OsteopathConsultation"
-import { ConsultationBillingDialog } from "@/components/consultation/shared/ConsultationBillingDialog"
+import { SessionClosureDialog } from "@/components/consultation/shared/SessionClosureDialog"
 import { ConsultationHeader } from "@/components/consultation/shared/ConsultationHeader"
 import { toast } from "sonner"
+
+function getRefValue<T>(
+  ref: React.RefObject<OsteopathConsultationRef | null>,
+  getter: (r: OsteopathConsultationRef) => T,
+  fallback: T
+): T {
+  return ref.current ? getter(ref.current) : fallback
+}
 
 export default function ConsultationPage({
   params,
@@ -31,11 +41,16 @@ export default function ConsultationPage({
   const queryClient = useQueryClient()
   const searchParams = useSearchParams()
   const consultationRef = useRef<OsteopathConsultationRef>(null)
-  const [billingDialogOpen, setBillingDialogOpen] = useState(false)
+  const [closureDialogOpen, setClosureDialogOpen] = useState(false)
 
   const { data: consultation, isLoading } = useQuery({
     queryKey: ["consultation", appointmentId],
     queryFn: () => getConsultation(appointmentId),
+  })
+
+  const { data: aiAccess } = useQuery({
+    queryKey: ["consultation-ai-access"],
+    queryFn: () => getConsultationAIAccess(),
   })
 
   const saveMutation = useMutation({
@@ -50,7 +65,7 @@ export default function ConsultationPage({
   const { data: billingDraft, isLoading: isBillingDraftLoading } = useQuery({
     queryKey: ["consultationBillingDraft", appointmentId],
     queryFn: () => prepareConsultationBillingDraft(appointmentId),
-    enabled: billingDialogOpen,
+    enabled: closureDialogOpen,
   })
 
   const finishAndBillMutation = useMutation({
@@ -66,7 +81,7 @@ export default function ConsultationPage({
     }) =>
       confirmConsultationBilling({
         appointmentId,
-        consultationContent: getDraft(),
+        consultationContent: consultationRef.current?.getDraft() ?? { editor: null, bodyChart: [] },
         ...payload,
       }),
     onSuccess: async () => {
@@ -76,7 +91,7 @@ export default function ConsultationPage({
         queryClient.invalidateQueries({ queryKey: ["invoices"] }),
         queryClient.invalidateQueries({ queryKey: ["consultationBillingDraft", appointmentId] }),
       ])
-      setBillingDialogOpen(false)
+      setClosureDialogOpen(false)
       toast.success(t("consultationBilled"))
     },
     onError: (error: Error) => {
@@ -117,18 +132,13 @@ export default function ConsultationPage({
         ? tErrors("consultationCannotBeBilled")
         : undefined
 
-  const getDraft = () =>
-    consultationRef.current?.getDraft() ?? {
-      editor: null,
-      bodyChart: [],
-    }
-
   const handleSave = async () => {
-    await saveMutation.mutateAsync(getDraft())
+    const draft = consultationRef.current?.getDraft() ?? { editor: null, bodyChart: [] }
+    await saveMutation.mutateAsync(draft)
   }
 
-  const handleFinishAndBill = async () => {
-    setBillingDialogOpen(true)
+  const handleFinishSession = async () => {
+    setClosureDialogOpen(true)
   }
 
   const handleAutosave = async (data: Prisma.InputJsonValue) => {
@@ -142,7 +152,7 @@ export default function ConsultationPage({
           practitionerName={practitionerName}
           practitionerType={practitionerType}
           onSave={handleSave}
-          onFinishAndBill={handleFinishAndBill}
+          onFinishAndBill={handleFinishSession}
           isSaving={isSaving}
           isBilled={Boolean(consultation.invoice)}
           invoiceNumber={consultation.invoice?.number}
@@ -160,18 +170,27 @@ export default function ConsultationPage({
         />
       </div>
 
-      <ConsultationBillingDialog
-        draft={billingDraft ?? null}
-        open={billingDialogOpen}
-        onOpenChange={setBillingDialogOpen}
-        isSubmitting={finishAndBillMutation.isPending}
-        isLoading={isBillingDraftLoading}
-        onConfirm={async (payload) => {
+      <SessionClosureDialog
+        open={closureDialogOpen}
+        onOpenChange={setClosureDialogOpen}
+        appointmentId={appointmentId}
+        noteText={getRefValue(consultationRef, (r) => r.getNoteText(), "")}
+        bodyChartParts={getRefValue(consultationRef, (r) => r.getBodyChartParts(), [])}
+        aiState={getRefValue(consultationRef, (r) => r.getAIState(), createEmptyConsultationAIState())}
+        hasConsent={aiAccess?.hasConsent ?? false}
+        recapEnabled={aiAccess?.patientRecap ?? false}
+        billingDraft={billingDraft ?? null}
+        isBillingDraftLoading={isBillingDraftLoading}
+        onConfirmBilling={async (payload) => {
           try {
             await finishAndBillMutation.mutateAsync(payload)
           } catch {
-            // Errors are surfaced via the mutation onError toast.
+            // Errors surfaced via mutation onError toast.
           }
+        }}
+        isBillingSubmitting={finishAndBillMutation.isPending}
+        onUpdateAI={() => {
+          // Recap validation saves directly via server action
         }}
       />
     </div>

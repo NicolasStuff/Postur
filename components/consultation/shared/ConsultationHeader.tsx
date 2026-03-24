@@ -93,7 +93,7 @@ export function ConsultationHeader({
                     disabled={isSaving || isBilled || !canFinishAndBill}
                     className="bg-slate-700 hover:bg-slate-800 text-white shadow-sm px-4 h-8 text-sm"
                 >
-                    {isBilled ? t('alreadyBilled') : !canFinishAndBill ? t('notBillableYet') : t('finishAndBill')}
+                    {isBilled ? t('alreadyBilled') : !canFinishAndBill ? t('notBillableYet') : t('finishSession')}
                 </Button>
             </div>
         </div>

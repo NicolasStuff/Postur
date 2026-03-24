@@ -1,6 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar"
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { auth } from "@/lib/auth"
 import { isOnboardingComplete } from "@/lib/onboarding"
 import { prisma } from "@/lib/prisma"
@@ -87,10 +86,6 @@ export default async function DashboardLayout({
     <SidebarProvider>
       <AppSidebar user={userData} subscription={subscriptionData} />
       <SidebarInset>
-<header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-        </header>
         <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
           {hasActiveSubscription || canAccessWithoutSubscription ? (
             children

@@ -14,6 +14,7 @@ interface SendInvoiceEmailParams {
   issuerAddress: string | null
   issuerSiret: string | null
   pdfBuffer: Buffer
+  recapPdfBuffer?: Buffer
 }
 
 export async function sendInvoiceEmail({
@@ -26,6 +27,7 @@ export async function sendInvoiceEmail({
   issuerAddress,
   issuerSiret,
   pdfBuffer,
+  recapPdfBuffer,
 }: SendInvoiceEmailParams) {
   const footerParts = [
     issuerAddress
@@ -52,7 +54,7 @@ export async function sendInvoiceEmail({
             <td style="padding:32px 36px 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
               <p style="margin:0 0 24px;font-size:18px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;">Postur</p>
               <p style="margin:0 0 8px;font-size:15px;color:#0f172a;line-height:1.6;">Bonjour ${patientName},</p>
-              <p style="margin:0 0 24px;font-size:15px;color:#475569;line-height:1.6;">Veuillez trouver ci-joint votre facture.</p>
+              <p style="margin:0 0 24px;font-size:15px;color:#475569;line-height:1.6;">${recapPdfBuffer ? "Veuillez trouver ci-joint votre facture et le compte-rendu de votre consultation." : "Veuillez trouver ci-joint votre facture."}</p>
             </td>
           </tr>
           <tr>
@@ -81,7 +83,7 @@ export async function sendInvoiceEmail({
           </tr>
           <tr>
             <td style="padding:0 36px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-              <p style="margin:0;font-size:13px;color:#64748b;line-height:1.6;">&#128206; Votre facture est jointe à cet email au format PDF.</p>
+              <p style="margin:0;font-size:13px;color:#64748b;line-height:1.6;">&#128206; ${recapPdfBuffer ? "Votre facture et votre compte-rendu sont joints à cet email au format PDF." : "Votre facture est jointe à cet email au format PDF."}</p>
             </td>
           </tr>
           <tr>
@@ -102,6 +104,14 @@ export async function sendInvoiceEmail({
         filename: `${invoiceNumber}.pdf`,
         content: pdfBuffer,
       },
+      ...(recapPdfBuffer
+        ? [
+            {
+              filename: `compte-rendu-${invoiceNumber}.pdf`,
+              content: recapPdfBuffer,
+            },
+          ]
+        : []),
     ],
   })
 

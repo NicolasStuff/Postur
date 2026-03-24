@@ -113,6 +113,7 @@ enum InvoiceStatus {
   DRAFT
   SENT
   PAID
+  CANCELLED
 }
 
 enum InvoiceBuyerType {

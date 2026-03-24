@@ -3,6 +3,28 @@
     "shared": {
       "save": "Save",
       "finishAndBill": "Finish & Bill",
+      "finishSession": "Finish session",
+      "closure": {
+        "title": "Finish session",
+        "description": "Finalize the consultation with a patient report and billing",
+        "stepRecap": "Report",
+        "stepBilling": "Billing",
+        "recapProposalTitle": "Generate a patient report?",
+        "recapProposalDescription": "The report will be sent to the patient along with the invoice. It includes a summary, advice, exercises and precautions.",
+        "generateRecap": "Generate report",
+        "skipToBilling": "Skip to billing",
+        "recapRequiresNotes": "Consultation notes are required to generate a report",
+        "recapSummary": "Summary",
+        "recapAdvice": "Advice",
+        "recapExercises": "Exercises",
+        "recapPrecautions": "Precautions",
+        "recapFollowUp": "Recommended follow-up",
+        "regenerateRecap": "Regenerate",
+        "validateRecap": "Validate report",
+        "recapValidated": "Report validated",
+        "recapSaveFailed": "Error saving report",
+        "recapGenerationFailed": "Error generating report"
+      },
       "consultationSaved": "Consultation saved successfully",
       "consultationSaveError": "Error saving consultation",
       "consultationBilled": "Consultation billed successfully",
@@ -35,7 +57,8 @@
         "traumaticTimeline": "Trauma timeline",
         "patientFile": "Patient file",
         "historyChart": "Chart history",
-        "historySelections": "Selection history"
+        "historySelections": "Selection history",
+        "patientRecap": "Patient report"
       },
       "quickNotes": {
         "label": "Quick notes:",
@@ -483,6 +506,7 @@
       },
       "consultationBilling": {
         "title": "Confirm session billing",
+        "description": "Review the information below before creating the invoice draft.",
         "issuer": "Issuer",
         "patient": "Billed client",
         "session": "Session details",
@@ -523,7 +547,8 @@
       "statuses": {
         "draft": "Draft",
         "sent": "Sent",
-        "paid": "Paid"
+        "paid": "Paid",
+        "cancelled": "Cancelled"
       },
       "table": {
         "number": "Number",
@@ -557,7 +582,8 @@
         "editDraft": "Edit draft",
         "send": "Send",
         "markAsPaid": "Mark as paid",
-        "delete": "Delete"
+        "delete": "Delete",
+        "cancelInvoice": "Cancel invoice"
       },
       "sendDialog": {
         "title": "Send invoice",
@@ -582,7 +608,9 @@
         "statusUpdateError": "Error updating status",
         "invoiceDeleteError": "Error deleting invoice",
         "invoiceUpdateError": "Error updating the draft",
-        "previewError": "Unable to open preview"
+        "previewError": "Unable to open preview",
+        "invoiceCancelled": "Invoice cancelled successfully",
+        "invoiceCancelError": "Error cancelling invoice"
       }
     }
   },
@@ -738,6 +766,7 @@
     "calendar": "Calendar",
     "patients": "Patients",
     "consultations": "Consultations",
+    "services": "Services",
     "billing": "Billing",
     "settings": "Settings",
     "sections": {
@@ -819,6 +848,8 @@
     "practitionerNotFound": "Practitioner not found",
     "serviceNotFound": "Service not found",
     "invoiceNotFound": "Invoice not found",
+    "invoiceCannotDelete": "Only draft invoices can be deleted",
+    "invoiceCannotCancel": "This invoice cannot be cancelled",
     "appointmentNotFound": "Appointment not found",
     "patientNotFound": "Patient not found",
     "consultationNotFound": "Consultation not found",

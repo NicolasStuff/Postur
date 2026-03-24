@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import {
+  Briefcase,
   Calendar,
   Users,
   Settings,
@@ -26,6 +27,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
 
@@ -83,6 +85,11 @@ export function AppSidebar({ user, subscription, ...props }: AppSidebarProps) {
       label: t('sections.management'),
       items: [
         {
+          title: t('services'),
+          url: "/dashboard/services",
+          icon: Briefcase,
+        },
+        {
           title: t('billing'),
           url: "/dashboard/billing",
           icon: CreditCard,
@@ -132,27 +139,30 @@ export function AppSidebar({ user, subscription, ...props }: AppSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Image src="/images/logo.svg" alt="Postur" width={32} height={32} />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <div className="flex items-center gap-2">
-                    <span className="truncate font-semibold">{t('appName')}</span>
-                    {badge && (
-                      <Badge
-                        variant="secondary"
-                        className={cn("text-[10px] px-1.5 py-0", badge.className)}
-                      >
-                        {badge.label}
-                      </Badge>
-                    )}
+            <div className="flex items-center">
+              <SidebarMenuButton size="lg" asChild className="flex-1">
+                <Link href="/dashboard">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
+                    <Image src="/images/logo.svg" alt="Postur" width={32} height={32} />
                   </div>
-                  <span className="truncate text-xs">{t('appDescription')}</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate font-semibold">{t('appName')}</span>
+                      {badge && (
+                        <Badge
+                          variant="secondary"
+                          className={cn("text-[10px] px-1.5 py-0", badge.className)}
+                        >
+                          {badge.label}
+                        </Badge>
+                      )}
+                    </div>
+                    <span className="truncate text-xs">{t('appDescription')}</span>
+                  </div>
+                </Link>
+              </SidebarMenuButton>
+              <SidebarTrigger className="size-8 group-data-[collapsible=icon]:hidden" />
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

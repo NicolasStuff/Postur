@@ -3,6 +3,28 @@
     "shared": {
       "save": "Sauvegarder",
       "finishAndBill": "Terminer & Facturer",
+      "finishSession": "Terminer la séance",
+      "closure": {
+        "title": "Terminer la séance",
+        "description": "Finalisez la consultation avec un compte-rendu patient et la facturation",
+        "stepRecap": "Compte-rendu",
+        "stepBilling": "Facturation",
+        "recapProposalTitle": "Générer un compte-rendu patient ?",
+        "recapProposalDescription": "Le compte-rendu sera envoyé au patient avec la facture. Il contient un résumé, des conseils, exercices et précautions.",
+        "generateRecap": "Générer le compte-rendu",
+        "skipToBilling": "Passer à la facturation",
+        "recapRequiresNotes": "Des notes de consultation sont nécessaires pour générer un compte-rendu",
+        "recapSummary": "Résumé",
+        "recapAdvice": "Conseils",
+        "recapExercises": "Exercices",
+        "recapPrecautions": "Précautions",
+        "recapFollowUp": "Suivi conseillé",
+        "regenerateRecap": "Régénérer",
+        "validateRecap": "Valider le compte-rendu",
+        "recapValidated": "Compte-rendu validé",
+        "recapSaveFailed": "Erreur lors de la sauvegarde du compte-rendu",
+        "recapGenerationFailed": "Erreur lors de la génération du compte-rendu"
+      },
       "consultationSaved": "Consultation sauvegardée avec succès",
       "consultationSaveError": "Erreur lors de la sauvegarde de la consultation",
       "consultationBilled": "Consultation facturée avec succès",
@@ -35,7 +57,8 @@
         "traumaticTimeline": "Timeline Traumatique",
         "patientFile": "Dossier Patient",
         "historyChart": "Historique Schéma",
-        "historySelections": "Historique des Sélections"
+        "historySelections": "Historique des Sélections",
+        "patientRecap": "Compte-rendu"
       },
       "quickNotes": {
         "label": "Notes rapides:",
@@ -770,6 +793,7 @@
       },
       "consultationBilling": {
         "title": "Confirmer la facturation de la séance",
+        "description": "Vérifiez les informations ci-dessous avant de créer le brouillon de facture.",
         "issuer": "Émetteur",
         "patient": "Client facturé",
         "session": "Informations de séance",
@@ -815,7 +839,8 @@
       "statuses": {
         "draft": "Brouillon",
         "sent": "Envoyée",
-        "paid": "Payée"
+        "paid": "Payée",
+        "cancelled": "Annulée"
       },
       "table": {
         "number": "Numéro",
@@ -849,7 +874,8 @@
         "editDraft": "Modifier le brouillon",
         "send": "Envoyer",
         "markAsPaid": "Marquer comme payé",
-        "delete": "Supprimer"
+        "delete": "Supprimer",
+        "cancelInvoice": "Annuler la facture"
       },
       "sendDialog": {
         "title": "Envoyer la facture",
@@ -874,7 +900,9 @@
         "statusUpdateError": "Erreur lors de la mise à jour du statut",
         "invoiceDeleteError": "Erreur lors de la suppression de la facture",
         "invoiceUpdateError": "Erreur lors de la mise à jour du brouillon",
-        "previewError": "Impossible d'afficher l'aperçu"
+        "previewError": "Impossible d'afficher l'aperçu",
+        "invoiceCancelled": "Facture annulée avec succès",
+        "invoiceCancelError": "Erreur lors de l'annulation de la facture"
       }
     }
   },
@@ -977,6 +1005,7 @@
     "calendar": "Calendrier",
     "patients": "Patients",
     "consultations": "Consultations",
+    "services": "Services",
     "billing": "Facturation",
     "settings": "Paramètres",
     "sections": {
@@ -1058,6 +1087,8 @@
     "practitionerNotFound": "Praticien introuvable",
     "serviceNotFound": "Service introuvable",
     "invoiceNotFound": "Facture introuvable",
+    "invoiceCannotDelete": "Seules les factures en brouillon peuvent être supprimées",
+    "invoiceCannotCancel": "Cette facture ne peut pas être annulée",
     "appointmentNotFound": "Rendez-vous introuvable",
     "patientNotFound": "Patient introuvable",
     "consultationNotFound": "Consultation introuvable",

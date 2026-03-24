@@ -78,7 +78,7 @@ export async function createAppointment(data: {
     })
     .slice(0, 5)
 
-  if (appointmentStart.getTime() <= Date.now() || !isValidTimeStep(appointmentTime, INTERNAL_BOOKING_SLOT_MINUTES)) {
+  if (!isValidTimeStep(appointmentTime, INTERNAL_BOOKING_SLOT_MINUTES)) {
     throw new Error(await getErrorMessage("validationError"))
   }
 

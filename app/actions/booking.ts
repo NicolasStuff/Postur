@@ -32,6 +32,7 @@ export type PublicPractitioner = {
     duration: number
     price: number
   }>
+  workingDays: string[]
 }
 
 export async function getPractitionerBySlug(slug: string): Promise<PublicPractitioner | null> {
@@ -44,6 +45,7 @@ export async function getPractitionerBySlug(slug: string): Promise<PublicPractit
       companyName: true,
       companyAddress: true,
       image: true,
+      openingHours: true,
       services: {
         select: {
           id: true,
@@ -59,6 +61,11 @@ export async function getPractitionerBySlug(slug: string): Promise<PublicPractit
     return null
   }
 
+  const openingHours = parseOpeningHours(user.openingHours)
+  const workingDays = Object.entries(openingHours)
+    .filter(([, ranges]) => ranges && ranges.length > 0)
+    .map(([day]) => day)
+
   return {
     ...user,
     services: user.services.map((service) => ({
@@ -67,6 +74,7 @@ export async function getPractitionerBySlug(slug: string): Promise<PublicPractit
       duration: service.duration,
       price: service.price.toNumber(),
     })),
+    workingDays,
   }
 }
 

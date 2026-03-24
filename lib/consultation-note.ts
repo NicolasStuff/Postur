@@ -55,6 +55,8 @@ export interface PatientRecap {
   followUp: string
   generatedAt: string
   model: string
+  validatedAt?: string
+  editedByPractitioner?: boolean
 }
 
 export interface ConsultationAIState {

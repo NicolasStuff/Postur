@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import {
+  Ban,
   CheckCircle2,
   Download,
   FilePenLine,
@@ -32,6 +33,7 @@ interface InvoiceRowActionsProps {
   onResend: () => void
   onMarkPaid: () => void
   onDelete: () => void
+  onCancel: () => void
 }
 
 export function InvoiceRowActions({
@@ -43,6 +45,7 @@ export function InvoiceRowActions({
   onResend,
   onMarkPaid,
   onDelete,
+  onCancel,
 }: InvoiceRowActionsProps) {
   const t = useTranslations("dashboard.billing")
 
@@ -50,6 +53,8 @@ export function InvoiceRowActions({
   const canSend = status === "DRAFT"
   const canResend = status === "SENT"
   const canMarkPaid = status === "SENT"
+  const canDelete = status === "DRAFT"
+  const canCancel = status === "SENT" || status === "PAID"
 
   return (
     <DropdownMenu>
@@ -105,11 +110,23 @@ export function InvoiceRowActions({
             )}
           </>
         )}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
-          <Trash2 className="mr-2 h-4 w-4" />
-          {t("actions.delete")}
-        </DropdownMenuItem>
+        {(canDelete || canCancel) && (
+          <>
+            <DropdownMenuSeparator />
+            {canDelete && (
+              <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                {t("actions.delete")}
+              </DropdownMenuItem>
+            )}
+            {canCancel && (
+              <DropdownMenuItem onClick={onCancel} className="text-destructive focus:text-destructive">
+                <Ban className="mr-2 h-4 w-4" />
+                {t("actions.cancelInvoice")}
+              </DropdownMenuItem>
+            )}
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

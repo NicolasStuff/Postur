@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react"
@@ -12,24 +13,28 @@ import { useQuery } from "@tanstack/react-query"
 import { Prisma } from "@prisma/client"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
-import { Clock, FileText, History, User } from "lucide-react"
+import { Clock, FileText, History, Loader2, User } from "lucide-react"
 
 import {
   getBodyChartHistory,
   getConsultationAIAccess,
+  grantAIFeaturesConsent,
   saveBodyChartHistory,
 } from "@/app/actions/consultation"
 import { bodyPartLabels } from "@/lib/bodyChartLabels"
 import {
   ConsultationAIState,
   createEmptyConsultationAIState,
+  extractTextFromTipTap,
   normalizeConsultationContent,
   serializeConsultationContent,
 } from "@/lib/consultation-note"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 
-import { ConsultationAIPanel } from "./ConsultationAIPanel"
+import { AudioSoapModal } from "./AudioSoapModal"
+import { SuggestionsModal } from "./SuggestionsModal"
 import { BodyChart } from "./BodyChart"
 import { BodyChartHistoryViewer } from "./BodyChartHistoryViewer"
 import { QuickNotes } from "./QuickNotes"
@@ -77,6 +82,10 @@ interface OsteopathConsultationProps {
 export interface OsteopathConsultationRef {
   getDraft: () => Prisma.InputJsonValue
   saveNow: () => Promise<void>
+  getAIState: () => ConsultationAIState
+  getNoteText: () => string
+  getBodyChartParts: () => string[]
+  getEditorContent: () => unknown
 }
 
 function getConsultationContent(consultation: Consultation) {
@@ -143,8 +152,13 @@ export const OsteopathConsultation = forwardRef<
   const [showTimeline, setShowTimeline] = useState(false)
   const [showPatientFile, setShowPatientFile] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
+  const [consentOpen, setConsentOpen] = useState(false)
+  const [consentLoading, setConsentLoading] = useState(false)
+  const [hasConsentOverride, setHasConsentOverride] = useState(aiAccess?.hasConsent ?? false)
   const [history, setHistory] = useState<BodyChartHistoryItem[]>([])
   const [bodyChartRetryNonce, setBodyChartRetryNonce] = useState(0)
+  const hasConsent = aiAccess?.hasConsent || hasConsentOverride
+  const noteText = useMemo(() => extractTextFromTipTap(editorContent), [editorContent])
   const editorRef = useRef<ConsultationEditorRef>(null)
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const bodyChartRetryTimeoutRef = useRef<number | null>(null)
@@ -195,8 +209,12 @@ export const OsteopathConsultation = forwardRef<
     () => ({
       getDraft: buildDraft,
       saveNow: persistDraft,
+      getAIState: () => aiState,
+      getNoteText: () => noteText,
+      getBodyChartParts: () => bodyChartParts,
+      getEditorContent: () => editorContent,
     }),
-    [buildDraft, persistDraft]
+    [aiState, bodyChartParts, buildDraft, editorContent, noteText, persistDraft]
   )
 
   useEffect(() => {
@@ -359,6 +377,16 @@ export const OsteopathConsultation = forwardRef<
     }
   }, [bodyChartParts, bodyChartRetryNonce, consultation?.id, loadHistory, t])
 
+  useEffect(() => {
+    setHasConsentOverride(aiAccess?.hasConsent ?? false)
+  }, [aiAccess?.hasConsent])
+
+  useEffect(() => {
+    if (aiAccess?.anyAI && !hasConsent) {
+      setConsentOpen(true)
+    }
+  }, [aiAccess?.anyAI, hasConsent])
+
   const handleQuickNote = (text: string) => {
     editorRef.current?.insertText(text)
   }
@@ -370,9 +398,29 @@ export const OsteopathConsultation = forwardRef<
     }))
   }, [])
 
+  const handleEditorContentSync = useCallback((content: unknown) => {
+    setEditorContent(content)
+    editorRef.current?.setContent(content)
+  }, [])
+
+  const handleGrantConsent = async () => {
+    try {
+      setConsentLoading(true)
+      await grantAIFeaturesConsent()
+      setHasConsentOverride(true)
+      setConsentOpen(false)
+      toast.success(t("ai.toasts.consentGranted"))
+    } catch (error) {
+      console.error("AI consent failed:", error)
+      toast.error(error instanceof Error ? error.message : t("ai.errors.consentRequired"))
+    } finally {
+      setConsentLoading(false)
+    }
+  }
+
   return (
     <div className="flex h-full flex-col overflow-hidden bg-white">
-      <div className="shrink-0 border-y bg-slate-50/50 px-4 py-2.5">
+      <div className="shrink-0 border-y bg-muted/50 px-4 py-2.5">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Sheet open={showTimeline} onOpenChange={setShowTimeline}>
@@ -392,22 +440,20 @@ export const OsteopathConsultation = forwardRef<
               </SheetContent>
             </Sheet>
 
-            <Sheet open={showPatientFile} onOpenChange={setShowPatientFile}>
-              <SheetTrigger asChild>
+            <Dialog open={showPatientFile} onOpenChange={setShowPatientFile}>
+              <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="h-8 text-xs">
                   <User className="mr-1.5 h-3.5 w-3.5" />
                   {t("toolbar.patientFile")}
                 </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[400px] sm:max-w-[400px]">
-                <SheetHeader>
-                  <SheetTitle>{t("toolbar.patientFile")}</SheetTitle>
-                </SheetHeader>
-                <div className="mt-4">
-                  <PatientFile patient={consultation.patient} />
-                </div>
-              </SheetContent>
-            </Sheet>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{t("toolbar.patientFile")}</DialogTitle>
+                </DialogHeader>
+                <PatientFile patient={consultation.patient} onNavigate={() => setShowPatientFile(false)} />
+              </DialogContent>
+            </Dialog>
 
             <Sheet open={showHistory} onOpenChange={setShowHistory}>
               <SheetTrigger asChild>
@@ -425,6 +471,7 @@ export const OsteopathConsultation = forwardRef<
                 </div>
               </SheetContent>
             </Sheet>
+
           </div>
 
           <QuickNotes onAddNote={handleQuickNote} />
@@ -432,7 +479,7 @@ export const OsteopathConsultation = forwardRef<
       </div>
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <div className="flex w-[60%] items-center justify-center overflow-auto border-r bg-slate-50/30 p-4">
+        <div className="flex w-[60%] items-center justify-center overflow-auto border-r bg-muted/30 p-4">
           <BodyChart
             value={bodyChartParts}
             onChange={setBodyChartParts}
@@ -441,20 +488,33 @@ export const OsteopathConsultation = forwardRef<
         </div>
 
         <div className="flex w-[40%] flex-col overflow-hidden bg-white">
-          <div className="flex shrink-0 items-center gap-2 border-b bg-slate-50/30 px-3 py-2">
-            <FileText className="h-4 w-4 text-slate-500" />
-            <span className="text-sm font-medium text-slate-700">{t("editor.title")}</span>
-          </div>
-          <div className="shrink-0 border-b bg-white p-3 max-h-[280px] overflow-y-auto">
-            <ConsultationAIPanel
-              appointmentId={consultation.id}
-              editorContent={editorContent}
-              bodyChartParts={bodyChartParts}
-              aiState={aiState}
-              access={aiAccess ?? null}
-              onInsertText={handleQuickNote}
-              onUpdateAI={handleUpdateAI}
-            />
+          <div className="flex shrink-0 items-center gap-2 border-b bg-muted/50 px-3 py-2">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">{t("editor.title")}</span>
+            <div className="ml-auto flex items-center gap-1.5">
+              <AudioSoapModal
+                appointmentId={consultation.id}
+                noteText={noteText}
+                bodyChartParts={bodyChartParts}
+                aiState={aiState}
+                hasConsent={hasConsent ?? false}
+                audioSoapEnabled={aiAccess?.audioSoap ?? false}
+                editorContent={editorContent}
+                onEditorContentSync={handleEditorContentSync}
+                onUpdateAI={handleUpdateAI}
+              />
+              <SuggestionsModal
+                appointmentId={consultation.id}
+                noteText={noteText}
+                bodyChartParts={bodyChartParts}
+                aiState={aiState}
+                hasConsent={hasConsent ?? false}
+                smartNotesEnabled={aiAccess?.smartNotesLive ?? false}
+                editorContent={editorContent}
+                onEditorContentSync={handleEditorContentSync}
+                onUpdateAI={handleUpdateAI}
+              />
+            </div>
           </div>
           <div className="flex-1 overflow-hidden">
             <ConsultationEditor
@@ -466,6 +526,29 @@ export const OsteopathConsultation = forwardRef<
           </div>
         </div>
       </div>
+
+      <Dialog open={consentOpen} onOpenChange={setConsentOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("ai.consent.dialogTitle")}</DialogTitle>
+            <DialogDescription>{t("ai.consent.dialogDescription")}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 text-sm text-muted-foreground">
+            <p>{t("ai.consent.points.minimization")}</p>
+            <p>{t("ai.consent.points.vendors")}</p>
+            <p>{t("ai.consent.points.revocation")}</p>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setConsentOpen(false)}>
+              {t("ai.consent.cancel")}
+            </Button>
+            <Button onClick={handleGrantConsent} disabled={consentLoading}>
+              {consentLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {t("ai.consent.accept")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 })

@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl"
 import { calculateInvoiceAmounts } from "@/lib/billing"
 import { BillingProfileGate } from "@/components/billing/BillingProfileGate"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
@@ -104,35 +104,37 @@ export function ConsultationBillingDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{t("consultationBilling.title")}</DialogTitle>
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="px-6 pt-6 pb-2">
+          <DialogTitle className="text-xl">{t("consultationBilling.title")}</DialogTitle>
+          <DialogDescription>{t("consultationBilling.description")}</DialogDescription>
         </DialogHeader>
 
-        {isLoading ? (
-          <div className="flex min-h-[240px] items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-slate-500" />
-          </div>
-        ) : !draft ? null : !draft.ready ? (
-          <BillingProfileGate missingFields={draft.missingFields} compact />
-        ) : !draft.isBillable ? (
-          <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-amber-950">
-            <h3 className="text-lg font-semibold">{t("consultationBilling.notBillableTitle")}</h3>
-            <p className="mt-2 text-sm text-amber-900">{t("consultationBilling.notBillableDescription")}</p>
-            {draft.invoiceNumber && (
-              <p className="mt-3 text-sm font-medium">{t("consultationBilling.alreadyBilled", { number: draft.invoiceNumber })}</p>
-            )}
-          </div>
-        ) : (
-          <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          {isLoading ? (
+            <div className="flex min-h-[240px] items-center justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : !draft ? null : !draft.ready ? (
+            <BillingProfileGate missingFields={draft.missingFields} compact />
+          ) : !draft.isBillable ? (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-amber-950">
+              <h3 className="text-lg font-semibold">{t("consultationBilling.notBillableTitle")}</h3>
+              <p className="mt-2 text-sm text-amber-900">{t("consultationBilling.notBillableDescription")}</p>
+              {draft.invoiceNumber && (
+                <p className="mt-3 text-sm font-medium">{t("consultationBilling.alreadyBilled", { number: draft.invoiceNumber })}</p>
+              )}
+            </div>
+          ) : (
             <div className="space-y-6">
-              <section className="rounded-3xl border bg-slate-50/70 p-5">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                  <ReceiptText className="h-4 w-4" />
+              {/* Émetteur — read-only */}
+              <section className="rounded-xl border bg-muted/50 p-5">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <ReceiptText className="h-4 w-4 text-muted-foreground" />
                   {t("consultationBilling.issuer")}
                 </div>
-                <div className="mt-4 space-y-1 text-sm text-slate-600">
-                  <p className="font-medium text-slate-950">
+                <div className="mt-3 grid gap-1 text-sm text-muted-foreground">
+                  <p className="font-medium text-foreground">
                     {draft.issuerProfile.companyName || draft.issuerProfile.name}
                   </p>
                   {draft.issuerProfile.name && draft.issuerProfile.companyName && (
@@ -148,112 +150,121 @@ export function ConsultationBillingDialog({
                 </div>
               </section>
 
-              <section className="rounded-3xl border bg-white p-5">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                  <UserRound className="h-4 w-4" />
+              <Separator />
+
+              {/* Client facturé */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <UserRound className="h-4 w-4 text-muted-foreground" />
                   {t("consultationBilling.patient")}
                 </div>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <div className="grid gap-2">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
                     <Label>{t("consultationBilling.firstName")}</Label>
                     <Input value={formState.firstName} onChange={(event) => setFormState({...formState, firstName: event.target.value})} />
                   </div>
-                  <div className="grid gap-2">
+                  <div className="space-y-2">
                     <Label>{t("consultationBilling.lastName")}</Label>
                     <Input value={formState.lastName} onChange={(event) => setFormState({...formState, lastName: event.target.value})} />
                   </div>
-                  <div className="grid gap-2 sm:col-span-2">
+                  <div className="space-y-2 sm:col-span-2">
                     <Label>{t("consultationBilling.address")}</Label>
                     <Input value={formState.address} onChange={(event) => setFormState({...formState, address: event.target.value})} />
                   </div>
                 </div>
-              </section>
-            </div>
+              </div>
 
-            <div className="space-y-6">
-              <section className="rounded-3xl border bg-white p-5">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                  <CalendarDays className="h-4 w-4" />
+              <Separator />
+
+              {/* Informations de séance */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
                   {t("consultationBilling.session")}
                 </div>
-                <div className="mt-4 grid gap-4">
-                  <div className="grid gap-2">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
                     <Label>{t("consultationBilling.serviceName")}</Label>
                     <Input value={formState.serviceName} onChange={(event) => setFormState({...formState, serviceName: event.target.value})} />
                   </div>
-                  <div className="grid gap-2">
-                    <Label>{t("consultationBilling.date")}</Label>
-                    <Input type="date" value={formState.date} onChange={(event) => setFormState({...formState, date: event.target.value})} />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label>{t("consultationBilling.amount")}</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formState.amount}
-                      onChange={(event) =>
-                        setFormState({
-                          ...formState,
-                          amount: Number.parseFloat(event.target.value) || 0,
-                        })
-                      }
-                    />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>{t("consultationBilling.date")}</Label>
+                      <Input type="date" value={formState.date} onChange={(event) => setFormState({...formState, date: event.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{t("consultationBilling.amount")}</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={formState.amount}
+                        onChange={(event) =>
+                          setFormState({
+                            ...formState,
+                            amount: Number.parseFloat(event.target.value) || 0,
+                          })
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
-              </section>
+              </div>
 
+              {/* Récapitulatif */}
               {amountPreview && (
-                <section className="rounded-3xl border bg-slate-950 p-5 text-white">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                <section className="rounded-xl border bg-muted/50 px-5 py-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                     {t("consultationBilling.summary")}
                   </p>
-                  <div className="mt-4 space-y-3 text-sm">
-                    <div className="flex items-center justify-between">
+                  <div className="mt-4 space-y-2 text-sm">
+                    <div className="flex items-center justify-between text-muted-foreground">
                       <span>{t("subtotalHt")}</span>
-                      <span>{amountPreview.subtotalAmount.toFixed(2)}€</span>
+                      <span>{amountPreview.subtotalAmount.toFixed(2)}&nbsp;€</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between text-muted-foreground">
                       <span>
                         {amountPreview.vatRate
                           ? t("vatWithRate", { rate: amountPreview.vatRate.toFixed(2) })
                           : t("vat")}
                       </span>
-                      <span>{amountPreview.vatAmount.toFixed(2)}€</span>
+                      <span>{amountPreview.vatAmount.toFixed(2)}&nbsp;€</span>
                     </div>
-                    <Separator className="bg-white/10" />
-                    <div className="flex items-center justify-between text-lg font-semibold">
+                    <Separator />
+                    <div className="flex items-center justify-between text-base font-semibold">
                       <span>{t("total")}</span>
-                      <span>{amountPreview.amount.toFixed(2)}€</span>
+                      <span>{amountPreview.amount.toFixed(2)}&nbsp;€</span>
                     </div>
                   </div>
                 </section>
               )}
-
-              <div className="flex justify-end gap-3">
-                <Button variant="outline" onClick={() => onOpenChange(false)}>
-                  {t("consultationBilling.cancel")}
-                </Button>
-                <Button
-                  onClick={() =>
-                    onConfirm({
-                      patientSnapshot: {
-                        firstName: formState.firstName,
-                        lastName: formState.lastName,
-                        address: formState.address || null,
-                      },
-                      serviceName: formState.serviceName,
-                      amount: formState.amount,
-                      date: formState.date,
-                    })
-                  }
-                  disabled={!canConfirm || isSubmitting}
-                >
-                  {isSubmitting ? t("consultationBilling.confirming") : t("consultationBilling.confirm")}
-                </Button>
-              </div>
             </div>
-          </div>
+          )}
+        </div>
+
+        {draft?.ready && draft?.isBillable && !isLoading && (
+          <DialogFooter className="border-t px-6 py-4">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              {t("consultationBilling.cancel")}
+            </Button>
+            <Button
+              onClick={() =>
+                onConfirm({
+                  patientSnapshot: {
+                    firstName: formState.firstName,
+                    lastName: formState.lastName,
+                    address: formState.address || null,
+                  },
+                  serviceName: formState.serviceName,
+                  amount: formState.amount,
+                  date: formState.date,
+                })
+              }
+              disabled={!canConfirm || isSubmitting}
+            >
+              {isSubmitting ? t("consultationBilling.confirming") : t("consultationBilling.confirm")}
+            </Button>
+          </DialogFooter>
         )}
       </DialogContent>
     </Dialog>

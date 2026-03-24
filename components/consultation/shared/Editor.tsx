@@ -21,6 +21,7 @@ interface ConsultationEditorProps {
 
 export interface ConsultationEditorRef {
     insertText: (text: string) => void
+    setContent: (content: unknown) => void
 }
 
 export const ConsultationEditor = forwardRef<ConsultationEditorRef, ConsultationEditorProps>(
@@ -60,7 +61,12 @@ export const ConsultationEditor = forwardRef<ConsultationEditorRef, Consultation
       if (editor) {
         editor.chain().focus().insertContent(formatTextForInsertion(text)).run()
       }
-    }
+    },
+    setContent: (content: unknown) => {
+      if (editor) {
+        editor.commands.setContent(content as Parameters<typeof editor.commands.setContent>[0] || '<p></p>')
+      }
+    },
   }), [editor])
 
   if (!editor) {
