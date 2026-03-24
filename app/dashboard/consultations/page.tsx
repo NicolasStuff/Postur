@@ -40,6 +40,12 @@ export default function ConsultationsPage() {
     return consultations.find((consultation) => consultation.patient.id === patientFilter)?.patient ?? null
   }, [consultations, patientFilter])
 
+  const patientFilterLabel = selectedPatient
+    ? t("patientFilter", {
+        patient: `${selectedPatient.firstName} ${selectedPatient.lastName}`,
+      })
+    : t("patientFilterActive")
+
   const filteredConsultations = useMemo(() => {
     const now = new Date()
     const normalizedSearch = search.trim().toLowerCase()
@@ -77,7 +83,7 @@ export default function ConsultationsPage() {
           case "completed":
             return consultation.status === "COMPLETED"
           case "unbilled":
-            return !consultation.invoice
+            return consultation.status === "COMPLETED" && !consultation.invoice
           case "notes_missing":
             return !consultation.note
           default:
@@ -136,11 +142,9 @@ export default function ConsultationsPage() {
           <Badge variant="secondary" className="rounded-full px-3 py-1">
             {t("results", { count: filteredConsultations.length })}
           </Badge>
-          {selectedPatient && (
+          {patientFilter && (
             <Button variant="outline" size="sm" onClick={clearPatientFilter}>
-              {t("patientFilter", {
-                patient: `${selectedPatient.firstName} ${selectedPatient.lastName}`,
-              })}
+              {patientFilterLabel}
             </Button>
           )}
         </div>
@@ -277,10 +281,12 @@ export default function ConsultationsPage() {
                     <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
                       {t("table.billed", { number: consultation.invoice.number })}
                     </Badge>
-                  ) : (
+                  ) : consultation.status === "COMPLETED" ? (
                     <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
                       {t("table.toBill")}
                     </Badge>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">{t("table.notBillableYet")}</span>
                   )}
                 </TableCell>
                 <TableCell className="text-right">

@@ -16,6 +16,7 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
+  aiFeaturesConsentAt DateTime?
 
   // Better Auth Relations
   sessions      Session[]
@@ -31,11 +32,15 @@ model User {
   companyName      String?
   companyAddress   String?
   isVatExempt      Boolean           @default(true)
+  defaultVatRate   Decimal?          @db.Decimal(5, 2)
 
   // Settings
   openingHours     Json?
   slotDuration     Int               @default(60)
   language         String            @default("fr") // "fr" or "en"
+  aiBetaEnabled    Boolean           @default(false)
+  aiComplianceAcceptedAt DateTime?
+  aiComplianceVersion String?
 
   // Relations
   patients         Patient[]
@@ -110,6 +115,22 @@ enum InvoiceStatus {
   PAID
 }
 
+enum InvoiceBuyerType {
+  INDIVIDUAL
+  BUSINESS
+}
+
+enum FacturXProfile {
+  BASIC
+  EN16931
+}
+
+enum FacturXStatus {
+  INCOMPLETE
+  BASIC_READY
+  EN16931_CANDIDATE
+}
+
 // --- SUBSCRIPTION MODELS ---
 
 enum SubscriptionStatus {
@@ -146,6 +167,7 @@ model Patient {
   updatedAt     DateTime  @updatedAt
 
   @@unique([userId, email])
+  @@unique([id, userId])
 }
 
 model Service {
@@ -158,6 +180,8 @@ model Service {
   price         Decimal   @db.Decimal(10, 2)
 
   appointments  Appointment[]
+
+  @@unique([id, userId])
 }
 
 model Appointment {
@@ -166,10 +190,10 @@ model Appointment {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   patientId     String
-  patient       Patient   @relation(fields: [patientId], references: [id])
+  patient       Patient   @relation(fields: [patientId, userId], references: [id, userId])
 
   serviceId     String
-  service       Service   @relation(fields: [serviceId], references: [id])
+  service       Service   @relation(fields: [serviceId, userId], references: [id, userId])
 
   start         DateTime
   end           DateTime
@@ -184,6 +208,7 @@ model Appointment {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  @@unique([id, userId])
   @@index([userId, start])
   @@index([userId, status, start])
 }
@@ -219,23 +244,39 @@ model Invoice {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   patientId     String
-  patient       Patient   @relation(fields: [patientId], references: [id])
+  patient       Patient   @relation(fields: [patientId, userId], references: [id, userId])
   appointmentId String?   @unique
-  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  appointment   Appointment? @relation(fields: [appointmentId, userId], references: [id, userId])
 
   number        String
   date          DateTime  @default(now())
+  serviceDate   DateTime?
+  dueDate       DateTime?
+  currency      String    @default("EUR")
+  paymentTerms  String    @default("Paiement comptant")
+  buyerType     InvoiceBuyerType @default(INDIVIDUAL)
+  buyerCompanyName String?
+  buyerSiren    String?
+  buyerVatNumber String?
 
   amount        Decimal   @db.Decimal(10, 2)
+  vatRate       Decimal?  @db.Decimal(5, 2)
+  vatAmount     Decimal?  @db.Decimal(10, 2)
   status        InvoiceStatus @default(DRAFT)
   serviceName   String?
   issuerSnapshot Json?
   patientSnapshot Json?
+  lineItems     Json?
+  facturXProfile FacturXProfile?
+  facturXStatus FacturXStatus @default(INCOMPLETE)
+  facturXXml    String?   @db.Text
   pdfUrl        String?
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
 
+  @@unique([id, userId])
+  @@unique([appointmentId, userId])
   @@unique([userId, number])
   @@index([userId, date])
 }
@@ -271,4 +312,33 @@ model WebhookEvent {
   createdAt     DateTime @default(now())
 
   @@index([stripeEventId])
+}
+
+model AuditEvent {
+  id           String   @id @default(cuid())
+  actorUserId  String
+  targetUserId String?
+  domain       String
+  action       String
+  entityType   String
+  entityId     String
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  @@index([actorUserId, createdAt])
+  @@index([domain, createdAt])
+  @@index([entityType, entityId])
+}
+
+model RateLimitBucket {
+  id          String   @id @default(cuid())
+  scope       String
+  key         String
+  windowStart DateTime
+  count       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([scope, key, windowStart])
+  @@index([scope, windowStart])
 }

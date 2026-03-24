@@ -99,7 +99,7 @@ export function AppSidebar({ user, subscription, ...props }: AppSidebarProps) {
   const defaultUser = {
     name: "Jean Dupont",
     email: "jean.dupont@example.com",
-    avatar: "https://github.com/shadcn.png",
+    avatar: "/images/logo.svg",
   }
 
   // Get subscription badge info

@@ -1,7 +1,5 @@
 import { ImageResponse } from 'next/og'
 
-export const runtime = 'edge'
-
 export const alt = 'Postur - Logiciel de Gestion de Cabinet pour Ostéopathes'
 export const size = {
   width: 1200,
@@ -91,7 +89,7 @@ export default async function Image() {
               maxWidth: '800px',
             }}
           >
-            Body Chart interactif • Facture-X 2026 • Réservation en ligne
+            Body Chart interactif • Préparation Factur-X • Réservation en ligne
           </p>
         </div>
 

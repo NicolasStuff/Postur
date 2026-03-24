@@ -68,6 +68,7 @@ export async function middleware(request: NextRequest) {
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-user-locale', 'fr')
     requestHeaders.set('x-next-intl-locale', 'fr')
+    requestHeaders.set('x-pathname', pathname)
 
     // Continue without locale handling
     return NextResponse.next({
@@ -97,6 +98,7 @@ export async function middleware(request: NextRequest) {
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-user-locale', locale)
     requestHeaders.set('x-next-intl-locale', locale)
+    requestHeaders.set('x-pathname', pathname)
 
     // Continue without URL rewriting, just pass headers
     const response = NextResponse.next({
@@ -122,6 +124,7 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-user-locale', routing.defaultLocale)
   requestHeaders.set('x-next-intl-locale', routing.defaultLocale)
+  requestHeaders.set('x-pathname', pathname)
 
   return NextResponse.next({
     request: {

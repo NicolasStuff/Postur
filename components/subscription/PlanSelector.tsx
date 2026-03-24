@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,12 +58,18 @@ export function PlanSelector({ onSelect }: PlanSelectorProps) {
   ];
 
   const handleSelect = async (plan: Plan) => {
+    if (!plan.priceId) {
+      toast.error(t("configurationError"));
+      return;
+    }
+
     setSelectedPlan(plan.id);
     setLoading(true);
     try {
       await onSelect(plan.priceId);
     } catch (error) {
       console.error("Failed to select plan:", error);
+      toast.error(t("checkoutError"));
       setLoading(false);
       setSelectedPlan(null);
     }
@@ -82,7 +89,8 @@ export function PlanSelector({ onSelect }: PlanSelectorProps) {
           <Card
             key={plan.id}
             className={cn(
-              "relative cursor-pointer transition-all hover:shadow-lg",
+              "relative transition-all hover:shadow-lg",
+              plan.priceId ? "cursor-pointer" : "cursor-not-allowed opacity-80",
               plan.popular && "border-indigo-500 border-2",
               selectedPlan === plan.id && "ring-2 ring-indigo-500"
             )}
@@ -113,6 +121,12 @@ export function PlanSelector({ onSelect }: PlanSelectorProps) {
                 ))}
               </ul>
 
+              {!plan.priceId && (
+                <p className="text-sm font-medium text-amber-700">
+                  {t("configurationError")}
+                </p>
+              )}
+
               <Button
                 className={cn(
                   "w-full",
@@ -120,7 +134,7 @@ export function PlanSelector({ onSelect }: PlanSelectorProps) {
                     ? "bg-indigo-600 hover:bg-indigo-700"
                     : "bg-slate-800 hover:bg-slate-900"
                 )}
-                disabled={loading}
+                disabled={loading || !plan.priceId}
               >
                 {loading && selectedPlan === plan.id ? (
                   <>
@@ -128,7 +142,7 @@ export function PlanSelector({ onSelect }: PlanSelectorProps) {
                     {t("redirecting")}
                   </>
                 ) : (
-                  t("startTrial")
+                  plan.priceId ? t("startTrial") : t("configurationCta")
                 )}
               </Button>
             </CardContent>

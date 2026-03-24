@@ -130,13 +130,10 @@ export function CreateAppointmentDialog({
   const handleSubmit = () => {
     if (!appointmentDateTime || !patientId || !serviceId || !selectedService) return
 
-    const end = new Date(appointmentDateTime.getTime() + selectedService.duration * 60000)
-
     mutation.mutate({
         patientId,
         serviceId,
         start: appointmentDateTime,
-        end,
         notes: notes.trim() || undefined
     })
   }

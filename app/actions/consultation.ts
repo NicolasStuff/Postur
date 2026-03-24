@@ -1,8 +1,31 @@
 "use server"
 
-import { auth } from "@/lib/auth"
+import { canAccessFeature } from "@/app/actions/subscription"
+import { openAIClinicalGenerationProvider } from "@/lib/ai/openai"
+import { AI_BETA_COMPLIANCE_VERSION, assertAiBetaEnabled } from "@/lib/ai-beta"
+import { recordAuditEventSafe } from "@/lib/audit"
+import { bodyPartLabels, normalizeBodyChartPartIds } from "@/lib/bodyChartLabels"
+import {
+  calculateInvoiceAmounts,
+  formatDateInputValue,
+  getBillingProfileStatus as getBillingProfileStatusFromProfile,
+  parseDateInputValue,
+} from "@/lib/billing"
+import {
+  normalizeConsultationContent,
+  serializeConsultationContent,
+} from "@/lib/consultation-note"
+import { applyConsultationContentPatch, applyConsultationContentPatchInTransaction } from "@/lib/consultation-note-store"
+import { requireCoreAppAccess } from "@/lib/core-access"
+import {
+  buildFacturXDraftXml,
+  buildStructuredInvoiceLineItem,
+  getFacturXProfileForStatus,
+  getFacturXReadinessStatus,
+  StructuredInvoiceBuyerType,
+  StructuredInvoiceLineItem,
+} from "@/lib/facturx"
 import { prisma } from "@/lib/prisma"
-import { headers } from "next/headers"
 import { getErrorMessage } from "@/lib/i18n/errors"
 import { Prisma } from "@prisma/client"
 
@@ -14,26 +37,22 @@ const invoiceIssuerSelect = {
   companyName: true,
   companyAddress: true,
   isVatExempt: true,
+  defaultVatRate: true,
 } satisfies Prisma.UserSelect
 
-async function requireSessionUserId() {
-  const session = await auth.api.getSession({ headers: await headers() })
+function buildInvoiceNumber(lastSequence: number, currentDate: Date) {
+  const year = currentDate.getFullYear()
 
-  if (!session?.user.id) {
-    throw new Error(await getErrorMessage("unauthorized"))
-  }
-
-  return session.user.id
+  return `${year}-${String(lastSequence + 1).padStart(3, "0")}`
 }
 
-function buildInvoiceNumber(lastNumber: string | null, currentDate: Date) {
-  const year = currentDate.getFullYear()
-  const prefix = `${year}-`
-  const lastSequence = lastNumber?.startsWith(prefix)
-    ? Number.parseInt(lastNumber.slice(prefix.length), 10)
-    : 0
+function extractInvoiceSequence(number: string, prefix: string) {
+  if (!number.startsWith(prefix)) {
+    return 0
+  }
 
-  return `${prefix}${String((Number.isNaN(lastSequence) ? 0 : lastSequence) + 1).padStart(3, "0")}`
+  const sequence = Number.parseInt(number.slice(prefix.length), 10)
+  return Number.isNaN(sequence) ? 0 : sequence
 }
 
 async function getNextInvoiceNumber(
@@ -42,26 +61,146 @@ async function getNextInvoiceNumber(
   currentDate: Date
 ) {
   const prefix = `${currentDate.getFullYear()}-`
-  const latestInvoice = await tx.invoice.findFirst({
+  const invoiceNumbers = await tx.invoice.findMany({
     where: {
       userId,
       number: {
         startsWith: prefix,
       },
     },
-    orderBy: {
-      number: "desc",
-    },
     select: {
       number: true,
     },
   })
 
-  return buildInvoiceNumber(latestInvoice?.number ?? null, currentDate)
+  const lastSequence = invoiceNumbers.reduce(
+    (maxSequence, invoice) => Math.max(maxSequence, extractInvoiceSequence(invoice.number, prefix)),
+    0
+  )
+
+  return buildInvoiceNumber(lastSequence, currentDate)
+}
+
+function serializeIssuerSnapshot(
+  user: Prisma.UserGetPayload<{ select: typeof invoiceIssuerSelect }>
+) {
+  return {
+    name: user.name,
+    email: user.email,
+    practitionerType: user.practitionerType,
+    siret: user.siret,
+    companyName: user.companyName,
+    companyAddress: user.companyAddress,
+    isVatExempt: user.isVatExempt,
+    defaultVatRate: user.defaultVatRate ? user.defaultVatRate.toNumber() : null,
+  }
+}
+
+async function assertBillingProfileReady(
+  user: Prisma.UserGetPayload<{ select: typeof invoiceIssuerSelect }>
+) {
+  const billingStatus = getBillingProfileStatusFromProfile(serializeIssuerSnapshot(user))
+
+  if (!billingStatus.ready) {
+    throw new Error(await getErrorMessage("billingProfileIncomplete"))
+  }
+
+  return billingStatus
+}
+
+async function ensureAppointmentCanBeBilled(
+  appointment: { status: string; start: Date },
+  issuedAt: Date
+) {
+  if (
+    appointment.status === "CANCELED" ||
+    appointment.status === "NOSHOW" ||
+    appointment.start > issuedAt
+  ) {
+    throw new Error(await getErrorMessage("consultationCannotBeBilled"))
+  }
+}
+
+function buildInvoicePatientSnapshot(patient: {
+  firstName: string
+  lastName: string
+  address?: string | null
+}) {
+  return {
+    firstName: patient.firstName,
+    lastName: patient.lastName,
+    address: patient.address ?? null,
+  }
+}
+
+function buildStructuredInvoiceArtifacts(input: {
+  number: string
+  date: Date
+  serviceDate: Date
+  dueDate: Date
+  serviceName: string
+  buyerType?: StructuredInvoiceBuyerType
+  buyerCompanyName?: string | null
+  buyerSiren?: string | null
+  buyerVatNumber?: string | null
+  issuerSnapshot: ReturnType<typeof serializeIssuerSnapshot>
+  patientSnapshot: ReturnType<typeof buildInvoicePatientSnapshot>
+  amount: number
+  subtotalAmount: number
+  vatAmount: number
+  vatRate: number | null
+}) {
+  const lineItems: StructuredInvoiceLineItem[] = [
+    buildStructuredInvoiceLineItem({
+      label: input.serviceName,
+      amount: input.amount,
+      subtotalAmount: input.subtotalAmount,
+      vatRate: input.vatRate,
+    }),
+  ]
+
+  const buyerType = input.buyerType ?? "INDIVIDUAL"
+  const structuredInvoice = {
+    number: input.number,
+    date: input.date,
+    serviceDate: input.serviceDate,
+    dueDate: input.dueDate,
+    currency: "EUR",
+    paymentTerms: "Paiement comptant",
+    buyerType,
+    buyerCompanyName: input.buyerCompanyName,
+    buyerSiren: input.buyerSiren,
+    buyerVatNumber: input.buyerVatNumber,
+    sellerName: input.issuerSnapshot.companyName || input.issuerSnapshot.name,
+    sellerAddress: input.issuerSnapshot.companyAddress,
+    sellerSiret: input.issuerSnapshot.siret,
+    buyerDisplayName: `${input.patientSnapshot.firstName} ${input.patientSnapshot.lastName}`.trim(),
+    buyerAddress: input.patientSnapshot.address,
+    amount: input.amount,
+    subtotalAmount: input.subtotalAmount,
+    vatAmount: input.vatAmount,
+    vatRate: input.vatRate,
+    lineItems,
+  }
+
+  const facturXStatus = getFacturXReadinessStatus(structuredInvoice)
+
+  return {
+    currency: "EUR",
+    paymentTerms: "Paiement comptant",
+    buyerType,
+    buyerCompanyName: input.buyerCompanyName ?? null,
+    buyerSiren: input.buyerSiren ?? null,
+    buyerVatNumber: input.buyerVatNumber ?? null,
+    lineItems,
+    facturXStatus,
+    facturXProfile: getFacturXProfileForStatus(facturXStatus),
+    facturXXml: buildFacturXDraftXml(structuredInvoice),
+  }
 }
 
 export async function getConsultations() {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
 
   const appointments = await prisma.appointment.findMany({
     where: {
@@ -92,7 +231,7 @@ export async function getConsultations() {
 }
 
 export async function getConsultation(appointmentId: string) {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
 
   const appointment = await prisma.appointment.findFirst({
     where: {
@@ -134,6 +273,14 @@ export async function getConsultation(appointmentId: string) {
 
   return {
     ...appointment,
+    note: appointment.note
+      ? {
+          ...appointment.note,
+          content: serializeConsultationContent(
+            normalizeConsultationContent(appointment.note.content)
+          ),
+        }
+      : null,
     service: {
       ...appointment.service,
       price: appointment.service.price.toNumber(),
@@ -157,7 +304,7 @@ export async function saveConsultationNote(
   appointmentId: string,
   content: Prisma.InputJsonValue
 ) {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
 
   const appointment = await prisma.appointment.findFirst({
     where: {
@@ -173,33 +320,113 @@ export async function saveConsultationNote(
     throw new Error(await getErrorMessage("appointmentNotFound"))
   }
 
-  return prisma.consultationNote.upsert({
-    where: { appointmentId },
-    create: {
+  const note = await applyConsultationContentPatch(appointmentId, content)
+
+  await recordAuditEventSafe(prisma, {
+    actorUserId: userId,
+    targetUserId: userId,
+    domain: "CONSULTATION",
+    action: "CONSULTATION_NOTE_UPDATED",
+    entityType: "ConsultationNote",
+    entityId: note.id,
+    metadata: {
       appointmentId,
-      content,
-    },
-    update: {
-      content,
     },
   })
+
+  return note
 }
 
-export async function finishConsultationAndCreateInvoice(
-  appointmentId: string,
-  content: Prisma.InputJsonValue
-) {
-  const userId = await requireSessionUserId()
-  const normalizedContent = content ?? {}
+export async function prepareConsultationBillingDraft(appointmentId: string) {
+  const userId = await requireCoreAppAccess()
+  const appointment = await prisma.appointment.findFirst({
+    where: {
+      id: appointmentId,
+      userId,
+    },
+    include: {
+      invoice: {
+        select: {
+          id: true,
+          number: true,
+        },
+      },
+      patient: true,
+      service: true,
+      user: {
+        select: invoiceIssuerSelect,
+      },
+    },
+  })
+
+  if (!appointment) {
+    throw new Error(await getErrorMessage("appointmentNotFound"))
+  }
+
+  const billingStatus = getBillingProfileStatusFromProfile(serializeIssuerSnapshot(appointment.user))
+  const issuedAt = new Date()
+  const isAlreadyBilled = Boolean(appointment.invoice)
+  const isBillable =
+    !isAlreadyBilled &&
+    appointment.status !== "CANCELED" &&
+    appointment.status !== "NOSHOW" &&
+    appointment.start <= issuedAt
+
+  const vatPreview = calculateInvoiceAmounts(appointment.service.price.toNumber(), {
+    isVatExempt: billingStatus.issuerProfile.isVatExempt,
+    vatRate: billingStatus.issuerProfile.defaultVatRate,
+  })
+
+  return {
+    ready: billingStatus.ready,
+    missingFields: billingStatus.missingFields,
+    isAlreadyBilled,
+    isBillable,
+    invoiceNumber: appointment.invoice?.number ?? null,
+    issuerProfile: billingStatus.issuerProfile,
+    patientSnapshot: buildInvoicePatientSnapshot(appointment.patient),
+    sessionDraft: {
+      serviceName: appointment.service.name,
+      amount: appointment.service.price.toNumber(),
+      date: formatDateInputValue(issuedAt),
+    },
+    vatPreview,
+  }
+}
+
+export async function confirmConsultationBilling(data: {
+  appointmentId: string
+  consultationContent: Prisma.InputJsonValue
+  patientSnapshot: {
+    firstName: string
+    lastName: string
+    address?: string | null
+  }
+  serviceName: string
+  amount: number
+  date: string
+}) {
+  const userId = await requireCoreAppAccess()
+  const normalizedContent = data.consultationContent ?? {}
+
+  if (Number.isNaN(data.amount) || data.amount <= 0) {
+    throw new Error(await getErrorMessage("validationError"))
+  }
+
+  const invoiceDate = parseDateInputValue(data.date)
+  if (!invoiceDate) {
+    throw new Error(await getErrorMessage("invalidDate"))
+  }
 
   return prisma.$transaction(
     async (tx) => {
       const appointment = await tx.appointment.findFirst({
         where: {
-          id: appointmentId,
+          id: data.appointmentId,
           userId,
         },
         include: {
+          note: true,
           invoice: {
             select: {
               id: true,
@@ -221,19 +448,36 @@ export async function finishConsultationAndCreateInvoice(
         throw new Error(await getErrorMessage("consultationAlreadyBilled"))
       }
 
-      await tx.consultationNote.upsert({
-        where: { appointmentId },
-        create: {
-          appointmentId,
-          content: normalizedContent,
-        },
-        update: {
-          content: normalizedContent,
-        },
-      })
-
+      const billingStatus = await assertBillingProfileReady(appointment.user)
       const issuedAt = new Date()
-      const invoiceNumber = await getNextInvoiceNumber(tx, userId, issuedAt)
+      await ensureAppointmentCanBeBilled(appointment, issuedAt)
+
+      await applyConsultationContentPatchInTransaction(tx, data.appointmentId, normalizedContent)
+
+      const invoiceNumber = await getNextInvoiceNumber(tx, userId, invoiceDate)
+      const amounts = calculateInvoiceAmounts(data.amount, {
+        isVatExempt: billingStatus.issuerProfile.isVatExempt,
+        vatRate: billingStatus.issuerProfile.defaultVatRate,
+      })
+      const patientSnapshot = {
+        firstName: data.patientSnapshot.firstName.trim(),
+        lastName: data.patientSnapshot.lastName.trim(),
+        address: data.patientSnapshot.address?.trim() || null,
+      }
+      const serviceName = data.serviceName.trim()
+      const structuredInvoiceArtifacts = buildStructuredInvoiceArtifacts({
+        number: invoiceNumber,
+        date: invoiceDate,
+        serviceDate: appointment.start,
+        dueDate: invoiceDate,
+        serviceName,
+        issuerSnapshot: serializeIssuerSnapshot(appointment.user),
+        patientSnapshot,
+        amount: amounts.amount,
+        subtotalAmount: amounts.subtotalAmount,
+        vatAmount: amounts.vatAmount,
+        vatRate: amounts.vatRate,
+      })
 
       const invoice = await tx.invoice.create({
         data: {
@@ -241,20 +485,26 @@ export async function finishConsultationAndCreateInvoice(
           patientId: appointment.patientId,
           appointmentId: appointment.id,
           number: invoiceNumber,
-          amount: appointment.service.price,
+          serviceDate: appointment.start,
+          dueDate: invoiceDate,
+          currency: structuredInvoiceArtifacts.currency,
+          paymentTerms: structuredInvoiceArtifacts.paymentTerms,
+          buyerType: structuredInvoiceArtifacts.buyerType,
+          buyerCompanyName: structuredInvoiceArtifacts.buyerCompanyName,
+          buyerSiren: structuredInvoiceArtifacts.buyerSiren,
+          buyerVatNumber: structuredInvoiceArtifacts.buyerVatNumber,
+          amount: amounts.amount,
+          vatAmount: amounts.vatAmount,
+          vatRate: amounts.vatRate,
           status: "DRAFT",
-          date: issuedAt,
-          serviceName: appointment.service.name,
-          issuerSnapshot: {
-            ...appointment.user,
-          },
-          patientSnapshot: {
-            firstName: appointment.patient.firstName,
-            lastName: appointment.patient.lastName,
-            email: appointment.patient.email,
-            phone: appointment.patient.phone,
-            address: appointment.patient.address,
-          },
+          date: invoiceDate,
+          serviceName,
+          issuerSnapshot: serializeIssuerSnapshot(appointment.user),
+          patientSnapshot,
+          lineItems: structuredInvoiceArtifacts.lineItems as unknown as Prisma.InputJsonValue,
+          facturXStatus: structuredInvoiceArtifacts.facturXStatus,
+          facturXProfile: structuredInvoiceArtifacts.facturXProfile,
+          facturXXml: structuredInvoiceArtifacts.facturXXml,
         },
       })
 
@@ -269,11 +519,26 @@ export async function finishConsultationAndCreateInvoice(
         },
       })
 
+      await recordAuditEventSafe(tx, {
+        actorUserId: userId,
+        targetUserId: userId,
+        domain: "INVOICE",
+        action: "CONSULTATION_BILLED",
+        entityType: "Invoice",
+        entityId: invoice.id,
+        metadata: {
+          appointmentId: appointment.id,
+          facturXStatus: structuredInvoiceArtifacts.facturXStatus,
+        },
+      })
+
       return {
         id: invoice.id,
         number: invoice.number,
         status: invoice.status,
         amount: invoice.amount.toNumber(),
+        vatAmount: invoice.vatAmount?.toNumber() ?? 0,
+        vatRate: invoice.vatRate?.toNumber() ?? null,
       }
     },
     {
@@ -282,55 +547,104 @@ export async function finishConsultationAndCreateInvoice(
   )
 }
 
+export async function finishConsultationAndCreateInvoice(
+  appointmentId: string,
+  content: Prisma.InputJsonValue
+) {
+  const draft = await prepareConsultationBillingDraft(appointmentId)
+
+  if (!draft.ready) {
+    throw new Error(await getErrorMessage("billingProfileIncomplete"))
+  }
+
+  if (!draft.isBillable) {
+    throw new Error(await getErrorMessage("consultationCannotBeBilled"))
+  }
+
+  return confirmConsultationBilling({
+    appointmentId,
+    consultationContent: content,
+    patientSnapshot: draft.patientSnapshot,
+    serviceName: draft.sessionDraft.serviceName,
+    amount: draft.sessionDraft.amount,
+    date: draft.sessionDraft.date,
+  })
+}
+
 export async function saveBodyChartHistory(appointmentId: string, selectedParts: string[]) {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
+  const normalizedSelectedParts = normalizeBodyChartPartIds(selectedParts)
 
-  const appointment = await prisma.appointment.findFirst({
-    where: {
-      id: appointmentId,
-      userId,
+  return prisma.$transaction(
+    async (tx) => {
+      const appointment = await tx.appointment.findFirst({
+        where: {
+          id: appointmentId,
+          userId,
+        },
+        select: {
+          id: true,
+        },
+      })
+
+      if (!appointment) {
+        throw new Error(await getErrorMessage("appointmentNotFound"))
+      }
+
+      await tx.consultationNote.upsert({
+        where: {
+          appointmentId,
+        },
+        create: {
+          appointmentId,
+          content: serializeConsultationContent(normalizeConsultationContent(null)),
+        },
+        update: {
+          updatedAt: new Date(),
+        },
+      })
+
+      const lockedRows = await tx.$queryRaw<Array<{ id: string }>>`
+        SELECT "id"
+        FROM "ConsultationNote"
+        WHERE "appointmentId" = ${appointmentId}
+        FOR UPDATE
+      `
+      const lockedNote = lockedRows[0]
+
+      if (!lockedNote) {
+        throw new Error(await getErrorMessage("consultationNotFound"))
+      }
+
+      const lastHistory = await tx.bodyChartHistory.findFirst({
+        where: { consultationNoteId: lockedNote.id },
+        orderBy: { createdAt: "desc" },
+      })
+
+      const hasChanges =
+        !lastHistory ||
+        JSON.stringify([...normalizeBodyChartPartIds(lastHistory.selectedParts)].sort()) !==
+          JSON.stringify([...normalizedSelectedParts].sort())
+
+      if (hasChanges && (normalizedSelectedParts.length > 0 || Boolean(lastHistory))) {
+        return tx.bodyChartHistory.create({
+          data: {
+            consultationNoteId: lockedNote.id,
+            selectedParts: normalizedSelectedParts,
+          },
+        })
+      }
+
+      return lastHistory
     },
-    include: { note: true },
-  })
-
-  if (!appointment) {
-    throw new Error(await getErrorMessage("appointmentNotFound"))
-  }
-
-  let note = appointment.note
-  if (!note) {
-    note = await prisma.consultationNote.create({
-      data: {
-        appointmentId,
-        content: {},
-      },
-    })
-  }
-
-  const lastHistory = await prisma.bodyChartHistory.findFirst({
-    where: { consultationNoteId: note.id },
-    orderBy: { createdAt: "desc" },
-  })
-
-  const hasChanges =
-    !lastHistory ||
-    JSON.stringify([...lastHistory.selectedParts].sort()) !==
-      JSON.stringify([...selectedParts].sort())
-
-  if (hasChanges && selectedParts.length > 0) {
-    return prisma.bodyChartHistory.create({
-      data: {
-        consultationNoteId: note.id,
-        selectedParts,
-      },
-    })
-  }
-
-  return lastHistory
+    {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+    }
+  )
 }
 
 export async function getBodyChartHistory(appointmentId: string) {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
 
   const appointment = await prisma.appointment.findFirst({
     where: {
@@ -348,5 +662,182 @@ export async function getBodyChartHistory(appointmentId: string) {
     },
   })
 
-  return appointment?.note?.bodyChartHistory || []
+  return (
+    appointment?.note?.bodyChartHistory.map((entry) => ({
+      ...entry,
+      selectedParts: normalizeBodyChartPartIds(entry.selectedParts),
+    })) || []
+  )
+}
+
+export async function getConsultationAIAccess() {
+  const userId = await requireCoreAppAccess()
+  const [audioSoap, smartNotesLive, patientRecap] = await Promise.all([
+    canAccessFeature("ai_audio_soap"),
+    canAccessFeature("ai_smart_notes_live"),
+    canAccessFeature("ai_patient_recap"),
+  ])
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      aiFeaturesConsentAt: true,
+      aiBetaEnabled: true,
+      aiComplianceAcceptedAt: true,
+    },
+  })
+
+  return {
+    audioSoap,
+    smartNotesLive,
+    patientRecap,
+    anyAI: audioSoap || smartNotesLive || patientRecap,
+    hasConsent: Boolean(
+      user?.aiFeaturesConsentAt || (user?.aiBetaEnabled && user?.aiComplianceAcceptedAt)
+    ),
+  }
+}
+
+export async function grantAIFeaturesConsent() {
+  const userId = await requireCoreAppAccess()
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      aiFeaturesConsentAt: new Date(),
+      aiBetaEnabled: true,
+      aiComplianceAcceptedAt: new Date(),
+      aiComplianceVersion: AI_BETA_COMPLIANCE_VERSION,
+    },
+  })
+
+  await recordAuditEventSafe(prisma, {
+    actorUserId: userId,
+    targetUserId: userId,
+    domain: "AI",
+    action: "AI_BETA_ENABLED",
+    entityType: "User",
+    entityId: userId,
+    metadata: {
+      aiComplianceVersion: AI_BETA_COMPLIANCE_VERSION,
+    },
+  })
+
+  return { success: true }
+}
+
+export async function generateSmartNoteSuggestions(
+  appointmentId: string,
+  data: {
+    bodyChart: string[]
+    noteText: string
+  }
+) {
+  const userId = await requireCoreAppAccess()
+
+  if (!(await canAccessFeature("ai_smart_notes_live"))) {
+    throw new Error(await getErrorMessage("aiFeatureUnavailable"))
+  }
+  await assertAiBetaEnabled(userId)
+
+  const normalizedBodyChart = normalizeBodyChartPartIds(data.bodyChart)
+  const normalizedNoteText = data.noteText.trim()
+
+  if (normalizedBodyChart.length === 0 && !normalizedNoteText) {
+    return []
+  }
+
+  const appointment = await prisma.appointment.findFirst({
+    where: {
+      id: appointmentId,
+      userId,
+    },
+    include: {
+      patient: true,
+      service: true,
+    },
+  })
+
+  if (!appointment) {
+    throw new Error(await getErrorMessage("appointmentNotFound"))
+  }
+
+  const suggestions = await openAIClinicalGenerationProvider.generateSmartNotes({
+    serviceName: appointment.service.name,
+    bodyChartLabels: normalizedBodyChart.map((part) => bodyPartLabels[part] ?? part),
+    noteText: normalizedNoteText,
+  })
+
+  await recordAuditEventSafe(prisma, {
+    actorUserId: userId,
+    targetUserId: userId,
+    domain: "AI",
+    action: "SMART_NOTES_GENERATED",
+    entityType: "Appointment",
+    entityId: appointmentId,
+    metadata: {
+      suggestionCount: suggestions.length,
+    },
+  })
+
+  return suggestions
+}
+
+export async function generatePatientRecap(
+  appointmentId: string,
+  data: {
+    bodyChart: string[]
+    noteText: string
+    soapSummary: string
+  }
+) {
+  const userId = await requireCoreAppAccess()
+
+  if (!(await canAccessFeature("ai_patient_recap"))) {
+    throw new Error(await getErrorMessage("aiFeatureUnavailable"))
+  }
+  await assertAiBetaEnabled(userId)
+
+  const normalizedBodyChart = normalizeBodyChartPartIds(data.bodyChart)
+  const normalizedNoteText = data.noteText.trim()
+  const normalizedSoapSummary = data.soapSummary.trim()
+
+  if (!normalizedNoteText && !normalizedSoapSummary) {
+    throw new Error(await getErrorMessage("patientRecapRequiresNote"))
+  }
+
+  const appointment = await prisma.appointment.findFirst({
+    where: {
+      id: appointmentId,
+      userId,
+    },
+    include: {
+      patient: true,
+      service: true,
+    },
+  })
+
+  if (!appointment) {
+    throw new Error(await getErrorMessage("appointmentNotFound"))
+  }
+
+  const recap = await openAIClinicalGenerationProvider.generatePatientRecap({
+    serviceName: appointment.service.name,
+    bodyChartLabels: normalizedBodyChart.map((part) => bodyPartLabels[part] ?? part),
+    noteText: normalizedNoteText,
+    soapSummary: normalizedSoapSummary,
+  })
+
+  await recordAuditEventSafe(prisma, {
+    actorUserId: userId,
+    targetUserId: userId,
+    domain: "AI",
+    action: "PATIENT_RECAP_GENERATED",
+    entityType: "Appointment",
+    entityId: appointmentId,
+    metadata: {
+      hasSoapSummary: Boolean(normalizedSoapSummary),
+    },
+  })
+
+  return recap
 }

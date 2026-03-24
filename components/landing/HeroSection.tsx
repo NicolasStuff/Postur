@@ -69,7 +69,7 @@ export function HeroSection() {
                   variant="secondary"
                   className="px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100 text-sm font-medium gap-2"
                 >
-                  Conforme Facture-X 2026
+                  Préparation Factur‑X en cours
                 </Badge>
               </motion.div>
 
@@ -93,7 +93,7 @@ export function HeroSection() {
                 className="text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto mb-10"
               >
                 <strong>Postur</strong> : le premier logiciel pour ostéopathes qui combine{" "}
-                <strong>Body Chart interactif</strong>, <strong>facturation Facture-X</strong> native et{" "}
+                <strong>Body Chart interactif</strong>, <strong>préparation Factur‑X</strong> et{" "}
                 <strong>réservation en ligne</strong>. Simplifiez votre gestion de cabinet sans usine à gaz.
               </motion.p>
 

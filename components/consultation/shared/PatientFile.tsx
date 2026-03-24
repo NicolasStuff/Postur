@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Mail, Phone, MapPin, Calendar } from "lucide-react"
 import { useTranslations, useLocale } from "next-intl"
+import { extractTextFromTipTap } from "@/lib/consultation-note"
 
 interface PatientData {
     id: string
@@ -23,37 +24,6 @@ interface PatientData {
 
 interface PatientFileProps {
     patient: unknown
-}
-
-// Helper function to extract text from TipTap JSON content
-function extractTextFromTipTap(content: unknown): string {
-    if (!content) return ""
-
-    // Handle case where content has an 'editor' wrapper
-    let doc: unknown = content
-    if (content && typeof content === 'object' && content !== null && 'editor' in content) {
-        doc = (content as { editor?: unknown }).editor || content
-    }
-
-    if (!doc || typeof doc !== 'object' || doc === null || !('content' in doc)) return ""
-
-    let text = ""
-
-    const extractFromNode = (node: Record<string, unknown>): void => {
-        if (node.text) {
-            text += node.text
-        }
-        if (node.content && Array.isArray(node.content)) {
-            node.content.forEach(extractFromNode)
-        }
-    }
-
-    const docContent = (doc as Record<string, unknown>).content
-    if (Array.isArray(docContent)) {
-        docContent.forEach(extractFromNode)
-    }
-
-    return text.trim()
 }
 
 export function PatientFile({ patient }: PatientFileProps) {

@@ -15,6 +15,8 @@ interface ConsultationHeaderProps {
     isSaving?: boolean
     isBilled?: boolean
     invoiceNumber?: string | null
+    canFinishAndBill?: boolean
+    finishAndBillDisabledReason?: string
     backHref?: string
 }
 
@@ -26,6 +28,8 @@ export function ConsultationHeader({
     isSaving,
     isBilled = false,
     invoiceNumber,
+    canFinishAndBill = true,
+    finishAndBillDisabledReason,
     backHref = "/dashboard/calendar"
 }: ConsultationHeaderProps) {
     const t = useTranslations('consultation.shared')
@@ -34,17 +38,16 @@ export function ConsultationHeader({
         try {
             await onSave()
             toast.success(t('consultationSaved'))
-        } catch {
-            toast.error(t('consultationSaveError'))
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : t('consultationSaveError'))
         }
     }
 
     const handleFinishAndBill = async () => {
         try {
             await onFinishAndBill()
-            toast.success(t('consultationBilled'))
-        } catch {
-            toast.error(t('consultationBillError'))
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : t('consultationBillError'))
         }
     }
 
@@ -68,6 +71,11 @@ export function ConsultationHeader({
                             {invoiceNumber ? t('billedWithNumber', { number: invoiceNumber }) : t('alreadyBilled')}
                         </Badge>
                     )}
+                    {!isBilled && !canFinishAndBill && finishAndBillDisabledReason && (
+                        <Badge variant="secondary" className="border border-amber-200 bg-amber-50 text-amber-700">
+                            {finishAndBillDisabledReason}
+                        </Badge>
+                    )}
                 </div>
             </div>
             <div className="flex items-center gap-2">
@@ -82,10 +90,10 @@ export function ConsultationHeader({
                 </Button>
                 <Button
                     onClick={handleFinishAndBill}
-                    disabled={isSaving || isBilled}
+                    disabled={isSaving || isBilled || !canFinishAndBill}
                     className="bg-slate-700 hover:bg-slate-800 text-white shadow-sm px-4 h-8 text-sm"
                 >
-                    {isBilled ? t('alreadyBilled') : t('finishAndBill')}
+                    {isBilled ? t('alreadyBilled') : !canFinishAndBill ? t('notBillableYet') : t('finishAndBill')}
                 </Button>
             </div>
         </div>

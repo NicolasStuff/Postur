@@ -5,10 +5,12 @@ import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { authClient } from "@/lib/auth-client"
+import { ManageCookiesButton } from "@/components/marketing/ManageCookiesButton"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { pushMarketingEvent } from "@/lib/marketing"
 import { Loader2, Check, ArrowLeft } from "lucide-react"
 export default function AuthPage() {
   const searchParams = useSearchParams()
@@ -40,13 +42,17 @@ export default function AuthPage() {
   const handleSignUp = async () => {
     setIsLoading(true)
     setError("")
+    pushMarketingEvent("sign_up_started", {
+      location: "auth_page",
+      method: "email",
+    })
     await authClient.signUp.email({
       email,
       password,
       name,
     }, {
       onSuccess: () => {
-        window.location.href = "/dashboard"
+        window.location.href = "/onboarding?signup=success"
       },
       onError: (ctx) => {
         setError(ctx.error.message)
@@ -119,7 +125,7 @@ export default function AuthPage() {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-400" />
-              <span>Conforme RGPD</span>
+              <span>Pensé pour le RGPD</span>
             </div>
           </div>
         </div>
@@ -301,6 +307,26 @@ export default function AuthPage() {
                     {item}
                   </div>
                 ))}
+              </div>
+            </div>
+
+            <div className="border-t border-slate-100 pt-6 text-center text-xs text-slate-500">
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <Link href="/legal/privacy" className="hover:text-slate-900 hover:underline">
+                  Confidentialité
+                </Link>
+                <Link href="/legal/cookies" className="hover:text-slate-900 hover:underline">
+                  Cookies
+                </Link>
+                <Link href="/legal/terms" className="hover:text-slate-900 hover:underline">
+                  CGU
+                </Link>
+                <Link href="/legal/mentions-legales" className="hover:text-slate-900 hover:underline">
+                  Mentions légales
+                </Link>
+              </div>
+              <div className="mt-3 flex justify-center">
+                <ManageCookiesButton variant="link" className="h-auto px-0 text-xs text-slate-500" />
               </div>
             </div>
           </div>

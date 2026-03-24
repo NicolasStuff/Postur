@@ -1,41 +1,62 @@
 "use server"
 
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
-import { getErrorMessage } from "@/lib/i18n/errors";
+import { z } from "zod"
 
-export async function getServices() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) return [];
+import { requireCoreAppAccess } from "@/lib/core-access"
+import { getErrorMessage } from "@/lib/i18n/errors"
+import { prisma } from "@/lib/prisma"
 
-    const services = await prisma.service.findMany({
-        where: { userId: session.user.id }
-    })
+const serviceSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+  duration: z.number().int().min(15).max(480).refine((value) => value % 15 === 0),
+  price: z.number().min(0).max(1000),
+})
 
-    // Convert Decimal to number for client components
-    return services.map(service => ({
-        ...service,
-        price: service.price.toNumber()
-    }))
+function normalizePrice(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100
 }
 
-export async function createService(data: { name: string, duration: number, price: number }) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) {
-        throw new Error(await getErrorMessage("unauthorized"));
-    }
+export async function getServices() {
+  const userId = await requireCoreAppAccess()
 
-    const service = await prisma.service.create({
-        data: {
-            ...data,
-            userId: session.user.id
-        }
-    })
+  const services = await prisma.service.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      name: true,
+      duration: true,
+      price: true,
+    },
+  })
 
-    return { ...service, price: service.price.toNumber() }
+  return services.map((service) => ({
+    ...service,
+    price: service.price.toNumber(),
+  }))
+}
+
+export async function createService(data: { name: string; duration: number; price: number }) {
+  const userId = await requireCoreAppAccess()
+  const parsedInput = serviceSchema.safeParse(data)
+
+  if (!parsedInput.success) {
+    throw new Error(await getErrorMessage("validationError"))
+  }
+
+  const service = await prisma.service.create({
+    data: {
+      userId,
+      name: parsedInput.data.name.trim(),
+      duration: parsedInput.data.duration,
+      price: normalizePrice(parsedInput.data.price),
+    },
+    select: {
+      id: true,
+      name: true,
+      duration: true,
+      price: true,
+    },
+  })
+
+  return { ...service, price: service.price.toNumber() }
 }

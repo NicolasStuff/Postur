@@ -2,19 +2,21 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { auth } from "@/lib/auth"
+import { isOnboardingComplete } from "@/lib/onboarding"
 import { prisma } from "@/lib/prisma"
+import { hasCoreAppAccess } from "@/lib/subscription-access"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { BillingSettings } from "@/components/settings/BillingSettings"
-import { SubscriptionStatus } from "@prisma/client"
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const headerStore = await headers()
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: headerStore,
   })
 
   // Redirect to signin if not authenticated
@@ -27,6 +29,10 @@ export default async function DashboardLayout({
     where: { id: session.user.id },
     select: {
       practitionerType: true,
+      slug: true,
+      companyName: true,
+      companyAddress: true,
+      siret: true,
       name: true,
       email: true,
       image: true,
@@ -43,14 +49,16 @@ export default async function DashboardLayout({
   })
 
   // Check if user has completed onboarding
-  if (!dbUser?.practitionerType) {
+  if (!dbUser || !isOnboardingComplete(dbUser)) {
     redirect("/onboarding")
   }
 
   // Check subscription status
   const subscription = dbUser.subscription
-  const activeStatuses: SubscriptionStatus[] = ["TRIALING", "ACTIVE", "PAST_DUE"]
-  const hasActiveSubscription = subscription && activeStatuses.includes(subscription.status)
+  const hasActiveSubscription = hasCoreAppAccess(subscription)
+  const pathname = headerStore.get("x-pathname") || ""
+  const canAccessWithoutSubscription =
+    pathname.startsWith("/dashboard/settings") || pathname.startsWith("/dashboard/billing")
 
   // Calculate trial days remaining
   let trialDaysRemaining = 0
@@ -65,7 +73,7 @@ export default async function DashboardLayout({
   const userData = {
     name: dbUser.name || session.user.name || "Utilisateur",
     email: dbUser.email || session.user.email || "",
-    avatar: dbUser.image || session.user.image || "https://github.com/shadcn.png",
+    avatar: dbUser.image || session.user.image || "/images/logo.svg",
   }
 
   // Subscription data for sidebar
@@ -84,10 +92,10 @@ export default async function DashboardLayout({
           <Separator orientation="vertical" className="mr-2 h-4" />
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
-          {hasActiveSubscription ? (
+          {hasActiveSubscription || canAccessWithoutSubscription ? (
             children
           ) : (
-            <BillingSettings subscription={null} showUpgradeModal />
+            <BillingSettings subscription={subscription} showUpgradeModal />
           )}
         </main>
       </SidebarInset>

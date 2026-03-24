@@ -8,6 +8,7 @@
       "consultationBilled": "Consultation billed successfully",
       "consultationBillError": "Error billing consultation",
       "alreadyBilled": "Already billed",
+      "notBillableYet": "Not billable yet",
       "billedWithNumber": "Invoice {number}",
       "practitionerTypes": {
         "osteopath": "Osteopath",
@@ -26,6 +27,158 @@
         "orderedList": "Numbered List",
         "undo": "Undo",
         "redo": "Redo"
+      }
+    },
+    "osteopath": {
+      "toolbar": {
+        "timeline": "Timeline",
+        "traumaticTimeline": "Trauma timeline",
+        "patientFile": "Patient file",
+        "historyChart": "Chart history",
+        "historySelections": "Selection history"
+      },
+      "quickNotes": {
+        "label": "Quick notes:",
+        "cervicalBlock": "Cervical block",
+        "twistedPelvis": "Twisted pelvis",
+        "diaphragmTension": "Diaphragm tension",
+        "visceral": "Visceral",
+        "cranial": "Cranial"
+      },
+      "editor": {
+        "title": "Consultation Notes"
+      },
+      "ai": {
+        "title": "AI Assistant",
+        "description": "Transcribe session audio, receive contextual note suggestions, and prepare a patient recap.",
+        "loading": "Loading AI features...",
+        "tabs": {
+          "audio": "Audio & SOAP",
+          "suggestions": "Live suggestions",
+          "recap": "Patient recap"
+        },
+        "locked": {
+          "title": "Available with Pro + AI",
+          "description": "Unlock audio transcription, live note suggestions, and an intelligent patient recap during consultations.",
+          "audioFeature": "Audio -> SOAP note",
+          "smartNotesFeature": "Live note suggestions",
+          "patientRecapFeature": "Intelligent patient recap",
+          "cta": "Upgrade to Pro + AI"
+        },
+        "audio": {
+          "record": "Record",
+          "stop": "Stop",
+          "upload": "Upload audio",
+          "processing": "Transcribing audio and generating SOAP draft...",
+          "recordingTime": "{seconds}s recording",
+          "recorded": "Recorded",
+          "uploaded": "Uploaded",
+          "transcriptTitle": "Session transcript",
+          "transcriptDescription": "Quickly review what was captured before inserting SOAP sections.",
+          "secureBadge": "Minimized data",
+          "soapTitle": "SOAP draft",
+          "insertAll": "Insert full note",
+          "insertSection": "Insert section"
+        },
+        "consent": {
+          "title": "AI consent required",
+          "description": "Before using AI features, we need your explicit consent to process minimized consultation data.",
+          "cta": "Enable AI features",
+          "settingsCta": "Open AI settings",
+          "dialogTitle": "Enable AI features",
+          "dialogDescription": "Confirm that you want to enable AI processing for your consultations.",
+          "cancel": "Later",
+          "accept": "I agree",
+          "points": {
+            "minimization": "Only the data required for the selected feature is sent.",
+            "vendors": "Processing is handled by OpenAI and Deepgram for generation and transcription.",
+            "revocation": "You can revisit this choice later via settings or support."
+          }
+        },
+        "suggestions": {
+          "title": "Note suggestions",
+          "description": "Suggested automatically from the body chart and/or the current note.",
+          "noBodyChart": "No area selected",
+          "noteDetected": "Note detected",
+          "noNote": "No note yet",
+          "generating": "Generating suggestions...",
+          "empty": "Select body areas or start writing to receive suggestions.",
+          "verify": "Needs review",
+          "insert": "Insert",
+          "modes": {
+            "chart-only": "Chart only",
+            "notes-only": "Notes only",
+            "combined": "Chart + notes",
+            "conflict": "Conflict detected"
+          },
+          "confidence": {
+            "low": "Low confidence",
+            "medium": "Medium confidence",
+            "high": "High confidence"
+          }
+        },
+        "recap": {
+          "title": "Patient recap",
+          "description": "Generate a clear and actionable recap to share after the session.",
+          "generate": "Generate",
+          "regenerate": "Regenerate",
+          "open": "Open",
+          "copy": "Copy",
+          "empty": "Add a note or use the SOAP draft to generate a patient recap.",
+          "dialogTitle": "Patient recap",
+          "dialogDescription": "Patient-facing version written in simple, practical language.",
+          "sections": {
+            "summary": "Summary",
+            "advice": "Advice",
+            "exercises": "Exercises",
+            "precautions": "Precautions",
+            "followUp": "Recommended follow-up"
+          }
+        },
+        "toasts": {
+          "transcriptionReady": "Transcript and SOAP draft are ready",
+          "transcriptionFailed": "Transcription failed",
+          "patientRecapReady": "Patient recap is ready",
+          "patientRecapFailed": "Unable to generate the patient recap",
+          "recapCopied": "Patient recap copied",
+          "recapCopyFailed": "Unable to copy the patient recap",
+          "microphoneDenied": "Unable to access the microphone",
+          "consentGranted": "AI consent saved"
+        },
+        "errors": {
+          "unauthorized": "Your session expired. Refresh the page to continue.",
+          "featureUnavailable": "These AI features are only available with Pro + AI.",
+          "consentRequired": "You must accept AI processing before using these features.",
+          "audioFileRequired": "Add an audio file to start the transcription.",
+          "audioEmpty": "The uploaded audio file is empty.",
+          "audioTooLarge": "The uploaded audio file is too large.",
+          "audioInvalidType": "This audio format is not supported.",
+          "appointmentNotFound": "Appointment not found.",
+          "audioProcessingFailed": "Unable to transcribe the audio right now.",
+          "suggestionsFailed": "Unable to generate suggestions right now.",
+          "tooManyRequests": "Too many requests. Please wait before trying again."
+        }
+      },
+      "timeline": {
+        "noEvents": "No traumatic event recorded"
+      },
+      "history": {
+        "title": "Selection history",
+        "noHistory": "No selection history available",
+        "entries": "entries",
+        "entry": "entry",
+        "current": "Current",
+        "zonesSelected": "areas selected",
+        "zoneSelected": "area selected",
+        "added": "Added",
+        "addedPlural": "Added",
+        "removed": "Removed",
+        "removedPlural": "Removed",
+        "selectedZones": "Selected areas"
+      },
+      "errors": {
+        "historySaveFailed": "Unable to save chart history",
+        "aiSaveFailed": "Unable to save AI data"
       }
     }
   },
@@ -131,15 +284,25 @@
     "failedToCreate": "Failed to create patient: {error}"
   },
   "billing": {
+    "documentLabel": "Invoice",
     "invoicePreview": "Invoice Preview",
     "invoiceNumber": "Invoice No",
     "date": "Date",
+    "issuer": "Issuer",
     "patient": "Patient",
     "phone": "Tel",
     "description": "Description",
     "quantity": "Qty",
+    "amountTtc": "Amount incl. VAT",
+    "totals": "Totals",
+    "subtotalHt": "Subtotal excl. VAT",
+    "vat": "VAT",
+    "vatWithRate": "VAT ({rate}%)",
     "total": "Total",
-    "vatNotice": "VAT not applicable, art. 293 B of the French Tax Code",
+    "legalNoticeTitle": "Legal notice",
+    "vatNoticeExempt": "VAT not applicable, art. 293 B of the French Tax Code.",
+    "vatNoticeApplied": "VAT applied according to the issuer billing profile.",
+    "siret": "SIRET",
     "practitionerTypes": {
       "osteopath": "Osteopath D.O.",
       "naturopath": "Naturopath",
@@ -181,6 +344,7 @@
       "description": "Quickly find consultations, clinical notes and sessions still to invoice.",
       "results": "{count} results",
       "patientFilter": "Patient: {patient}",
+      "patientFilterActive": "Clear patient filter",
       "searchPlaceholder": "Search by patient, phone, date or service...",
       "filters": {
         "all": "All",
@@ -216,6 +380,7 @@
         "noService": "No service",
         "billed": "Billed {number}",
         "toBill": "To bill",
+        "notBillableYet": "Not billable yet",
         "open": "Open"
       }
     },
@@ -279,11 +444,74 @@
     },
     "billing": {
       "title": "Billing",
-      "newInvoice": "New Invoice",
-      "createInvoice": "Create Invoice",
+      "description": "Track invoices, review their rendering, print them and download them from a single workspace.",
+      "workspaceLabel": "Archive & follow-up",
+      "results": "{count} invoices",
+      "searchPlaceholder": "Search by number, patient or service...",
       "stats": {
         "totalRevenue": "Total Revenue (Year)",
-        "pendingPayment": "Pending Payment"
+        "pendingPayment": "Pending Payment",
+        "drafts": "Drafts"
+      },
+      "filters": {
+        "all": "All",
+        "draft": "Drafts",
+        "sent": "Sent",
+        "paid": "Paid"
+      },
+      "billingProfileGate": {
+        "title": "Complete your billing profile",
+        "compactTitle": "Billing locked",
+        "description": "Billing stays locked until your legal billing profile is complete.",
+        "cta": "Complete profile",
+        "fields": {
+          "name": "Practitioner name",
+          "practitionerType": "Practitioner type",
+          "companyName": "Practice name",
+          "companyAddress": "Billing address",
+          "siret": "SIRET",
+          "isVatExempt": "VAT regime",
+          "defaultVatRate": "Default VAT rate"
+        }
+      },
+      "consultationBilling": {
+        "title": "Confirm session billing",
+        "issuer": "Issuer",
+        "patient": "Billed client",
+        "session": "Session details",
+        "summary": "Summary",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "serviceName": "Service label",
+        "amount": "Total billed amount",
+        "date": "Issue date",
+        "confirm": "Create draft invoice",
+        "confirming": "Creating draft...",
+        "cancel": "Cancel",
+        "vatExempt": "VAT not applicable",
+        "vatRate": "VAT {rate}%",
+        "notBillableTitle": "This session cannot be billed",
+        "notBillableDescription": "The session is already billed, canceled, missed, or not billable yet.",
+        "alreadyBilled": "Already billed under invoice {number}"
+      },
+      "preview": {
+        "label": "Detailed preview",
+        "emptyTitle": "Select an invoice",
+        "emptyDescription": "Choose an invoice from the list to display its rendering, actions and downloads.",
+        "downloadPdf": "Download PDF",
+        "print": "Print",
+        "editDraft": "Edit draft"
+      },
+      "draftEditor": {
+        "title": "Edit draft invoice",
+        "save": "Save changes",
+        "saving": "Saving..."
+      },
+      "print": {
+        "back": "Back to billing"
       },
       "table": {
         "number": "Number",
@@ -308,12 +536,12 @@
         "delete": "Delete"
       },
       "toasts": {
-        "invoiceCreated": "Invoice created successfully",
         "statusUpdated": "Status updated",
         "invoiceDeleted": "Invoice deleted successfully",
-        "invoiceCreateError": "Error creating invoice",
+        "invoiceUpdated": "Draft updated successfully",
         "statusUpdateError": "Error updating status",
         "invoiceDeleteError": "Error deleting invoice",
+        "invoiceUpdateError": "Error updating the draft",
         "previewError": "Unable to open preview"
       }
     }
@@ -389,9 +617,25 @@
     "onboarding": {
       "welcomeTitle": "Welcome to Postur",
       "welcomeDescription": "Your practice management software for osteopaths",
+      "profileDescription": "Fill in your practice information to activate online booking, invoicing, and access to the platform.",
       "osteopathTitle": "Osteopath",
       "osteopathDescription": "Complete management of your osteopathy consultations: body chart, trauma history, consultation notes and much more.",
-      "continueButton": "Continue to Dashboard",
+      "requiredNoticeTitle": "Required information",
+      "requiredNoticeDescription": "These details are essential to generate your public link, display your practice correctly, and keep the platform working properly.",
+      "publicLinkHint": "Enables the public booking link shared with your patients.",
+      "companyInfoHint": "Used to identify your practice across Postur.",
+      "addressHint": "Shown on your public page and reused in your documents.",
+      "siretHint": "Used for administrative compliance and invoicing.",
+      "profileFormTitle": "Complete your practice profile",
+      "profileFormDescription": "All fields below are required before moving to the subscription step.",
+      "bookingPreview": "Public link: {url}",
+      "companyNameRequired": "Practice name is required.",
+      "companyAddressRequired": "Practice address is required.",
+      "slugInvalid": "The slug must contain at least 3 characters and will be normalized automatically.",
+      "siretInvalid": "The business number must contain exactly 14 digits.",
+      "requiredFieldsFootnote": "Without this information, dashboard access stays blocked.",
+      "requiredFieldsError": "Complete all required fields before continuing.",
+      "continueButton": "Continue to subscription",
       "back": "Back",
       "error": "An error occurred"
     }
@@ -406,17 +650,19 @@
     "trialNote": "You won't be charged during the trial period. Cancel anytime.",
     "checkoutCanceled": "Payment was canceled",
     "checkoutError": "Payment error",
+    "configurationError": "Subscription configuration is unavailable. Please contact support.",
+    "configurationCta": "Configuration missing",
     "features": {
       "unlimitedPatients": "Unlimited patients",
       "unlimitedConsultations": "Unlimited consultations",
       "bodyChart": "Interactive body chart",
-      "invoicing": "Facture-X module included",
+      "invoicing": "Factur-X readiness included",
       "onlineBooking": "Online booking page",
       "prioritySupport": "Priority support",
       "everythingInPro": "Everything in Pro",
-      "aiConsultationSummary": "AI consultation summary",
-      "aiDiagnosisSuggestions": "AI diagnosis suggestions",
-      "aiSmartNotes": "AI smart notes"
+      "aiConsultationSummary": "Audio to SOAP note",
+      "aiDiagnosisSuggestions": "Live note suggestions",
+      "aiSmartNotes": "Intelligent patient recap"
     },
     "trial": {
       "daysRemaining": "{days} days remaining",
@@ -441,7 +687,7 @@
     },
     "upgrade": {
       "title": "Upgrade your plan",
-      "description": "Unlock AI features to optimize your practice",
+      "description": "Unlock audio to SOAP, live note suggestions, and an intelligent patient recap.",
       "cta": "Upgrade"
     }
   },
@@ -470,12 +716,21 @@
       "profileUpdateError": "Error updating profile",
       "publicBookingUrl": "Public booking URL",
       "slugPlaceholder": "your-name",
+      "slugFormatHint": "The slug must contain at least 3 characters. It will be converted to lowercase with hyphens.",
       "companyName": "Practice name",
       "companyNamePlaceholder": "Smith Practice",
       "address": "Address",
       "addressPlaceholder": "123 Example Street, London",
       "siret": "Business number",
       "siretPlaceholder": "123 456 789 00000",
+      "siretFormatHint": "The business number must contain exactly 14 digits.",
+      "requiredFieldsDescription": "These details are required to keep access to the dashboard and public features.",
+      "practitionerName": "Practitioner name",
+      "practitionerNamePlaceholder": "Dr. Camille Dupont",
+      "isVatExempt": "VAT exemption",
+      "isVatExemptHint": "Uncheck this if you bill with VAT.",
+      "defaultVatRate": "Default VAT rate (%)",
+      "defaultVatRatePlaceholder": "20",
       "saveChanges": "Save changes",
       "languageUpdateSuccess": "Language updated successfully",
       "languageUpdateError": "Error updating language",
@@ -528,6 +783,7 @@
     "patientNotFound": "Patient not found",
     "consultationNotFound": "Consultation not found",
     "consultationAlreadyBilled": "This consultation has already been billed",
+    "consultationCannotBeBilled": "Only attended appointments that have already started can be billed",
     "invalidDate": "Invalid date",
     "invalidTimeSlot": "Invalid time slot",
     "slotNotAvailable": "This time slot is not available",

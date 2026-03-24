@@ -8,6 +8,7 @@
       "consultationBilled": "Consultation facturée avec succès",
       "consultationBillError": "Erreur lors de la facturation de la consultation",
       "alreadyBilled": "Déjà facturée",
+      "notBillableYet": "Pas encore facturable",
       "billedWithNumber": "Facture {number}",
       "practitionerTypes": {
         "osteopath": "Ostéopathe",
@@ -46,6 +47,117 @@
       },
       "editor": {
         "title": "Notes de Consultation"
+      },
+      "ai": {
+        "title": "Assistant IA",
+        "description": "Transcrivez l'audio, recevez des suggestions contextualisées et préparez un compte-rendu patient.",
+        "loading": "Chargement des fonctionnalités IA...",
+        "tabs": {
+          "audio": "Audio & SOAP",
+          "suggestions": "Suggestions live",
+          "recap": "Compte-rendu patient"
+        },
+        "locked": {
+          "title": "Fonctionnalités réservées à Pro + IA",
+          "description": "Débloquez la transcription audio, les suggestions live et le compte-rendu patient intelligent pendant vos consultations.",
+          "audioFeature": "Audio -> note SOAP",
+          "smartNotesFeature": "Suggestions de notes en direct",
+          "patientRecapFeature": "Compte-rendu patient intelligent",
+          "cta": "Passer à Pro + IA"
+        },
+        "audio": {
+          "record": "Enregistrer",
+          "stop": "Arrêter",
+          "upload": "Téléverser un audio",
+          "processing": "Transcription et génération SOAP en cours...",
+          "recordingTime": "{seconds}s d'enregistrement",
+          "recorded": "Enregistré",
+          "uploaded": "Téléversé",
+          "transcriptTitle": "Transcript de séance",
+          "transcriptDescription": "Relisez rapidement ce qui a été capté avant d'insérer les sections SOAP.",
+          "secureBadge": "Données minimisées",
+          "soapTitle": "Brouillon SOAP",
+          "insertAll": "Insérer toute la note",
+          "insertSection": "Insérer la section"
+        },
+        "consent": {
+          "title": "Consentement requis pour l'IA",
+          "description": "Avant d'utiliser les fonctions IA, nous avons besoin de votre accord explicite pour traiter des données de consultation minimisées.",
+          "cta": "Activer les fonctions IA",
+          "settingsCta": "Ouvrir les réglages IA",
+          "dialogTitle": "Activer les fonctions IA",
+          "dialogDescription": "Confirmez l'activation des traitements IA pour vos consultations.",
+          "cancel": "Plus tard",
+          "accept": "J'accepte",
+          "points": {
+            "minimization": "Seules les données nécessaires à la fonctionnalité sélectionnée sont envoyées.",
+            "vendors": "Les traitements passent par OpenAI et Deepgram pour la génération et la transcription.",
+            "revocation": "Vous pourrez revoir ce choix plus tard via les réglages ou le support."
+          }
+        },
+        "suggestions": {
+          "title": "Suggestions de notes",
+          "description": "Proposées automatiquement à partir du body chart et/ou de la note en cours.",
+          "noBodyChart": "Aucune zone sélectionnée",
+          "noteDetected": "Note détectée",
+          "noNote": "Aucune note",
+          "generating": "Génération des suggestions...",
+          "empty": "Sélectionnez des zones ou commencez à écrire pour recevoir des suggestions.",
+          "verify": "À vérifier",
+          "insert": "Insérer",
+          "modes": {
+            "chart-only": "Graphique seul",
+            "notes-only": "Note seule",
+            "combined": "Graphique + note",
+            "conflict": "Conflit détecté"
+          },
+          "confidence": {
+            "low": "Confiance faible",
+            "medium": "Confiance moyenne",
+            "high": "Confiance élevée"
+          }
+        },
+        "recap": {
+          "title": "Compte-rendu patient",
+          "description": "Générez un résumé clair et actionnable à partager après la séance.",
+          "generate": "Générer",
+          "regenerate": "Regénérer",
+          "open": "Ouvrir",
+          "copy": "Copier",
+          "empty": "Ajoutez une note ou utilisez le brouillon SOAP pour générer un compte-rendu patient.",
+          "dialogTitle": "Compte-rendu patient",
+          "dialogDescription": "Version patient, rédigée en langage simple et exploitable.",
+          "sections": {
+            "summary": "Résumé",
+            "advice": "Conseils",
+            "exercises": "Exercices",
+            "precautions": "Précautions",
+            "followUp": "Suite conseillée"
+          }
+        },
+        "toasts": {
+          "transcriptionReady": "Transcript et brouillon SOAP prêts",
+          "transcriptionFailed": "La transcription a échoué",
+          "patientRecapReady": "Compte-rendu patient prêt",
+          "patientRecapFailed": "Impossible de générer le compte-rendu patient",
+          "recapCopied": "Compte-rendu copié",
+          "recapCopyFailed": "Impossible de copier le compte-rendu",
+          "microphoneDenied": "Impossible d'accéder au microphone",
+          "consentGranted": "Consentement IA enregistré"
+        },
+        "errors": {
+          "unauthorized": "Votre session a expiré. Rechargez la page pour continuer.",
+          "featureUnavailable": "Ces fonctionnalités IA sont réservées à Pro + IA.",
+          "consentRequired": "Vous devez accepter le traitement IA avant d'utiliser ces fonctionnalités.",
+          "audioFileRequired": "Ajoutez un fichier audio pour lancer la transcription.",
+          "audioEmpty": "Le fichier audio importé est vide.",
+          "audioTooLarge": "Le fichier audio importé est trop volumineux.",
+          "audioInvalidType": "Le format audio n'est pas pris en charge.",
+          "appointmentNotFound": "Rendez-vous introuvable.",
+          "audioProcessingFailed": "Impossible de transcrire l'audio pour le moment.",
+          "suggestionsFailed": "Impossible de générer les suggestions pour le moment.",
+          "tooManyRequests": "Trop de requêtes. Merci de patienter avant de réessayer."
+        }
       },
       "timeline": {
         "noEvents": "Aucun événement traumatique enregistré"
@@ -144,7 +256,8 @@
         }
       },
       "errors": {
-        "historySaveFailed": "Erreur lors de la sauvegarde de l'historique"
+        "historySaveFailed": "Erreur lors de la sauvegarde de l'historique",
+        "aiSaveFailed": "Erreur lors de la sauvegarde des données IA"
       }
     },
     "naturopath": {
@@ -382,15 +495,25 @@
     "min": "min"
   },
   "billing": {
+    "documentLabel": "Facture",
     "invoicePreview": "Aperçu de la facture",
     "invoiceNumber": "Facture N°",
     "date": "Date",
+    "issuer": "Émetteur",
     "patient": "Patient",
     "phone": "Téléphone",
     "description": "Description",
     "quantity": "Qté",
+    "amountTtc": "Montant TTC",
+    "totals": "Totaux",
+    "subtotalHt": "Sous-total HT",
+    "vat": "TVA",
+    "vatWithRate": "TVA ({rate}%)",
     "total": "Total",
-    "vatNotice": "TVA non applicable, art. 293 B du Code Général des Impôts",
+    "legalNoticeTitle": "Mentions légales",
+    "vatNoticeExempt": "TVA non applicable, art. 293 B du Code Général des Impôts.",
+    "vatNoticeApplied": "TVA appliquée selon le profil de facturation du praticien.",
+    "siret": "SIRET",
     "practitionerTypes": {
       "osteopath": "Ostéopathe D.O.",
       "naturopath": "Naturopathe",
@@ -483,6 +606,7 @@
       "description": "Retrouvez rapidement les consultations, notes cliniques et actes à facturer.",
       "results": "{count} résultats",
       "patientFilter": "Patient : {patient}",
+      "patientFilterActive": "Retirer le filtre patient",
       "searchPlaceholder": "Rechercher un patient, un téléphone, une date ou un service...",
       "filters": {
         "all": "Toutes",
@@ -518,6 +642,7 @@
         "noService": "Service non renseigné",
         "billed": "Facturée {number}",
         "toBill": "À facturer",
+        "notBillableYet": "Pas encore facturable",
         "open": "Ouvrir"
       }
     },
@@ -583,17 +708,27 @@
     },
     "billing": {
       "title": "Facturation",
-      "newInvoice": "Nouvelle facture",
-      "createInvoice": "Créer une facture",
-      "invoicePreview": "Prévisualisation de la facture",
+      "description": "Suivez vos factures, relisez leur rendu, imprimez-les et téléchargez-les depuis un espace unique.",
+      "workspaceLabel": "Archive & suivi",
+      "results": "{count} factures",
+      "searchPlaceholder": "Rechercher un numéro, un patient ou une prestation...",
       "invoiceNumber": "N° facture",
       "date": "Date",
       "patient": "Patient",
       "phone": "Tél",
-      "description": "Description",
-      "quantity": "Qte",
+      "descriptionLabel": "Description",
+      "quantity": "Qté",
       "total": "Total",
-      "vatNotice": "TVA non applicable, art. 293 B du CGI",
+      "subtotalHt": "Sous-total HT",
+      "vat": "TVA",
+      "vatWithRate": "TVA ({rate}%)",
+      "siret": "SIRET",
+      "filters": {
+        "all": "Toutes",
+        "draft": "Brouillons",
+        "sent": "Envoyées",
+        "paid": "Payées"
+      },
       "practitionerTypes": {
         "osteopath": "Ostéopathe D.O.",
         "naturopath": "Naturopathe",
@@ -611,9 +746,64 @@
         "sophrologist": "Consultation Sophrologie",
         "default": "Consultation"
       },
+      "billingProfileGate": {
+        "title": "Complétez votre profil de facturation",
+        "compactTitle": "Facturation bloquée",
+        "description": "La facturation reste verrouillée tant que votre profil légal n’est pas complet.",
+        "cta": "Compléter le profil",
+        "fields": {
+          "name": "Nom praticien",
+          "practitionerType": "Type de praticien",
+          "companyName": "Nom du cabinet",
+          "companyAddress": "Adresse de facturation",
+          "siret": "SIRET",
+          "isVatExempt": "Régime TVA",
+          "defaultVatRate": "Taux de TVA par défaut"
+        }
+      },
+      "consultationBilling": {
+        "title": "Confirmer la facturation de la séance",
+        "issuer": "Émetteur",
+        "patient": "Client facturé",
+        "session": "Informations de séance",
+        "summary": "Récapitulatif",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "email": "Email",
+        "phone": "Téléphone",
+        "address": "Adresse",
+        "serviceName": "Libellé de prestation",
+        "amount": "Montant total facturé",
+        "date": "Date d’émission",
+        "confirm": "Créer le brouillon de facture",
+        "confirming": "Création du brouillon...",
+        "cancel": "Annuler",
+        "vatExempt": "TVA non applicable",
+        "vatRate": "TVA {rate}%",
+        "notBillableTitle": "Cette séance ne peut pas être facturée",
+        "notBillableDescription": "La séance est déjà facturée, annulée, absente ou non encore facturable.",
+        "alreadyBilled": "Déjà facturée sous le numéro {number}"
+      },
+      "preview": {
+        "label": "Aperçu détaillé",
+        "emptyTitle": "Sélectionnez une facture",
+        "emptyDescription": "Choisissez une facture dans la liste pour afficher son rendu, ses actions et son téléchargement.",
+        "downloadPdf": "Télécharger le PDF",
+        "print": "Imprimer",
+        "editDraft": "Modifier le brouillon"
+      },
+      "draftEditor": {
+        "title": "Modifier le brouillon de facture",
+        "save": "Enregistrer les modifications",
+        "saving": "Enregistrement..."
+      },
+      "print": {
+        "back": "Retour à la facturation"
+      },
       "stats": {
         "totalRevenue": "Revenu total (Année)",
-        "pendingPayment": "En attente de paiement"
+        "pendingPayment": "En attente de paiement",
+        "drafts": "Brouillons"
       },
       "table": {
         "number": "Numéro",
@@ -638,12 +828,12 @@
         "delete": "Supprimer"
       },
       "toasts": {
-        "invoiceCreated": "Facture créée avec succès",
         "statusUpdated": "Statut mis à jour",
         "invoiceDeleted": "Facture supprimée avec succès",
-        "invoiceCreateError": "Erreur lors de la création de la facture",
+        "invoiceUpdated": "Brouillon mis à jour avec succès",
         "statusUpdateError": "Erreur lors de la mise à jour du statut",
         "invoiceDeleteError": "Erreur lors de la suppression de la facture",
+        "invoiceUpdateError": "Erreur lors de la mise à jour du brouillon",
         "previewError": "Impossible d'afficher l'aperçu"
       }
     }
@@ -666,9 +856,25 @@
     "onboarding": {
       "welcomeTitle": "Bienvenue sur Postur",
       "welcomeDescription": "Votre logiciel de gestion pour ostéopathes",
+      "profileDescription": "Renseignez les informations de votre cabinet pour activer la réservation en ligne, la facturation et l'accès à la plateforme.",
       "osteopathTitle": "Ostéopathe",
       "osteopathDescription": "Gestion complète de vos consultations d'ostéopathie : schéma corporel, historique des traumatismes, notes de consultation et bien plus.",
-      "continueButton": "Continuer vers le Dashboard",
+      "requiredNoticeTitle": "Informations obligatoires",
+      "requiredNoticeDescription": "Ces données sont indispensables pour générer votre lien public, afficher votre cabinet correctement et assurer le bon fonctionnement de la plateforme.",
+      "publicLinkHint": "Active votre lien de réservation public partagé avec vos patients.",
+      "companyInfoHint": "Utilisé pour identifier votre cabinet dans Postur.",
+      "addressHint": "Affichée sur votre page publique et reprise dans vos documents.",
+      "siretHint": "Utilisé pour votre conformité administrative et la facturation.",
+      "profileFormTitle": "Finaliser votre profil cabinet",
+      "profileFormDescription": "Tous les champs ci-dessous sont requis avant de passer à l'abonnement.",
+      "bookingPreview": "Lien public: {url}",
+      "companyNameRequired": "Le nom du cabinet est requis.",
+      "companyAddressRequired": "L'adresse du cabinet est requise.",
+      "slugInvalid": "Le slug doit contenir au moins 3 caractères et sera normalisé automatiquement.",
+      "siretInvalid": "Le SIRET doit contenir exactement 14 chiffres.",
+      "requiredFieldsFootnote": "Sans ces informations, l'accès au dashboard reste bloqué.",
+      "requiredFieldsError": "Complétez tous les champs requis avant de continuer.",
+      "continueButton": "Continuer vers l'abonnement",
       "back": "Retour",
       "error": "Une erreur s'est produite"
     }
@@ -683,17 +889,19 @@
     "trialNote": "Vous ne serez pas débité pendant la période d'essai. Annulez à tout moment.",
     "checkoutCanceled": "Le paiement a été annulé",
     "checkoutError": "Erreur lors du paiement",
+    "configurationError": "Configuration d'abonnement indisponible. Contactez le support.",
+    "configurationCta": "Configuration manquante",
     "features": {
       "unlimitedPatients": "Patients illimités",
       "unlimitedConsultations": "Consultations illimitées",
       "bodyChart": "Schéma corporel interactif",
-      "invoicing": "Module Facture-X inclus",
+      "invoicing": "Préparation Factur-X incluse",
       "onlineBooking": "Page de réservation en ligne",
       "prioritySupport": "Support prioritaire",
       "everythingInPro": "Tout le plan Pro",
-      "aiConsultationSummary": "Résumé de consultation IA",
-      "aiDiagnosisSuggestions": "Suggestions de diagnostic IA",
-      "aiSmartNotes": "Notes intelligentes IA"
+      "aiConsultationSummary": "Audio vers note SOAP",
+      "aiDiagnosisSuggestions": "Suggestions de notes en direct",
+      "aiSmartNotes": "Compte-rendu patient intelligent"
     },
     "trial": {
       "daysRemaining": "{days} jours restants",
@@ -718,7 +926,7 @@
     },
     "upgrade": {
       "title": "Passez à la version supérieure",
-      "description": "Débloquez les fonctionnalités IA pour optimiser votre pratique",
+      "description": "Débloquez l'audio vers SOAP, les suggestions live et le compte-rendu patient intelligent.",
       "cta": "Mettre à niveau"
     }
   },
@@ -747,12 +955,21 @@
       "profileUpdateError": "Erreur lors de la mise à jour du profil",
       "publicBookingUrl": "URL de réservation publique",
       "slugPlaceholder": "votre-nom",
+      "slugFormatHint": "Le slug doit contenir au moins 3 caractères. Il sera converti en minuscules avec des tirets.",
       "companyName": "Nom du cabinet",
       "companyNamePlaceholder": "Cabinet Dupont",
       "address": "Adresse",
       "addressPlaceholder": "123 rue Example, 75001 Paris",
       "siret": "SIRET",
       "siretPlaceholder": "123 456 789 00000",
+      "siretFormatHint": "Le SIRET doit contenir exactement 14 chiffres.",
+      "requiredFieldsDescription": "Ces informations sont obligatoires pour conserver l'accès au dashboard et aux fonctionnalités publiques.",
+      "practitionerName": "Nom du praticien",
+      "practitionerNamePlaceholder": "Dr. Camille Dupont",
+      "isVatExempt": "Exonération de TVA",
+      "isVatExemptHint": "Décochez si vous facturez avec TVA.",
+      "defaultVatRate": "Taux de TVA par défaut (%)",
+      "defaultVatRatePlaceholder": "20",
       "saveChanges": "Enregistrer les modifications",
       "languageUpdateSuccess": "Langue mise à jour avec succès",
       "languageUpdateError": "Erreur lors de la mise à jour de la langue",
@@ -805,6 +1022,7 @@
     "patientNotFound": "Patient introuvable",
     "consultationNotFound": "Consultation introuvable",
     "consultationAlreadyBilled": "Cette consultation a déjà été facturée",
+    "consultationCannotBeBilled": "Seuls les rendez-vous commencés et honorés peuvent être facturés",
     "invalidDate": "Date invalide",
     "invalidTimeSlot": "Créneau horaire invalide",
     "slotNotAvailable": "Ce créneau horaire n'est pas disponible",

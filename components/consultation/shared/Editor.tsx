@@ -27,6 +27,20 @@ export const ConsultationEditor = forwardRef<ConsultationEditorRef, Consultation
   function ConsultationEditor({ initialContent, onChange }, ref) {
   const t = useTranslations('consultation.shared.editor')
 
+  const formatTextForInsertion = (text: string) => {
+    const escapeHtml = (value: string) =>
+      value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+
+    return text
+      .trim()
+      .split(/\n{2,}/)
+      .map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, "<br/>")}</p>`)
+      .join("")
+  }
+
   const editor = useEditor({
     extensions: [StarterKit],
     content: initialContent || '<p></p>',
@@ -44,7 +58,7 @@ export const ConsultationEditor = forwardRef<ConsultationEditorRef, Consultation
   useImperativeHandle(ref, () => ({
     insertText: (text: string) => {
       if (editor) {
-        editor.chain().focus().insertContent(` ${text} `).run()
+        editor.chain().focus().insertContent(formatTextForInsertion(text)).run()
       }
     }
   }), [editor])

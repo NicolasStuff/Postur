@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { headers } from "next/headers";
 
 // GET /api/user/locale - Get user's locale preference
 export async function GET() {
   try {
     const session = await auth.api.getSession({
-      headers: await Promise.resolve(new Headers()),
+      headers: await headers(),
     });
 
     if (!session?.user) {
@@ -32,7 +33,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await auth.api.getSession({
-      headers: await Promise.resolve(new Headers()),
+      headers: await headers(),
     });
 
     if (!session?.user) {

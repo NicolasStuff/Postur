@@ -26,8 +26,16 @@ export async function GET() {
         name: true,
         language: true,
         practitionerType: true,
+        companyName: true,
+        companyAddress: true,
+        siret: true,
+        isVatExempt: true,
+        defaultVatRate: true,
         slug: true,
         role: true,
+        aiBetaEnabled: true,
+        aiComplianceAcceptedAt: true,
+        aiComplianceVersion: true,
       },
     })
 

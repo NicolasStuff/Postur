@@ -1,20 +1,24 @@
 "use client"
 
-import { use, useMemo, useRef } from "react"
+import { use, useMemo, useRef, useState } from "react"
 import { Prisma } from "@prisma/client"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
+import { useTranslations } from "next-intl"
 
 import {
-  finishConsultationAndCreateInvoice,
+  confirmConsultationBilling,
   getConsultation,
+  prepareConsultationBillingDraft,
   saveConsultationNote,
 } from "@/app/actions/consultation"
 import {
   OsteopathConsultation,
   OsteopathConsultationRef,
 } from "@/components/consultation/osteopath/OsteopathConsultation"
+import { ConsultationBillingDialog } from "@/components/consultation/shared/ConsultationBillingDialog"
 import { ConsultationHeader } from "@/components/consultation/shared/ConsultationHeader"
+import { toast } from "sonner"
 
 export default function ConsultationPage({
   params,
@@ -22,9 +26,12 @@ export default function ConsultationPage({
   params: Promise<{ appointmentId: string }>
 }) {
   const { appointmentId } = use(params)
+  const t = useTranslations("consultation.shared")
+  const tErrors = useTranslations("errors")
   const queryClient = useQueryClient()
   const searchParams = useSearchParams()
   const consultationRef = useRef<OsteopathConsultationRef>(null)
+  const [billingDialogOpen, setBillingDialogOpen] = useState(false)
 
   const { data: consultation, isLoading } = useQuery({
     queryKey: ["consultation", appointmentId],
@@ -36,22 +43,44 @@ export default function ConsultationPage({
       await saveConsultationNote(appointmentId, data)
     },
     onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["consultation", appointmentId] }),
-        queryClient.invalidateQueries({ queryKey: ["consultations"] }),
-      ])
+      await queryClient.invalidateQueries({ queryKey: ["consultations"] })
     },
   })
 
+  const { data: billingDraft, isLoading: isBillingDraftLoading } = useQuery({
+    queryKey: ["consultationBillingDraft", appointmentId],
+    queryFn: () => prepareConsultationBillingDraft(appointmentId),
+    enabled: billingDialogOpen,
+  })
+
   const finishAndBillMutation = useMutation({
-    mutationFn: async (data: Prisma.InputJsonValue) =>
-      finishConsultationAndCreateInvoice(appointmentId, data),
+    mutationFn: async (payload: {
+      patientSnapshot: {
+        firstName: string
+        lastName: string
+        address?: string | null
+      }
+      serviceName: string
+      amount: number
+      date: string
+    }) =>
+      confirmConsultationBilling({
+        appointmentId,
+        consultationContent: getDraft(),
+        ...payload,
+      }),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["consultation", appointmentId] }),
         queryClient.invalidateQueries({ queryKey: ["consultations"] }),
         queryClient.invalidateQueries({ queryKey: ["invoices"] }),
+        queryClient.invalidateQueries({ queryKey: ["consultationBillingDraft", appointmentId] }),
       ])
+      setBillingDialogOpen(false)
+      toast.success(t("consultationBilled"))
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || t("consultationBillError"))
     },
   })
 
@@ -81,6 +110,12 @@ export default function ConsultationPage({
   const practitionerName = consultation.user?.name || "Praticien"
   const practitionerType = consultation.user?.practitionerType || "OSTEOPATH"
   const isSaving = saveMutation.isPending || finishAndBillMutation.isPending
+  const finishAndBillDisabledReason =
+    consultation.invoice
+      ? undefined
+      : consultation.status === "CANCELED" || consultation.status === "NOSHOW"
+        ? tErrors("consultationCannotBeBilled")
+        : undefined
 
   const getDraft = () =>
     consultationRef.current?.getDraft() ?? {
@@ -93,7 +128,11 @@ export default function ConsultationPage({
   }
 
   const handleFinishAndBill = async () => {
-    await finishAndBillMutation.mutateAsync(getDraft())
+    setBillingDialogOpen(true)
+  }
+
+  const handleAutosave = async (data: Prisma.InputJsonValue) => {
+    await saveMutation.mutateAsync(data)
   }
 
   return (
@@ -107,6 +146,8 @@ export default function ConsultationPage({
           isSaving={isSaving}
           isBilled={Boolean(consultation.invoice)}
           invoiceNumber={consultation.invoice?.number}
+          canFinishAndBill={true}
+          finishAndBillDisabledReason={finishAndBillDisabledReason}
           backHref={backHref}
         />
       </div>
@@ -115,9 +156,24 @@ export default function ConsultationPage({
         <OsteopathConsultation
           ref={consultationRef}
           consultation={consultation}
-          onSave={(data) => saveMutation.mutateAsync(data)}
+          onSave={handleAutosave}
         />
       </div>
+
+      <ConsultationBillingDialog
+        draft={billingDraft ?? null}
+        open={billingDialogOpen}
+        onOpenChange={setBillingDialogOpen}
+        isSubmitting={finishAndBillMutation.isPending}
+        isLoading={isBillingDraftLoading}
+        onConfirm={async (payload) => {
+          try {
+            await finishAndBillMutation.mutateAsync(payload)
+          } catch {
+            // Errors are surfaced via the mutation onError toast.
+          }
+        }}
+      />
     </div>
   )
 }

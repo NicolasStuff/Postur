@@ -1,5 +1,7 @@
 import { ReactNode } from "react";
 import { auth } from "@/lib/auth";
+import { MarketingTrackingProvider } from "@/components/providers/MarketingTrackingProvider";
+import { isOnboardingComplete } from "@/lib/onboarding";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -17,19 +19,27 @@ export default async function OnboardingLayout({ children }: { children: ReactNo
   // Fetch user from database to check if already completed onboarding
   const dbUser = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { practitionerType: true },
+    select: {
+      practitionerType: true,
+      slug: true,
+      companyName: true,
+      companyAddress: true,
+      siret: true,
+    },
   });
 
   // Redirect to dashboard if already completed onboarding
-  if (dbUser?.practitionerType) {
+  if (dbUser && isOnboardingComplete(dbUser)) {
     redirect("/dashboard");
   }
 
   return (
-    <div className="min-h-screen bg-muted/20 flex items-center justify-center p-6">
-      <div className="w-full max-w-5xl">
-        {children}
+    <MarketingTrackingProvider surface="acquisition">
+      <div className="min-h-screen bg-muted/20 flex items-center justify-center p-6">
+        <div className="w-full max-w-5xl">
+          {children}
+        </div>
       </div>
-    </div>
+    </MarketingTrackingProvider>
   );
 }

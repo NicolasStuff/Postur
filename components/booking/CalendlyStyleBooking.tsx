@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { createPublicAppointment, getPublicAvailability, PublicPractitioner } from "@/app/actions/booking"
+import { createPublicAppointment, getPublicAvailableSlots, PublicPractitioner } from "@/app/actions/booking"
 import { Loader2, CheckCircle2, Clock, ChevronLeft, ChevronRight, ArrowLeft, Globe, MapPin, Phone as PhoneIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslations } from 'next-intl'
@@ -46,19 +46,25 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
     })
 
     // Timezone
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const timezoneDisplay = timezone.replace(/_/g, ' ')
+    const timezoneDisplay = "Europe/Paris"
     const currentTime = new Date().toLocaleTimeString('fr-FR', {
         hour: '2-digit',
         minute: '2-digit',
-        timeZone: timezone
+        timeZone: 'Europe/Paris'
     })
+    const selectedDateValue = selectedDate
+        ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
+        : null
 
     // Query for availability
-    const { data: appointments } = useQuery({
-        queryKey: ['publicAvailability', practitioner.id, selectedDate?.toISOString()],
-        queryFn: () => getPublicAvailability(practitioner.id, selectedDate!),
-        enabled: !!selectedDate
+    const { data: availability } = useQuery({
+        queryKey: ['publicAvailability', slug, selectedService?.id, selectedDateValue],
+        queryFn: () => getPublicAvailableSlots({
+            slug,
+            serviceId: selectedService!.id,
+            date: selectedDateValue!,
+        }),
+        enabled: Boolean(selectedService?.id && selectedDateValue)
     })
 
     // Mutation for booking
@@ -96,84 +102,10 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
 
         if (date < today) return false
 
-        // Check if day has opening hours
-        const dayName = getDayName(date)
-        try {
-            const openingHours = typeof practitioner.openingHours === 'string'
-                ? JSON.parse(practitioner.openingHours)
-                : practitioner.openingHours
-            const daySlots = openingHours?.[dayName] || []
-            return daySlots.length > 0
-        } catch {
-            return false
-        }
+        return Boolean(selectedService)
     }
 
-    const getDayName = (date: Date) => {
-        const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
-        return days[date.getDay()]
-    }
-
-    const generateTimeSlots = () => {
-        if (!selectedDate || !practitioner.openingHours) return []
-
-        const dayName = getDayName(selectedDate)
-        let daySlots: string[] = []
-
-        try {
-            const openingHours = typeof practitioner.openingHours === 'string'
-                ? JSON.parse(practitioner.openingHours)
-                : practitioner.openingHours
-            daySlots = openingHours[dayName] || []
-        } catch {
-            return []
-        }
-
-        const slots: string[] = []
-
-        daySlots.forEach((range: string) => {
-            const [startStr, endStr] = range.split('-')
-            if (!startStr || !endStr) return
-
-            const [startH, startM] = startStr.split(':').map(Number)
-            const [endH, endM] = endStr.split(':').map(Number)
-
-            let currentH = startH
-            let currentM = startM
-
-            while (currentH < endH || (currentH === endH && currentM < endM)) {
-                const timeString = `${currentH.toString().padStart(2, '0')}:${currentM.toString().padStart(2, '0')}`
-                slots.push(timeString)
-
-                currentM += 30
-                if (currentM >= 60) {
-                    currentH += 1
-                    currentM -= 60
-                }
-            }
-        })
-
-        // Filter out past slots and booked slots
-        return slots.filter(slot => {
-            const [h, m] = slot.split(':').map(Number)
-            const slotTime = new Date(selectedDate)
-            slotTime.setHours(h, m, 0, 0)
-
-            // Check if slot is in the past
-            if (new Date().toDateString() === selectedDate.toDateString()) {
-                if (slotTime < new Date()) return false
-            }
-
-            // Check if slot is already booked
-            return !appointments?.some(appt => {
-                const apptStart = new Date(appt.start)
-                const apptEnd = new Date(appt.end)
-                return slotTime >= apptStart && slotTime < apptEnd
-            })
-        })
-    }
-
-    const timeSlots = generateTimeSlots()
+    const timeSlots = availability?.slots || []
 
     const handleDateClick = (day: number) => {
         if (!isDateAvailable(day)) return
@@ -188,16 +120,13 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
     }
 
     const handleConfirm = () => {
-        if (!selectedDate || !selectedTime || !selectedService) return
-
-        const [hours, minutes] = selectedTime.split(':').map(Number)
-        const start = new Date(selectedDate)
-        start.setHours(hours, minutes, 0, 0)
+        if (!selectedDateValue || !selectedTime || !selectedService) return
 
         mutation.mutate({
             slug,
             serviceId: selectedService.id,
-            start,
+            date: selectedDateValue,
+            time: selectedTime,
             ...patientDetails
         })
     }
