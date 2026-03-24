@@ -839,6 +839,8 @@
     "networkError": "Network error occurred",
     "timeoutError": "Request timed out",
     "validationError": "Validation error",
-    "databaseError": "Database error occurred"
+    "databaseError": "Database error occurred",
+    "invalidSlug": "The public booking URL is invalid",
+    "reservedSlug": "This public booking URL is reserved"
   }
 }
