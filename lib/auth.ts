@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { emailOTP } from "better-auth/plugins";
 import { prisma } from "@/lib/prisma";
+import { sendResetPasswordEmail, sendOtpEmail } from "@/lib/email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -10,8 +12,24 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
   trustedOrigins: ["http://localhost:3000", "https://postur.fr"],
   emailAndPassword: {
-    enabled: true
+    enabled: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendResetPasswordEmail({
+        to: user.email,
+        url,
+        name: user.name,
+      });
+    },
   },
+  plugins: [
+    emailOTP({
+      async sendVerificationOTP({ email, otp }) {
+        await sendOtpEmail({ to: email, otp });
+      },
+      otpLength: 6,
+      expiresIn: 600,
+    }),
+  ],
   user: {
     additionalFields: {
       practitionerType: {
@@ -20,5 +38,4 @@ export const auth = betterAuth({
       },
     },
   },
-  // Add other providers if needed
 });

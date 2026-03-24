@@ -5,6 +5,9 @@ import Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { stripe, getPlanByPriceId } from "@/lib/stripe";
 
+const MAX_RETRIES = 5;
+const RETRY_BASE_DELAY_MS = 100;
+
 export async function POST(req: Request) {
   const body = await req.text();
   const signature = req.headers.get("stripe-signature");
@@ -26,83 +29,97 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  try {
-    const duplicate = await prisma.$transaction(
-      async (tx) => {
-        await tx.webhookEvent.upsert({
-          where: { stripeEventId: event.id },
-          create: {
-            stripeEventId: event.id,
-            eventType: event.type,
-            processed: false,
-          },
-          update: {
-            eventType: event.type,
-          },
-        });
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      const duplicate = await prisma.$transaction(
+        async (tx) => {
+          await tx.webhookEvent.upsert({
+            where: { stripeEventId: event.id },
+            create: {
+              stripeEventId: event.id,
+              eventType: event.type,
+              processed: false,
+            },
+            update: {
+              eventType: event.type,
+            },
+          });
 
-        const lockedRows = await tx.$queryRaw<Array<{ processed: boolean }>>`
-          SELECT "processed"
-          FROM "WebhookEvent"
-          WHERE "stripeEventId" = ${event.id}
-          FOR UPDATE
-        `;
-        const lockedEvent = lockedRows[0];
+          const lockedRows = await tx.$queryRaw<Array<{ processed: boolean }>>`
+            SELECT "processed"
+            FROM "WebhookEvent"
+            WHERE "stripeEventId" = ${event.id}
+            FOR UPDATE
+          `;
+          const lockedEvent = lockedRows[0];
 
-        if (lockedEvent?.processed) {
-          return true;
+          if (lockedEvent?.processed) {
+            return true;
+          }
+
+          switch (event.type) {
+            case "checkout.session.completed":
+              await handleCheckoutCompleted(tx, event.data.object as Stripe.Checkout.Session);
+              break;
+
+            case "customer.subscription.created":
+            case "customer.subscription.updated":
+              await handleSubscriptionUpdated(tx, event.data.object as Stripe.Subscription);
+              break;
+
+            case "customer.subscription.deleted":
+              await handleSubscriptionDeleted(tx, event.data.object as Stripe.Subscription);
+              break;
+
+            case "invoice.payment_succeeded":
+              await handlePaymentSucceeded(tx, event.data.object as Stripe.Invoice);
+              break;
+
+            case "invoice.payment_failed":
+              await handlePaymentFailed(tx, event.data.object as Stripe.Invoice);
+              break;
+
+            default:
+              break;
+          }
+
+          await tx.webhookEvent.update({
+            where: { stripeEventId: event.id },
+            data: { processed: true },
+          });
+
+          return false;
+        },
+        {
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         }
+      );
 
-        switch (event.type) {
-          case "checkout.session.completed":
-            await handleCheckoutCompleted(tx, event.data.object as Stripe.Checkout.Session);
-            break;
-
-          case "customer.subscription.created":
-          case "customer.subscription.updated":
-            await handleSubscriptionUpdated(tx, event.data.object as Stripe.Subscription);
-            break;
-
-          case "customer.subscription.deleted":
-            await handleSubscriptionDeleted(tx, event.data.object as Stripe.Subscription);
-            break;
-
-          case "invoice.payment_succeeded":
-            await handlePaymentSucceeded(tx, event.data.object as Stripe.Invoice);
-            break;
-
-          case "invoice.payment_failed":
-            await handlePaymentFailed(tx, event.data.object as Stripe.Invoice);
-            break;
-
-          default:
-            break;
-        }
-
-        await tx.webhookEvent.update({
-          where: { stripeEventId: event.id },
-          data: { processed: true },
-        });
-
-        return false;
-      },
-      {
-        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+      if (duplicate) {
+        return NextResponse.json({ received: true, duplicate: true });
       }
-    );
 
-    if (duplicate) {
-      return NextResponse.json({ received: true, duplicate: true });
+      return NextResponse.json({ received: true });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2034" &&
+        attempt < MAX_RETRIES - 1
+      ) {
+        const delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt) + Math.random() * 50;
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+
+      console.error(`Error processing webhook ${event.type}:`, error);
+      return NextResponse.json(
+        { error: "Webhook processing failed" },
+        { status: 500 }
+      );
     }
-
-    return NextResponse.json({ received: true });
-  } catch (error) {
-    console.error(`Error processing webhook ${event.type}:`, error);
-    return NextResponse.json(
-      { error: "Webhook processing failed" },
-      { status: 500 }
-    );
   }
+
+  return NextResponse.json({ received: true });
 }
 
 function getSubscriptionPeriodEnd(subscription: Stripe.Subscription): Date | null {

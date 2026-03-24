@@ -800,6 +800,16 @@ export async function sendInvoiceByEmail(invoiceId: string, recipientEmail: stri
   const issuerName = mapped.user.companyName || mapped.user.name || "Praticien"
   const patientName = `${mapped.patient.firstName} ${mapped.patient.lastName}`
 
+  const invoiceDate = mapped.date.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  })
+  const totalAmount = new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+  }).format(mapped.amount)
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const document = InvoicePdfDocument({ invoice: mapped, locale: "fr" }) as any
   const buffer = await reactPdf.renderToBuffer(document)
@@ -807,8 +817,12 @@ export async function sendInvoiceByEmail(invoiceId: string, recipientEmail: stri
   await sendInvoiceEmail({
     to: recipientEmail,
     invoiceNumber: mapped.number,
+    invoiceDate,
+    totalAmount,
     patientName,
     issuerName,
+    issuerAddress: mapped.user.companyAddress ?? null,
+    issuerSiret: mapped.user.siret ?? null,
     pdfBuffer: Buffer.from(buffer),
   })
 
