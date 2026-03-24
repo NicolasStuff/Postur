@@ -2,7 +2,7 @@ import { Resend } from "resend"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const EMAIL_FROM = process.env.EMAIL_FROM || "Postur <onboarding@resend.dev>"
+const EMAIL_FROM = process.env.EMAIL_FROM || "Postur <facturation@postur.fr>"
 
 interface SendInvoiceEmailParams {
   to: string
