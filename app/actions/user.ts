@@ -15,8 +15,16 @@ import {
   normalizeSiret,
   normalizeSlug,
 } from "@/lib/onboarding";
-import { Prisma } from "@prisma/client";
+import { Prisma, type User } from "@prisma/client";
 import { z } from "zod";
+
+/** Convert Prisma User (with Decimal fields) to a plain object safe for Client Components. */
+function serializeUser(user: User) {
+  return {
+    ...user,
+    defaultVatRate: user.defaultVatRate ? user.defaultVatRate.toNumber() : null,
+  };
+}
 
 const updateUserProfileSchema = z.object({
   name: z.string().max(120).optional(),
@@ -37,9 +45,11 @@ export async function getUserProfile() {
     })
     if (!session) return null;
 
-    return await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
         where: { id: session.user.id }
     })
+    if (!user) return null;
+    return serializeUser(user);
 }
 
 export async function setAiBetaParticipation(enabled: boolean) {
@@ -77,7 +87,7 @@ export async function setAiBetaParticipation(enabled: boolean) {
         },
     })
 
-    return updatedUser
+    return serializeUser(updatedUser)
 }
 
 export async function updateUserProfile(data: {
@@ -195,7 +205,7 @@ export async function updateUserProfile(data: {
             },
         })
 
-        return updatedUser
+        return serializeUser(updatedUser)
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
             const target = Array.isArray(error.meta?.target) ? error.meta.target.join(",") : ""

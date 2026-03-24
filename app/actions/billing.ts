@@ -725,7 +725,12 @@ export async function updateInvoiceStatus(
     },
   })
 
-  return updatedInvoice
+  return {
+    ...updatedInvoice,
+    amount: updatedInvoice.amount.toNumber(),
+    vatAmount: updatedInvoice.vatAmount?.toNumber() ?? 0,
+    vatRate: updatedInvoice.vatRate?.toNumber() ?? null,
+  }
 }
 
 export async function deleteInvoice(invoiceId: string) {
@@ -765,7 +770,12 @@ export async function deleteInvoice(invoiceId: string) {
       },
     })
 
-    return deletedInvoice
+    return {
+      ...deletedInvoice,
+      amount: deletedInvoice.amount.toNumber(),
+      vatAmount: deletedInvoice.vatAmount?.toNumber() ?? 0,
+      vatRate: deletedInvoice.vatRate?.toNumber() ?? null,
+    }
   })
 }
 

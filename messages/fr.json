@@ -1038,6 +1038,9 @@
     "networkError": "Erreur réseau",
     "timeoutError": "Délai d'attente dépassé",
     "validationError": "Erreur de validation",
-    "databaseError": "Erreur de base de données"
+    "databaseError": "Erreur de base de données",
+    "invalidSiret": "Le numéro SIRET est invalide",
+    "invalidSlug": "L'identifiant de réservation est invalide",
+    "reservedSlug": "Cet identifiant de réservation est déjà utilisé"
   }
 }

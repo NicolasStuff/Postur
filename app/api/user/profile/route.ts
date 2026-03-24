@@ -46,7 +46,10 @@ export async function GET() {
       )
     }
 
-    return NextResponse.json(user)
+    return NextResponse.json({
+      ...user,
+      defaultVatRate: user.defaultVatRate ? user.defaultVatRate.toNumber() : null,
+    })
   } catch (error) {
     console.error('Error fetching user profile:', error)
     return NextResponse.json(
