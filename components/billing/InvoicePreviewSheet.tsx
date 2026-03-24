@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { CheckCircle2, Download, FilePenLine, Loader2, Printer, Send, Trash2 } from "lucide-react"
+import { CheckCircle2, Download, FilePenLine, Loader2, Mail, Printer, Send, Trash2 } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useQuery } from "@tanstack/react-query"
 import { getInvoiceDetails } from "@/app/actions/billing"
@@ -20,6 +20,7 @@ interface InvoicePreviewSheetProps {
   onOpenChange: (open: boolean) => void
   onEdit: () => void
   onSend: () => void
+  onResend: () => void
   onMarkPaid: () => void
   onDelete: () => void
   isUpdating: boolean
@@ -32,6 +33,7 @@ export function InvoicePreviewSheet({
   onOpenChange,
   onEdit,
   onSend,
+  onResend,
   onMarkPaid,
   onDelete,
   isUpdating,
@@ -47,6 +49,7 @@ export function InvoicePreviewSheet({
 
   const canEdit = invoice?.status === "DRAFT"
   const canSend = invoice?.status === "DRAFT"
+  const canResend = invoice?.status === "SENT"
   const canMarkPaid = invoice?.status === "SENT"
 
   return (
@@ -84,6 +87,12 @@ export function InvoicePreviewSheet({
                 <Button size="sm" onClick={onSend} disabled={isUpdating}>
                   <Send className="mr-2 h-3.5 w-3.5" />
                   {t("actions.send")}
+                </Button>
+              )}
+              {canResend && (
+                <Button variant="outline" size="sm" onClick={onResend}>
+                  <Mail className="mr-2 h-3.5 w-3.5" />
+                  {t("sendDialog.resend")}
                 </Button>
               )}
               {canMarkPaid && (

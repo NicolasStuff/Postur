@@ -559,8 +559,24 @@
         "markAsPaid": "Mark as paid",
         "delete": "Delete"
       },
+      "sendDialog": {
+        "title": "Send invoice",
+        "resendTitle": "Resend invoice by email",
+        "emailLabel": "Patient email",
+        "emailPlaceholder": "patient@email.com",
+        "sendByEmail": "Send by email to patient",
+        "noEmail": "No email on file for this patient",
+        "send": "Send",
+        "resend": "Resend",
+        "sending": "Sending...",
+        "cancel": "Cancel"
+      },
       "toasts": {
         "statusUpdated": "Status updated",
+        "invoiceSent": "Invoice sent by email",
+        "invoiceMarkedSent": "Invoice marked as sent",
+        "invoiceResent": "Invoice resent by email",
+        "emailSendError": "Error sending email",
         "invoiceDeleted": "Invoice deleted successfully",
         "invoiceUpdated": "Draft updated successfully",
         "statusUpdateError": "Error updating status",

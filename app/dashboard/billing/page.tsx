@@ -14,12 +14,14 @@ import {
   getBillingProfileStatus,
   getInvoiceDetails,
   getInvoices,
+  sendInvoiceByEmail,
   updateDraftInvoice,
   updateInvoiceStatus,
 } from "@/app/actions/billing"
 import { BillingProfileGate } from "@/components/billing/BillingProfileGate"
 import { InvoiceDraftDialog } from "@/components/billing/InvoiceDraftDialog"
 import { InvoicePreviewSheet } from "@/components/billing/InvoicePreviewSheet"
+import { SendInvoiceDialog } from "@/components/billing/SendInvoiceDialog"
 import { InvoiceRowActions } from "@/components/billing/InvoiceRowActions"
 import { InvoiceStatusBadge } from "@/components/billing/InvoiceStatusBadge"
 import { Badge } from "@/components/ui/badge"
@@ -44,6 +46,12 @@ export default function BillingPage() {
   const [filter, setFilter] = useState<BillingFilter>("all")
   const [previewInvoiceId, setPreviewInvoiceId] = useState<string | null>(null)
   const [editInvoiceId, setEditInvoiceId] = useState<string | null>(null)
+  const [sendInvoice, setSendInvoice] = useState<{
+    id: string
+    number: string
+    patientEmail: string | null
+    mode: "send" | "resend"
+  } | null>(null)
 
   const { data: billingProfileStatus, isLoading: isBillingProfileLoading } = useQuery({
     queryKey: ["billingProfileStatus"],
@@ -131,6 +139,35 @@ export default function BillingPage() {
     },
     onError: (error: Error) => {
       toast.error(error.message || t("toasts.invoiceUpdateError"))
+    },
+  })
+
+  const sendEmailMutation = useMutation({
+    mutationFn: async ({
+      invoiceId,
+      email,
+      markAsSent,
+    }: {
+      invoiceId: string
+      email: string
+      markAsSent: boolean
+    }) => {
+      if (markAsSent) {
+        await updateInvoiceStatus(invoiceId, "SENT")
+      }
+      await sendInvoiceByEmail(invoiceId, email)
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["invoices"] })
+      setSendInvoice(null)
+      toast.success(
+        sendInvoice?.mode === "resend"
+          ? t("toasts.invoiceResent")
+          : t("toasts.invoiceSent")
+      )
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || t("toasts.emailSendError"))
     },
   })
 
@@ -255,7 +292,20 @@ export default function BillingPage() {
                       onView={() => setPreviewInvoiceId(invoice.id)}
                       onEdit={() => setEditInvoiceId(invoice.id)}
                       onSend={() =>
-                        updateStatusMutation.mutate({ id: invoice.id, status: "SENT" })
+                        setSendInvoice({
+                          id: invoice.id,
+                          number: invoice.number,
+                          patientEmail: invoice.patient.email ?? null,
+                          mode: "send",
+                        })
+                      }
+                      onResend={() =>
+                        setSendInvoice({
+                          id: invoice.id,
+                          number: invoice.number,
+                          patientEmail: invoice.patient.email ?? null,
+                          mode: "resend",
+                        })
                       }
                       onMarkPaid={() =>
                         updateStatusMutation.mutate({ id: invoice.id, status: "PAID" })
@@ -280,9 +330,28 @@ export default function BillingPage() {
           setEditInvoiceId(previewInvoiceId)
           setPreviewInvoiceId(null)
         }}
-        onSend={() =>
-          previewInvoiceId && updateStatusMutation.mutate({ id: previewInvoiceId, status: "SENT" })
-        }
+        onSend={() => {
+          const inv = invoices?.find((i) => i.id === previewInvoiceId)
+          if (inv) {
+            setSendInvoice({
+              id: inv.id,
+              number: inv.number,
+              patientEmail: inv.patient.email ?? null,
+              mode: "send",
+            })
+          }
+        }}
+        onResend={() => {
+          const inv = invoices?.find((i) => i.id === previewInvoiceId)
+          if (inv) {
+            setSendInvoice({
+              id: inv.id,
+              number: inv.number,
+              patientEmail: inv.patient.email ?? null,
+              mode: "resend",
+            })
+          }
+        }}
         onMarkPaid={() =>
           previewInvoiceId && updateStatusMutation.mutate({ id: previewInvoiceId, status: "PAID" })
         }
@@ -306,6 +375,38 @@ export default function BillingPage() {
           })
         }}
       />
+
+      {sendInvoice && (
+        <SendInvoiceDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setSendInvoice(null)
+          }}
+          invoiceNumber={sendInvoice.number}
+          patientEmail={sendInvoice.patientEmail}
+          mode={sendInvoice.mode}
+          isLoading={sendEmailMutation.isPending || updateStatusMutation.isPending}
+          onConfirm={async ({ sendEmail, email }) => {
+            if (sendEmail) {
+              await sendEmailMutation.mutateAsync({
+                invoiceId: sendInvoice.id,
+                email,
+                markAsSent: sendInvoice.mode === "send",
+              })
+            } else {
+              updateStatusMutation.mutate(
+                { id: sendInvoice.id, status: "SENT" },
+                {
+                  onSuccess: () => {
+                    setSendInvoice(null)
+                    toast.success(t("toasts.invoiceMarkedSent"))
+                  },
+                }
+              )
+            }
+          }}
+        />
+      )}
     </div>
   )
 }

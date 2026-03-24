@@ -6,6 +6,7 @@ import {
   Download,
   FilePenLine,
   Eye,
+  Mail,
   MoreHorizontal,
   Printer,
   Send,
@@ -28,6 +29,7 @@ interface InvoiceRowActionsProps {
   onView: () => void
   onEdit: () => void
   onSend: () => void
+  onResend: () => void
   onMarkPaid: () => void
   onDelete: () => void
 }
@@ -38,6 +40,7 @@ export function InvoiceRowActions({
   onView,
   onEdit,
   onSend,
+  onResend,
   onMarkPaid,
   onDelete,
 }: InvoiceRowActionsProps) {
@@ -45,6 +48,7 @@ export function InvoiceRowActions({
 
   const canEdit = status === "DRAFT"
   const canSend = status === "DRAFT"
+  const canResend = status === "SENT"
   const canMarkPaid = status === "SENT"
 
   return (
@@ -72,7 +76,7 @@ export function InvoiceRowActions({
             {t("actions.print")}
           </Link>
         </DropdownMenuItem>
-        {(canEdit || canSend || canMarkPaid) && (
+        {(canEdit || canSend || canResend || canMarkPaid) && (
           <>
             <DropdownMenuSeparator />
             {canEdit && (
@@ -85,6 +89,12 @@ export function InvoiceRowActions({
               <DropdownMenuItem onClick={onSend}>
                 <Send className="mr-2 h-4 w-4" />
                 {t("actions.send")}
+              </DropdownMenuItem>
+            )}
+            {canResend && (
+              <DropdownMenuItem onClick={onResend}>
+                <Mail className="mr-2 h-4 w-4" />
+                {t("sendDialog.resend")}
               </DropdownMenuItem>
             )}
             {canMarkPaid && (

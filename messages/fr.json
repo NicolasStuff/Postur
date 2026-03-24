@@ -851,8 +851,24 @@
         "markAsPaid": "Marquer comme payé",
         "delete": "Supprimer"
       },
+      "sendDialog": {
+        "title": "Envoyer la facture",
+        "resendTitle": "Renvoyer la facture par email",
+        "emailLabel": "Email du patient",
+        "emailPlaceholder": "patient@email.com",
+        "sendByEmail": "Envoyer par email au patient",
+        "noEmail": "Aucun email renseigné pour ce patient",
+        "send": "Envoyer",
+        "resend": "Renvoyer",
+        "sending": "Envoi en cours...",
+        "cancel": "Annuler"
+      },
       "toasts": {
         "statusUpdated": "Statut mis à jour",
+        "invoiceSent": "Facture envoyée par email",
+        "invoiceMarkedSent": "Facture marquée comme envoyée",
+        "invoiceResent": "Facture renvoyée par email",
+        "emailSendError": "Erreur lors de l'envoi de l'email",
         "invoiceDeleted": "Facture supprimée avec succès",
         "invoiceUpdated": "Brouillon mis à jour avec succès",
         "statusUpdateError": "Erreur lors de la mise à jour du statut",

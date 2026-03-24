@@ -785,3 +785,43 @@ export async function getInvoiceDetails(invoiceId: string) {
   await assertBillingProfileReady(invoice.user)
   return mapInvoiceDetails(invoice)
 }
+
+export async function sendInvoiceByEmail(invoiceId: string, recipientEmail: string) {
+  const reactPdf = await import("@react-pdf/renderer")
+  const { InvoicePdfDocument } = await import("@/components/billing/InvoicePdfDocument")
+  const { sendInvoiceEmail } = await import("@/lib/email")
+  const React = await import("react")
+
+  const userId = await requireSessionUserId()
+  const invoice = await getInvoiceDetailsRecord(invoiceId, userId)
+  await assertBillingProfileReady(invoice.user)
+
+  const mapped = mapInvoiceDetails(invoice)
+  const issuerName = mapped.user.companyName || mapped.user.name || "Praticien"
+  const patientName = `${mapped.patient.firstName} ${mapped.patient.lastName}`
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const document = InvoicePdfDocument({ invoice: mapped, locale: "fr" }) as any
+  const buffer = await reactPdf.renderToBuffer(document)
+
+  await sendInvoiceEmail({
+    to: recipientEmail,
+    invoiceNumber: mapped.number,
+    patientName,
+    issuerName,
+    pdfBuffer: Buffer.from(buffer),
+  })
+
+  await recordAuditEventSafe(prisma, {
+    actorUserId: userId,
+    targetUserId: userId,
+    domain: "INVOICE",
+    action: "INVOICE_EMAIL_SENT",
+    entityType: "Invoice",
+    entityId: invoiceId,
+    metadata: {
+      invoiceNumber: mapped.number,
+      recipientEmail,
+    },
+  })
+}
