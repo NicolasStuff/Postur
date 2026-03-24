@@ -520,14 +520,27 @@
       "print": {
         "back": "Back to billing"
       },
+      "statuses": {
+        "draft": "Draft",
+        "sent": "Sent",
+        "paid": "Paid"
+      },
       "table": {
         "number": "Number",
         "patient": "Patient",
         "date": "Date",
+        "service": "Service",
         "amount": "Amount",
         "status": "Status",
         "actions": "Actions",
         "noInvoices": "No invoices found."
+      },
+      "emptyState": {
+        "title": "No invoices",
+        "description": "Your invoices will appear here once created."
+      },
+      "sheet": {
+        "title": "Invoice preview"
       },
       "form": {
         "patient": "Patient",
@@ -537,7 +550,11 @@
       },
       "actions": {
         "actions": "Actions",
+        "view": "View invoice",
         "preview": "Preview",
+        "downloadPdf": "Download PDF",
+        "print": "Print",
+        "editDraft": "Edit draft",
         "send": "Send",
         "markAsPaid": "Mark as paid",
         "delete": "Delete"

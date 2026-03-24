@@ -812,14 +812,27 @@
         "pendingPayment": "En attente de paiement",
         "drafts": "Brouillons"
       },
+      "statuses": {
+        "draft": "Brouillon",
+        "sent": "Envoyée",
+        "paid": "Payée"
+      },
       "table": {
         "number": "Numéro",
         "patient": "Patient",
         "date": "Date",
+        "service": "Prestation",
         "amount": "Montant",
         "status": "Statut",
         "actions": "Actions",
         "noInvoices": "Aucune facture trouvée."
+      },
+      "emptyState": {
+        "title": "Aucune facture",
+        "description": "Vos factures apparaîtront ici une fois créées."
+      },
+      "sheet": {
+        "title": "Aperçu de la facture"
       },
       "form": {
         "patient": "Patient",
@@ -829,7 +842,11 @@
       },
       "actions": {
         "actions": "Actions",
+        "view": "Voir la facture",
         "preview": "Prévisualiser",
+        "downloadPdf": "Télécharger le PDF",
+        "print": "Imprimer",
+        "editDraft": "Modifier le brouillon",
         "send": "Envoyer",
         "markAsPaid": "Marquer comme payé",
         "delete": "Supprimer"

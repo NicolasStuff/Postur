@@ -74,7 +74,7 @@ export function InvoiceDocument({
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-[900px] overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_30px_80px_-35px_rgba(15,23,42,0.35)]",
+        "mx-auto w-full max-w-[900px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-md",
         className
       )}
     >
@@ -98,7 +98,7 @@ export function InvoiceDocument({
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white/85 p-5 text-right shadow-sm backdrop-blur">
+          <div className="rounded-xl border border-slate-200 bg-white/85 p-5 text-right shadow-sm backdrop-blur">
             {showStatus && (
               <Badge variant="secondary" className="mb-4 rounded-full bg-slate-950 text-white">
                 {invoice.status}
@@ -120,7 +120,7 @@ export function InvoiceDocument({
       <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
         <section className="space-y-8 px-8 py-8">
           <div className="grid gap-6 sm:grid-cols-2">
-            <div className="space-y-3 rounded-3xl border border-slate-200 bg-slate-50/80 p-5">
+            <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/80 p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
                 {t("issuer")}
               </p>
@@ -136,7 +136,7 @@ export function InvoiceDocument({
               </div>
             </div>
 
-            <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
+            <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
                 {t("patient")}
               </p>
@@ -149,7 +149,7 @@ export function InvoiceDocument({
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200">
+          <div className="rounded-xl border border-slate-200">
             <div className="grid grid-cols-[minmax(0,1fr)_120px_160px] border-b border-slate-200 bg-slate-50/80 px-5 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
               <span>{t("description")}</span>
               <span className="text-center">{t("quantity")}</span>
@@ -171,7 +171,7 @@ export function InvoiceDocument({
         </section>
 
         <aside className="border-t border-slate-200 bg-slate-50/70 px-8 py-8 lg:border-l lg:border-t-0">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
               {t("totals")}
             </p>
@@ -200,7 +200,7 @@ export function InvoiceDocument({
             </div>
           </div>
 
-          <div className="mt-6 rounded-3xl border border-dashed border-slate-200 bg-white/70 p-5 text-sm text-slate-600">
+          <div className="mt-6 rounded-xl border border-dashed border-slate-200 bg-white/70 p-5 text-sm text-slate-600">
             <p className="font-medium text-slate-900">{t("legalNoticeTitle")}</p>
             <p className="mt-2">
               {invoice.user.isVatExempt ? t("vatNoticeExempt") : t("vatNoticeApplied")}

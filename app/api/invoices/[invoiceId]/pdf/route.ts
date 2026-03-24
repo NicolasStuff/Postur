@@ -47,7 +47,7 @@ export async function GET(
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${invoice.number}.pdf"`,
+        "Content-Disposition": `inline; filename="${invoice.number}.pdf"`,
         "Cache-Control": "private, no-store, max-age=0",
         Pragma: "no-cache",
         Expires: "0",

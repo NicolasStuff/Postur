@@ -1,13 +1,12 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useTranslations } from "next-intl"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   FileText,
   Loader2,
   Search,
-  WalletCards,
 } from "lucide-react"
 
 import {
@@ -20,12 +19,20 @@ import {
 } from "@/app/actions/billing"
 import { BillingProfileGate } from "@/components/billing/BillingProfileGate"
 import { InvoiceDraftDialog } from "@/components/billing/InvoiceDraftDialog"
-import { InvoicePreview } from "@/components/billing/InvoicePreview"
+import { InvoicePreviewSheet } from "@/components/billing/InvoicePreviewSheet"
+import { InvoiceRowActions } from "@/components/billing/InvoiceRowActions"
+import { InvoiceStatusBadge } from "@/components/billing/InvoiceStatusBadge"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
 
 type BillingFilter = "all" | "draft" | "sent" | "paid"
@@ -35,7 +42,7 @@ export default function BillingPage() {
   const queryClient = useQueryClient()
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState<BillingFilter>("all")
-  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null)
+  const [previewInvoiceId, setPreviewInvoiceId] = useState<string | null>(null)
   const [draftEditorOpen, setDraftEditorOpen] = useState(false)
 
   const { data: billingProfileStatus, isLoading: isBillingProfileLoading } = useQuery({
@@ -76,21 +83,10 @@ export default function BillingPage() {
     })
   }, [filter, invoices, search])
 
-  useEffect(() => {
-    if (filteredInvoices.length === 0) {
-      setSelectedInvoiceId(null)
-      return
-    }
-
-    if (!selectedInvoiceId || !filteredInvoices.some((invoice) => invoice.id === selectedInvoiceId)) {
-      setSelectedInvoiceId(filteredInvoices[0].id)
-    }
-  }, [filteredInvoices, selectedInvoiceId])
-
-  const { data: selectedInvoice, isLoading: isPreviewLoading } = useQuery({
-    queryKey: ["invoiceDetails", selectedInvoiceId],
-    queryFn: () => getInvoiceDetails(selectedInvoiceId!),
-    enabled: Boolean(selectedInvoiceId && billingProfileStatus?.ready),
+  const { data: previewInvoice } = useQuery({
+    queryKey: ["invoiceDetails", previewInvoiceId],
+    queryFn: () => getInvoiceDetails(previewInvoiceId!),
+    enabled: Boolean(previewInvoiceId && billingProfileStatus?.ready),
   })
 
   const updateStatusMutation = useMutation({
@@ -115,6 +111,7 @@ export default function BillingPage() {
         queryClient.invalidateQueries({ queryKey: ["invoices"] }),
         queryClient.invalidateQueries({ queryKey: ["invoiceDetails", invoiceId] }),
       ])
+      setPreviewInvoiceId(null)
       toast.success(t("toasts.invoiceDeleted"))
     },
     onError: (error: Error) => {
@@ -139,8 +136,8 @@ export default function BillingPage() {
 
   if (isBillingProfileLoading || (billingProfileStatus?.ready && isInvoicesLoading)) {
     return (
-      <div className="p-8">
-        <Loader2 className="animate-spin" />
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     )
   }
@@ -148,9 +145,9 @@ export default function BillingPage() {
   if (!billingProfileStatus?.ready) {
     return (
       <div className="space-y-6">
-        <div className="space-y-2">
+        <div>
           <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("description")}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("description")}</p>
         </div>
         <BillingProfileGate missingFields={billingProfileStatus?.missingFields ?? []} />
       </div>
@@ -162,170 +159,147 @@ export default function BillingPage() {
     invoices?.filter((invoice) => invoice.status === "SENT").reduce((sum, invoice) => sum + invoice.amount, 0) ?? 0
   const draftCount = invoices?.filter((invoice) => invoice.status === "DRAFT").length ?? 0
 
-  const filters: Array<{ key: BillingFilter; label: string }> = [
-    { key: "all", label: t("filters.all") },
-    { key: "draft", label: t("filters.draft") },
-    { key: "sent", label: t("filters.sent") },
-    { key: "paid", label: t("filters.paid") },
-  ]
-
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-            <WalletCards className="h-3.5 w-3.5" />
-            {t("workspaceLabel")}
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">{t("description")}</p>
-        </div>
-        <Badge variant="secondary" className="w-fit rounded-full px-4 py-1.5">
-          {t("results", { count: filteredInvoices.length })}
-        </Badge>
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("description")}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="rounded-[24px] border-slate-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">{t("stats.totalRevenue")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-semibold">{totalAmount.toFixed(2)}€</div>
-          </CardContent>
-        </Card>
-        <Card className="rounded-[24px] border-slate-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">{t("stats.pendingPayment")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-semibold">{sentAmount.toFixed(2)}€</div>
-          </CardContent>
-        </Card>
-        <Card className="rounded-[24px] border-slate-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">{t("stats.drafts")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-semibold">{draftCount}</div>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border bg-card px-4 py-3">
+          <p className="text-xs text-muted-foreground">{t("stats.totalRevenue")}</p>
+          <p className="mt-1 text-lg font-semibold">{totalAmount.toFixed(2)}&nbsp;€</p>
+        </div>
+        <div className="rounded-xl border bg-card px-4 py-3">
+          <p className="text-xs text-muted-foreground">{t("stats.pendingPayment")}</p>
+          <p className="mt-1 text-lg font-semibold text-amber-600">{sentAmount.toFixed(2)}&nbsp;€</p>
+        </div>
+        <div className="rounded-xl border bg-card px-4 py-3">
+          <p className="text-xs text-muted-foreground">{t("stats.drafts")}</p>
+          <p className="mt-1 text-lg font-semibold">{draftCount}</p>
+        </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(420px,0.95fr)]">
-        <div className="space-y-4 rounded-[28px] border border-slate-200 bg-white p-5">
-          <div className="flex flex-col gap-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder={t("searchPlaceholder")}
-                className="pl-9"
-              />
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {filters.map((item) => (
-                <Button
-                  key={item.key}
-                  type="button"
-                  variant={filter === item.key ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setFilter(item.key)}
-                >
-                  {item.label}
-                </Button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={t("searchPlaceholder")}
+            className="pl-9"
+          />
+        </div>
+        <div className="flex items-center gap-3">
+          <Tabs
+            value={filter}
+            onValueChange={(value) => setFilter(value as BillingFilter)}
+          >
+            <TabsList>
+              <TabsTrigger value="all">{t("filters.all")}</TabsTrigger>
+              <TabsTrigger value="draft">{t("filters.draft")}</TabsTrigger>
+              <TabsTrigger value="sent">{t("filters.sent")}</TabsTrigger>
+              <TabsTrigger value="paid">{t("filters.paid")}</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <Badge variant="secondary">{t("results", { count: filteredInvoices.length })}</Badge>
+        </div>
+      </div>
+
+      {filteredInvoices.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+            <FileText className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <h3 className="mt-4 text-sm font-medium">{t("emptyState.title")}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{t("emptyState.description")}</p>
+        </div>
+      ) : (
+        <div className="rounded-xl border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("table.number")}</TableHead>
+                <TableHead>{t("table.patient")}</TableHead>
+                <TableHead className="hidden md:table-cell">{t("table.date")}</TableHead>
+                <TableHead className="hidden lg:table-cell">{t("table.service")}</TableHead>
+                <TableHead className="text-right">{t("table.amount")}</TableHead>
+                <TableHead>{t("table.status")}</TableHead>
+                <TableHead className="text-right">{t("table.actions")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredInvoices.map((invoice) => (
+                <TableRow key={invoice.id}>
+                  <TableCell className="font-medium">{invoice.number}</TableCell>
+                  <TableCell>
+                    {invoice.patient.firstName} {invoice.patient.lastName}
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground md:table-cell">
+                    {new Date(invoice.date).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="hidden text-muted-foreground lg:table-cell">
+                    {invoice.serviceName || "—"}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {invoice.amount.toFixed(2)}&nbsp;€
+                  </TableCell>
+                  <TableCell>
+                    <InvoiceStatusBadge status={invoice.status} />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <InvoiceRowActions
+                      invoiceId={invoice.id}
+                      status={invoice.status}
+                      onView={() => setPreviewInvoiceId(invoice.id)}
+                      onEdit={() => {
+                        setPreviewInvoiceId(invoice.id)
+                        setDraftEditorOpen(true)
+                      }}
+                      onSend={() =>
+                        updateStatusMutation.mutate({ id: invoice.id, status: "SENT" })
+                      }
+                      onMarkPaid={() =>
+                        updateStatusMutation.mutate({ id: invoice.id, status: "PAID" })
+                      }
+                      onDelete={() => deleteMutation.mutate(invoice.id)}
+                    />
+                  </TableCell>
+                </TableRow>
               ))}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {filteredInvoices.length === 0 ? (
-              <div className="rounded-[24px] border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center text-sm text-muted-foreground">
-                {t("table.noInvoices")}
-              </div>
-            ) : (
-              filteredInvoices.map((invoice) => (
-                <button
-                  key={invoice.id}
-                  type="button"
-                  onClick={() => setSelectedInvoiceId(invoice.id)}
-                  className={cn(
-                    "w-full rounded-[24px] border px-4 py-4 text-left transition-all",
-                    selectedInvoiceId === invoice.id
-                      ? "border-slate-900 bg-slate-950 text-white shadow-lg"
-                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        <span className="text-sm font-semibold">{invoice.number}</span>
-                      </div>
-                      <p className="text-sm">
-                        {invoice.patient.firstName} {invoice.patient.lastName}
-                      </p>
-                      <p
-                        className={cn(
-                          "text-xs",
-                          selectedInvoiceId === invoice.id ? "text-slate-300" : "text-muted-foreground"
-                        )}
-                      >
-                        {new Date(invoice.date).toLocaleDateString()}
-                        {invoice.serviceName ? ` • ${invoice.serviceName}` : ""}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-semibold">{invoice.amount.toFixed(2)}€</p>
-                      <p
-                        className={cn(
-                          "mt-2 text-xs font-medium uppercase tracking-[0.2em]",
-                          selectedInvoiceId === invoice.id ? "text-slate-300" : "text-slate-500"
-                        )}
-                      >
-                        {invoice.status}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
+            </TableBody>
+          </Table>
         </div>
+      )}
 
-        <div>
-          {selectedInvoiceId && isPreviewLoading ? (
-            <div className="flex min-h-[420px] items-center justify-center rounded-[28px] border border-slate-200 bg-white">
-              <Loader2 className="animate-spin" />
-            </div>
-          ) : (
-            <InvoicePreview
-              invoice={selectedInvoice ?? null}
-              onEdit={() => setDraftEditorOpen(true)}
-              onSend={() =>
-                selectedInvoice && updateStatusMutation.mutate({ id: selectedInvoice.id, status: "SENT" })
-              }
-              onMarkPaid={() =>
-                selectedInvoice && updateStatusMutation.mutate({ id: selectedInvoice.id, status: "PAID" })
-              }
-              onDelete={() => selectedInvoice && deleteMutation.mutate(selectedInvoice.id)}
-              isUpdating={updateStatusMutation.isPending}
-              isDeleting={deleteMutation.isPending}
-            />
-          )}
-        </div>
-      </div>
+      <InvoicePreviewSheet
+        invoiceId={previewInvoiceId}
+        open={Boolean(previewInvoiceId)}
+        onOpenChange={(open) => {
+          if (!open) setPreviewInvoiceId(null)
+        }}
+        onEdit={() => setDraftEditorOpen(true)}
+        onSend={() =>
+          previewInvoiceId && updateStatusMutation.mutate({ id: previewInvoiceId, status: "SENT" })
+        }
+        onMarkPaid={() =>
+          previewInvoiceId && updateStatusMutation.mutate({ id: previewInvoiceId, status: "PAID" })
+        }
+        onDelete={() => previewInvoiceId && deleteMutation.mutate(previewInvoiceId)}
+        isUpdating={updateStatusMutation.isPending}
+        isDeleting={deleteMutation.isPending}
+      />
 
       <InvoiceDraftDialog
-        invoice={selectedInvoice ?? null}
+        invoice={previewInvoice ?? null}
         open={draftEditorOpen}
         onOpenChange={setDraftEditorOpen}
         isSaving={updateDraftMutation.isPending}
         onSave={async (payload) => {
-          if (!selectedInvoice) return
+          if (!previewInvoice) return
           await updateDraftMutation.mutateAsync({
-            invoiceId: selectedInvoice.id,
+            invoiceId: previewInvoice.id,
             ...payload,
           })
         }}
