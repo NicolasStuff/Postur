@@ -5,6 +5,7 @@ import { CheckCircle2, Download, FilePenLine, Loader2, Printer, Send, Trash2 } f
 import { useTranslations } from "next-intl"
 import { useQuery } from "@tanstack/react-query"
 import { getInvoiceDetails } from "@/app/actions/billing"
+import { PdfViewer } from "@/components/billing/PdfViewer"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -107,11 +108,7 @@ export function InvoicePreviewSheet({
               </Button>
             </div>
 
-            <iframe
-              src={`/api/invoices/${invoice.id}/pdf`}
-              className="flex-1 w-full border-0"
-              title={invoice.number}
-            />
+            <PdfViewer url={`/api/invoices/${invoice.id}/pdf`} />
           </>
         )}
       </SheetContent>

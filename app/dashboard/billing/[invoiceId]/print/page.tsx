@@ -5,6 +5,7 @@ import { ArrowLeft, Printer } from "lucide-react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 
+import { PdfViewer } from "@/components/billing/PdfViewer"
 import { Button } from "@/components/ui/button"
 
 export default function InvoicePrintPage({
@@ -31,11 +32,7 @@ export default function InvoicePrintPage({
         </Button>
       </div>
 
-      <iframe
-        src={pdfUrl}
-        className="flex-1 w-full border-0"
-        title={invoiceId}
-      />
+      <PdfViewer url={pdfUrl} />
     </div>
   )
 }

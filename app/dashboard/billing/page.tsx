@@ -43,7 +43,7 @@ export default function BillingPage() {
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState<BillingFilter>("all")
   const [previewInvoiceId, setPreviewInvoiceId] = useState<string | null>(null)
-  const [draftEditorOpen, setDraftEditorOpen] = useState(false)
+  const [editInvoiceId, setEditInvoiceId] = useState<string | null>(null)
 
   const { data: billingProfileStatus, isLoading: isBillingProfileLoading } = useQuery({
     queryKey: ["billingProfileStatus"],
@@ -83,10 +83,10 @@ export default function BillingPage() {
     })
   }, [filter, invoices, search])
 
-  const { data: previewInvoice } = useQuery({
-    queryKey: ["invoiceDetails", previewInvoiceId],
-    queryFn: () => getInvoiceDetails(previewInvoiceId!),
-    enabled: Boolean(previewInvoiceId && billingProfileStatus?.ready),
+  const { data: editInvoice } = useQuery({
+    queryKey: ["invoiceDetails", editInvoiceId],
+    queryFn: () => getInvoiceDetails(editInvoiceId!),
+    enabled: Boolean(editInvoiceId && billingProfileStatus?.ready),
   })
 
   const updateStatusMutation = useMutation({
@@ -126,7 +126,7 @@ export default function BillingPage() {
         queryClient.invalidateQueries({ queryKey: ["invoices"] }),
         queryClient.invalidateQueries({ queryKey: ["invoiceDetails", updatedInvoice.id] }),
       ])
-      setDraftEditorOpen(false)
+      setEditInvoiceId(null)
       toast.success(t("toasts.invoiceUpdated"))
     },
     onError: (error: Error) => {
@@ -253,10 +253,7 @@ export default function BillingPage() {
                       invoiceId={invoice.id}
                       status={invoice.status}
                       onView={() => setPreviewInvoiceId(invoice.id)}
-                      onEdit={() => {
-                        setPreviewInvoiceId(invoice.id)
-                        setDraftEditorOpen(true)
-                      }}
+                      onEdit={() => setEditInvoiceId(invoice.id)}
                       onSend={() =>
                         updateStatusMutation.mutate({ id: invoice.id, status: "SENT" })
                       }
@@ -279,7 +276,10 @@ export default function BillingPage() {
         onOpenChange={(open) => {
           if (!open) setPreviewInvoiceId(null)
         }}
-        onEdit={() => setDraftEditorOpen(true)}
+        onEdit={() => {
+          setEditInvoiceId(previewInvoiceId)
+          setPreviewInvoiceId(null)
+        }}
         onSend={() =>
           previewInvoiceId && updateStatusMutation.mutate({ id: previewInvoiceId, status: "SENT" })
         }
@@ -292,14 +292,16 @@ export default function BillingPage() {
       />
 
       <InvoiceDraftDialog
-        invoice={previewInvoice ?? null}
-        open={draftEditorOpen}
-        onOpenChange={setDraftEditorOpen}
+        invoice={editInvoice ?? null}
+        open={Boolean(editInvoiceId)}
+        onOpenChange={(open) => {
+          if (!open) setEditInvoiceId(null)
+        }}
         isSaving={updateDraftMutation.isPending}
         onSave={async (payload) => {
-          if (!previewInvoice) return
+          if (!editInvoice) return
           await updateDraftMutation.mutateAsync({
-            invoiceId: previewInvoice.id,
+            invoiceId: editInvoice.id,
             ...payload,
           })
         }}

@@ -7,11 +7,11 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 const isDevelopment = process.env.NODE_ENV !== "production"
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com${isDevelopment ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
-  `connect-src 'self'${isDevelopment ? " ws: http://localhost:* http://127.0.0.1:*" : ""}`,
+  `connect-src 'self' https://cdnjs.cloudflare.com${isDevelopment ? " ws: http://localhost:* http://127.0.0.1:*" : ""}`,
   "object-src 'none'",
   "base-uri 'self'",
   "frame-ancestors 'self'",
