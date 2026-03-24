@@ -72,29 +72,7 @@ export function LocaleProvider({ children, initialLocale = 'fr' }: LocaleProvide
 
       if (result.success) {
         setLocaleState(newLocale)
-
-        // Build the new pathname with the correct locale prefix
-        // For dashboard routes, we need to add or update the locale prefix
-        const currentPathWithoutLocale = pathname.replace(/^\/(fr|en)/, '') || '/'
-
-        // Check if current path is a dashboard route
-        const isDashboard = currentPathWithoutLocale.startsWith('/dashboard') ||
-                           currentPathWithoutLocale.startsWith('/settings') ||
-                           currentPathWithoutLocale.startsWith('/patients') ||
-                           currentPathWithoutLocale.startsWith('/calendar') ||
-                           currentPathWithoutLocale.startsWith('/billing') ||
-                           currentPathWithoutLocale.startsWith('/consultation') ||
-                           currentPathWithoutLocale.startsWith('/onboarding')
-
-        if (isDashboard) {
-          // For dashboard routes, add locale prefix for non-default locale
-          const newPath = newLocale === 'fr' ? currentPathWithoutLocale : `/${newLocale}${currentPathWithoutLocale}`
-          router.push(newPath)
-          router.refresh()
-        } else {
-          // For other routes, just refresh
-          router.refresh()
-        }
+        router.refresh()
       }
     } catch (error) {
       console.error('Error updating locale:', error)
