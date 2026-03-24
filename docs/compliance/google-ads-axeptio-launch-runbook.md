@@ -17,6 +17,12 @@ Ce document décrit :
 3. comment vérifier que tout fonctionne
 4. les points à ne pas oublier avant lancement campagne
 
+Base documentaire :
+
+- ce runbook s'appuie sur la recherche préalable faite sur les exigences `cookies / consentement / Consent Mode v2` pour la France
+- il s'appuie en priorité sur la documentation officielle `Google` et `Axeptio`
+- il est rédigé pour coller au code déjà implémenté dans Postur au `24 mars 2026`
+
 ---
 
 ## 1. Ce qui est déjà implémenté dans le code
