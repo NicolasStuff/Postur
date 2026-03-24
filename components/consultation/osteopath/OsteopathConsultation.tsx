@@ -445,7 +445,7 @@ export const OsteopathConsultation = forwardRef<
             <FileText className="h-4 w-4 text-slate-500" />
             <span className="text-sm font-medium text-slate-700">{t("editor.title")}</span>
           </div>
-          <div className="shrink-0 border-b bg-white p-3">
+          <div className="shrink-0 border-b bg-white p-3 max-h-[280px] overflow-y-auto">
             <ConsultationAIPanel
               appointmentId={consultation.id}
               editorContent={editorContent}

@@ -54,7 +54,7 @@
         "loading": "Chargement des fonctionnalités IA...",
         "tabs": {
           "audio": "Audio & SOAP",
-          "suggestions": "Suggestions live",
+          "suggestions": "Suggestions IA",
           "recap": "Compte-rendu patient"
         },
         "locked": {
@@ -77,8 +77,13 @@
           "transcriptDescription": "Relisez rapidement ce qui a été capté avant d'insérer les sections SOAP.",
           "secureBadge": "Données minimisées",
           "soapTitle": "Brouillon SOAP",
+          "soapReady": "Brouillon SOAP prêt",
+          "viewDraft": "Voir le brouillon",
+          "soapDialogTitle": "Brouillon SOAP",
+          "soapDialogDescription": "Relisez et insérez les sections dans votre note de consultation.",
           "insertAll": "Insérer toute la note",
-          "insertSection": "Insérer la section"
+          "insertSection": "Insérer la section",
+          "close": "Fermer"
         },
         "consent": {
           "title": "Consentement requis pour l'IA",
@@ -97,12 +102,14 @@
         },
         "suggestions": {
           "title": "Suggestions de notes",
-          "description": "Proposées automatiquement à partir du body chart et/ou de la note en cours.",
+          "description": "Générez des suggestions à partir du body chart et/ou de la note en cours.",
+          "generate": "Générer",
+          "regenerate": "Régénérer",
           "noBodyChart": "Aucune zone sélectionnée",
           "noteDetected": "Note détectée",
           "noNote": "Aucune note",
           "generating": "Génération des suggestions...",
-          "empty": "Sélectionnez des zones ou commencez à écrire pour recevoir des suggestions.",
+          "empty": "Sélectionnez des zones ou commencez à écrire, puis cliquez sur Générer.",
           "verify": "À vérifier",
           "insert": "Insérer",
           "modes": {

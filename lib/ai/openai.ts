@@ -5,7 +5,6 @@ import { PatientRecap, SmartNoteSuggestion, SoapDraft } from "@/lib/consultation
 const smartNotesSchema = z.object({
   suggestions: z.array(
     z.object({
-      id: z.string().min(1),
       text: z.string().min(1),
       reason: z.string().min(1),
       confidence: z.enum(["low", "medium", "high"]),
@@ -151,13 +150,16 @@ export class OpenAIClinicalGenerationProvider {
       ].join(" "),
       userPrompt: [
         "Génère entre 3 et 5 suggestions de notes.",
+        'Le JSON doit contenir un champ "suggestions" qui est un tableau d\'objets avec ces champs exacts :',
+        '- "text": string (la suggestion)',
+        '- "reason": string (pourquoi cette suggestion)',
+        '- "confidence": "low" | "medium" | "high"',
+        '- "inputMode": "chart-only" | "notes-only" | "combined" | "conflict"',
         "Règles :",
         "- Si seules des zones du body chart sont présentes, utilise inputMode='chart-only'.",
         "- Si seule la note existante est présente, utilise inputMode='notes-only'.",
         "- Si les deux convergent, utilise inputMode='combined'.",
         "- Si les éléments se contredisent, formule la suggestion avec 'À vérifier :' et utilise inputMode='conflict'.",
-        "- La propriété 'reason' doit expliquer brièvement pourquoi la suggestion est proposée.",
-        "- 'confidence' doit être low, medium ou high.",
         "",
         `Prestation: ${input.serviceName}`,
         `Zones sélectionnées: ${input.bodyChartLabels.join(", ") || "Aucune"}`,
@@ -165,7 +167,7 @@ export class OpenAIClinicalGenerationProvider {
       ].join("\n"),
     })
 
-    return result.suggestions
+    return result.suggestions.map((s, i) => ({ ...s, id: `sn-${Date.now()}-${i}` }))
   }
 
   async generateSoapDraft(input: SoapDraftGenerationInput): Promise<SoapDraft> {
@@ -181,9 +183,10 @@ export class OpenAIClinicalGenerationProvider {
       ].join(" "),
       userPrompt: [
         "À partir du transcript et du contexte, génère un brouillon SOAP.",
-        "La réponse doit contenir :",
-        "- summary: un résumé clinique court",
-        "- sections: 4 sections avec les labels exacts 'Subjectif (S)', 'Objectif (O)', 'Évaluation (A)', 'Plan (P)'",
+        'Le JSON doit contenir exactement ces champs à la racine :',
+        '- "summary": string (résumé clinique court)',
+        '- "sections": tableau de 4 objets { "label": string, "content": string }',
+        "Les labels doivent être exactement : 'Subjectif (S)', 'Objectif (O)', 'Évaluation (A)', 'Plan (P)'",
         "La section Évaluation doit rester prudente et ne pas affirmer de diagnostic définitif.",
         "",
         `Prestation: ${input.serviceName}`,
@@ -214,7 +217,12 @@ export class OpenAIClinicalGenerationProvider {
       ].join(" "),
       userPrompt: [
         "Génère un compte-rendu patient simple et actionnable.",
-        "Le champ followUp doit être une phrase courte sur la suite conseillée.",
+        "Le JSON doit contenir exactement ces champs à la racine :",
+        '- "summary": string (résumé de la séance)',
+        '- "advice": string[] (conseils post-séance)',
+        '- "exercises": string[] (exercices recommandés)',
+        '- "precautions": string[] (précautions à observer)',
+        '- "followUp": string (phrase courte sur la suite conseillée)',
         "",
         `Prestation: ${input.serviceName}`,
         `Zones travaillées ou sensibles: ${input.bodyChartLabels.join(", ") || "Aucune"}`,

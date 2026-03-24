@@ -62,11 +62,15 @@ function buildKeyterms(input: {
 
 const ALLOWED_AUDIO_MIME_TYPES = new Set([
   "audio/webm",
+  "video/webm",
   "audio/wav",
   "audio/x-wav",
   "audio/mpeg",
   "audio/mp4",
+  "video/mp4",
   "audio/ogg",
+  "audio/aac",
+  "audio/x-m4a",
 ])
 
 async function sniffAudioUpload(file: File) {

@@ -121,6 +121,7 @@ export function ConsultationAIPanel({
   const [smartNotesLoading, setSmartNotesLoading] = useState(false)
   const [smartNotesError, setSmartNotesError] = useState<string | null>(null)
   const [patientRecapLoading, setPatientRecapLoading] = useState(false)
+  const [soapDialogOpen, setSoapDialogOpen] = useState(false)
   const [recapOpen, setRecapOpen] = useState(false)
   const [consentOpen, setConsentOpen] = useState(false)
   const [consentLoading, setConsentLoading] = useState(false)
@@ -201,7 +202,7 @@ export function ConsultationAIPanel({
     smartNotesRef.current = aiState.smartNotes
   }, [aiState.smartNotes])
 
-  useEffect(() => {
+  const handleGenerateSmartNotes = async () => {
     if (!access?.smartNotesLive || !hasConsent) {
       return
     }
@@ -209,53 +210,44 @@ export function ConsultationAIPanel({
     const normalizedNoteText = noteText.trim()
     if (bodyChartParts.length === 0 && !normalizedNoteText) {
       setSmartNotesError(null)
-      if (smartNotesRef.current.length > 0) {
-        onUpdateAI({ smartNotes: [] })
-      }
       return
     }
 
-    const timeout = window.setTimeout(async () => {
-      const requestId = suggestionRequestRef.current + 1
-      suggestionRequestRef.current = requestId
-      setSmartNotesError(null)
-      setSmartNotesLoading(true)
+    const requestId = suggestionRequestRef.current + 1
+    suggestionRequestRef.current = requestId
+    setSmartNotesError(null)
+    setSmartNotesLoading(true)
 
-      try {
-        const suggestions = await generateSmartNoteSuggestions(appointmentId, {
-          bodyChart: bodyChartParts,
-          noteText: normalizedNoteText,
-        })
+    try {
+      const suggestions = await generateSmartNoteSuggestions(appointmentId, {
+        bodyChart: bodyChartParts,
+        noteText: normalizedNoteText,
+      })
 
-        if (suggestionRequestRef.current !== requestId) {
-          return
-        }
-
-        const dedupedSuggestions = suggestions.filter(
-          (suggestion) => !normalizedNoteText.toLowerCase().includes(suggestion.text.toLowerCase())
-        )
-
-        if (!suggestionsAreEqual(smartNotesRef.current, dedupedSuggestions)) {
-          onUpdateAI({ smartNotes: dedupedSuggestions })
-        }
-
-        setSmartNotesError(null)
-      } catch (error) {
-        if (suggestionRequestRef.current === requestId) {
-          console.error("Smart note suggestions failed:", error)
-          setSmartNotesError(t("errors.suggestionsFailed"))
-        }
-      } finally {
-        if (suggestionRequestRef.current === requestId) {
-          setSmartNotesLoading(false)
-        }
+      if (suggestionRequestRef.current !== requestId) {
+        return
       }
-    }, 800)
 
-    return () => {
-      window.clearTimeout(timeout)
+      const dedupedSuggestions = suggestions.filter(
+        (suggestion) => !normalizedNoteText.toLowerCase().includes(suggestion.text.toLowerCase())
+      )
+
+      if (!suggestionsAreEqual(smartNotesRef.current, dedupedSuggestions)) {
+        onUpdateAI({ smartNotes: dedupedSuggestions })
+      }
+
+      setSmartNotesError(null)
+    } catch (error) {
+      if (suggestionRequestRef.current === requestId) {
+        console.error("Smart note suggestions failed:", error)
+        setSmartNotesError(t("errors.suggestionsFailed"))
+      }
+    } finally {
+      if (suggestionRequestRef.current === requestId) {
+        setSmartNotesLoading(false)
+      }
     }
-  }, [access?.smartNotesLive, appointmentId, bodyChartParts, hasConsent, noteText, onUpdateAI, t])
+  }
 
   const handleGrantConsent = async () => {
     try {
@@ -318,6 +310,7 @@ export function ConsultationAIPanel({
       })
 
       setTranscriptionProgress(100)
+      setSoapDialogOpen(true)
       toast.success(t("toasts.transcriptionReady"))
     } catch (error) {
       console.error("Transcription failed:", error)
@@ -534,25 +527,9 @@ export function ConsultationAIPanel({
 
   return (
     <>
-      <Card className="overflow-hidden border-slate-200 shadow-none">
-        <CardHeader className="border-b bg-slate-50/70 pb-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-base text-slate-900">
-                <Sparkles className="h-4 w-4 text-sky-600" />
-                {t("title")}
-              </CardTitle>
-              <CardDescription className="pt-1 text-slate-600">
-                {t("description")}
-              </CardDescription>
-            </div>
-            <Badge className="bg-sky-100 text-sky-700 hover:bg-sky-100">Pro + IA</Badge>
-          </div>
-        </CardHeader>
-
-        <CardContent className="p-0">
+      <div className="overflow-hidden rounded-lg border border-slate-200">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-0">
-            <div className="border-b bg-white px-4 py-3">
+            <div className="flex items-center justify-between border-b bg-slate-50/70 px-3 py-2">
               <TabsList className="h-auto bg-slate-100">
                 <TabsTrigger value="audio" className="gap-2 px-3 py-1.5">
                   <FileAudio2 className="h-4 w-4" />
@@ -567,6 +544,7 @@ export function ConsultationAIPanel({
                   {t("tabs.recap")}
                 </TabsTrigger>
               </TabsList>
+              <Badge className="bg-sky-100 text-sky-700 hover:bg-sky-100">Pro + IA</Badge>
             </div>
 
             <TabsContent value="audio" className="m-0">
@@ -665,12 +643,22 @@ export function ConsultationAIPanel({
                 )}
 
                 {aiState.soapDraft && (
-                  <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3">
                     <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-medium text-slate-900">{t("audio.soapTitle")}</p>
-                        <p className="text-xs text-slate-500">{aiState.soapDraft.summary}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-emerald-900">{t("audio.soapReady")}</p>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">{aiState.soapDraft.summary}</p>
                       </div>
+                    </div>
+                    <div className="mt-2.5 flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => setSoapDialogOpen(true)}
+                        className="bg-slate-900 hover:bg-slate-800"
+                      >
+                        {t("audio.viewDraft")}
+                      </Button>
                       <Button
                         type="button"
                         size="sm"
@@ -684,28 +672,6 @@ export function ConsultationAIPanel({
                         {t("audio.insertAll")}
                       </Button>
                     </div>
-
-                    <div className="space-y-2">
-                      {aiState.soapDraft.sections.map((section) => (
-                        <div
-                          key={section.label}
-                          className="rounded-lg border border-slate-200 bg-white p-3"
-                        >
-                          <div className="mb-2 flex items-center justify-between gap-3">
-                            <p className="text-sm font-semibold text-slate-900">{section.label}</p>
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => onInsertText(`${section.label}\n${section.content}`)}
-                            >
-                              {t("audio.insertSection")}
-                            </Button>
-                          </div>
-                          <p className="text-sm leading-6 text-slate-700">{section.content}</p>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
               </div>
@@ -713,12 +679,27 @@ export function ConsultationAIPanel({
 
             <TabsContent value="suggestions" className="m-0">
               <div className="space-y-4 p-4">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-medium text-slate-900">{t("suggestions.title")}</p>
                     <p className="text-xs text-slate-500">{t("suggestions.description")}</p>
                   </div>
-                  {smartNotesLoading && <Loader2 className="h-4 w-4 animate-spin text-slate-500" />}
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleGenerateSmartNotes}
+                    disabled={smartNotesLoading || !access?.smartNotesLive || !hasConsent || (bodyChartParts.length === 0 && !noteText.trim())}
+                    className="bg-slate-900 hover:bg-slate-800"
+                  >
+                    {smartNotesLoading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : aiState.smartNotes.length > 0 ? (
+                      <RefreshCcw className="mr-2 h-4 w-4" />
+                    ) : (
+                      <Sparkles className="mr-2 h-4 w-4" />
+                    )}
+                    {aiState.smartNotes.length > 0 ? t("suggestions.regenerate") : t("suggestions.generate")}
+                  </Button>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -755,29 +736,31 @@ export function ConsultationAIPanel({
                       : smartNotesError || t("suggestions.empty")}
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {aiState.smartNotes.map((suggestion) => (
-                      <div key={suggestion.id} className="rounded-xl border border-slate-200 bg-white p-3">
-                        <div className="mb-3 flex flex-wrap items-center gap-2">
-                          <Badge variant="outline">{t(`suggestions.modes.${suggestion.inputMode}`)}</Badge>
-                          <Badge variant="outline">{t(`suggestions.confidence.${suggestion.confidence}`)}</Badge>
-                          {suggestion.inputMode === "conflict" && (
-                            <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">
-                              <ShieldAlert className="h-3 w-3" />
-                              {t("suggestions.verify")}
-                            </Badge>
-                          )}
+                  <ScrollArea className="max-h-60">
+                    <div className="space-y-3">
+                      {aiState.smartNotes.map((suggestion) => (
+                        <div key={suggestion.id} className="rounded-xl border border-slate-200 bg-white p-3">
+                          <div className="mb-3 flex flex-wrap items-center gap-2">
+                            <Badge variant="outline">{t(`suggestions.modes.${suggestion.inputMode}`)}</Badge>
+                            <Badge variant="outline">{t(`suggestions.confidence.${suggestion.confidence}`)}</Badge>
+                            {suggestion.inputMode === "conflict" && (
+                              <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">
+                                <ShieldAlert className="h-3 w-3" />
+                                {t("suggestions.verify")}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm leading-6 text-slate-800">{suggestion.text}</p>
+                          <p className="mt-2 text-xs text-slate-500">{suggestion.reason}</p>
+                          <div className="mt-3 flex justify-end">
+                            <Button type="button" size="sm" variant="outline" onClick={() => onInsertText(suggestion.text)}>
+                              {t("suggestions.insert")}
+                            </Button>
+                          </div>
                         </div>
-                        <p className="text-sm leading-6 text-slate-800">{suggestion.text}</p>
-                        <p className="mt-2 text-xs text-slate-500">{suggestion.reason}</p>
-                        <div className="mt-3 flex justify-end">
-                          <Button type="button" size="sm" variant="outline" onClick={() => onInsertText(suggestion.text)}>
-                            {t("suggestions.insert")}
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
                 )}
               </div>
             </TabsContent>
@@ -827,8 +810,7 @@ export function ConsultationAIPanel({
               </div>
             </TabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
+      </div>
 
       <Dialog open={recapOpen} onOpenChange={setRecapOpen}>
         <DialogContent className="max-w-2xl">
@@ -885,6 +867,60 @@ export function ConsultationAIPanel({
               </div>
             </ScrollArea>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={soapDialogOpen} onOpenChange={setSoapDialogOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{t("audio.soapDialogTitle")}</DialogTitle>
+            <DialogDescription>
+              {aiState.soapDraft?.summary || t("audio.soapDialogDescription")}
+            </DialogDescription>
+          </DialogHeader>
+
+          {aiState.soapDraft && (
+            <ScrollArea className="max-h-[70vh] pr-4">
+              <div className="space-y-4">
+                {aiState.soapDraft.sections.map((section) => (
+                  <div
+                    key={section.label}
+                    className="rounded-lg border border-slate-200 bg-slate-50/60 p-4"
+                  >
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <h4 className="text-sm font-semibold text-slate-900">{section.label}</h4>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onInsertText(`${section.label}\n${section.content}`)}
+                      >
+                        {t("audio.insertSection")}
+                      </Button>
+                    </div>
+                    <p className="text-sm leading-relaxed text-slate-700">{section.content}</p>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+
+          <div className="flex justify-end gap-2 border-t pt-4">
+            <Button variant="outline" onClick={() => setSoapDialogOpen(false)}>
+              {t("audio.close")}
+            </Button>
+            <Button
+              onClick={() => {
+                if (aiState.soapDraft) {
+                  onInsertText(formatSoapDraftAsText(aiState.soapDraft))
+                  setSoapDialogOpen(false)
+                }
+              }}
+              className="bg-slate-900 hover:bg-slate-800"
+            >
+              {t("audio.insertAll")}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 

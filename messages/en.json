@@ -54,7 +54,7 @@
         "loading": "Loading AI features...",
         "tabs": {
           "audio": "Audio & SOAP",
-          "suggestions": "Live suggestions",
+          "suggestions": "AI Suggestions",
           "recap": "Patient recap"
         },
         "locked": {
@@ -77,8 +77,13 @@
           "transcriptDescription": "Quickly review what was captured before inserting SOAP sections.",
           "secureBadge": "Minimized data",
           "soapTitle": "SOAP draft",
+          "soapReady": "SOAP draft ready",
+          "viewDraft": "View draft",
+          "soapDialogTitle": "SOAP Draft",
+          "soapDialogDescription": "Review and insert sections into your consultation note.",
           "insertAll": "Insert full note",
-          "insertSection": "Insert section"
+          "insertSection": "Insert section",
+          "close": "Close"
         },
         "consent": {
           "title": "AI consent required",
@@ -97,12 +102,14 @@
         },
         "suggestions": {
           "title": "Note suggestions",
-          "description": "Suggested automatically from the body chart and/or the current note.",
+          "description": "Generate suggestions from the body chart and/or the current note.",
+          "generate": "Generate",
+          "regenerate": "Regenerate",
           "noBodyChart": "No area selected",
           "noteDetected": "Note detected",
           "noNote": "No note yet",
           "generating": "Generating suggestions...",
-          "empty": "Select body areas or start writing to receive suggestions.",
+          "empty": "Select body areas or start writing, then click Generate.",
           "verify": "Needs review",
           "insert": "Insert",
           "modes": {
