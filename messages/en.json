@@ -841,6 +841,7 @@
     "validationError": "Validation error",
     "databaseError": "Database error occurred",
     "invalidSlug": "The public booking URL is invalid",
-    "reservedSlug": "This public booking URL is reserved"
+    "reservedSlug": "This public booking URL is reserved",
+    "invalidSiret": "The SIRET number is invalid"
   }
 }
