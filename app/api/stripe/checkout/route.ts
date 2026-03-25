@@ -68,7 +68,7 @@ export async function POST(req: Request) {
         allow_promotion_codes: true,
       },
       {
-        idempotencyKey: `checkout:${session.user.id}:${priceId}`,
+        idempotencyKey: `checkout:${session.user.id}:${priceId}:${Math.floor(Date.now() / 30000)}`,
       }
     );
 
