@@ -17,37 +17,45 @@ function getLocaleFromHeaders(acceptLanguage: string | null): "fr" | "en" {
   return acceptLanguage.toLowerCase().startsWith("en") ? "en" : "fr"
 }
 
+function sanitizeFilename(name: string): string {
+  return name.replace(/[^\w.,-]/g, "_")
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ invoiceId: string }> }
 ) {
   try {
-    const { invoiceId } = await params
     const headersList = await headers()
-    const locale = getLocaleFromHeaders(headersList.get("accept-language"))
     const session = await auth.api.getSession({ headers: headersList })
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { invoiceId } = await params
+    const locale = getLocaleFromHeaders(headersList.get("accept-language"))
     const invoice = await getInvoiceDetails(invoiceId)
     const document = InvoicePdfDocument({ invoice, locale }) as React.ReactElement<DocumentProps>
     const buffer = await renderToBuffer(document)
 
-    if (session?.user?.id) {
-      await recordAuditEventSafe(prisma, {
-        actorUserId: session.user.id,
-        targetUserId: session.user.id,
-        domain: "INVOICE",
-        action: "INVOICE_PDF_EXPORTED",
-        entityType: "Invoice",
-        entityId: invoiceId,
-        metadata: {
-          invoiceNumber: invoice.number,
-        },
-      })
-    }
+    await recordAuditEventSafe(prisma, {
+      actorUserId: session.user.id,
+      targetUserId: session.user.id,
+      domain: "INVOICE",
+      action: "INVOICE_PDF_EXPORTED",
+      entityType: "Invoice",
+      entityId: invoiceId,
+      metadata: {
+        invoiceNumber: invoice.number,
+      },
+    })
+
+    const safeFilename = sanitizeFilename(invoice.number)
 
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `inline; filename="${invoice.number}.pdf"`,
+        "Content-Disposition": `inline; filename="${safeFilename}.pdf"`,
         "Cache-Control": "private, no-store, max-age=0",
         Pragma: "no-cache",
         Expires: "0",

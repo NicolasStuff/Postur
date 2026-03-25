@@ -119,17 +119,16 @@ export async function POST(req: Request) {
     }
   }
 
-  return NextResponse.json({ received: true });
+  return NextResponse.json({ error: "Transaction failed after retries" }, { status: 500 });
 }
 
 function getSubscriptionPeriodEnd(subscription: Stripe.Subscription): Date | null {
-  const sub = subscription as unknown as Record<string, unknown>;
-  const periodEnd = sub.current_period_end;
+  const periodEnd = subscription.current_period_end;
   if (typeof periodEnd === "number") {
     return new Date(periodEnd * 1000);
   }
 
-  const item = subscription.items?.data?.[0] as unknown as Record<string, unknown> | undefined;
+  const item = subscription.items?.data?.[0];
   const itemPeriodEnd = item?.current_period_end;
   if (typeof itemPeriodEnd === "number") {
     return new Date(itemPeriodEnd * 1000);
@@ -152,6 +151,16 @@ async function resolveUserId(subscription: Stripe.Subscription): Promise<string 
   }
 }
 
+const VALID_PLANS = ["PRO", "PRO_IA"] as const;
+type Plan = (typeof VALID_PLANS)[number];
+
+function validatePlan(plan: string): Plan {
+  if (!(VALID_PLANS as readonly string[]).includes(plan)) {
+    throw new Error(`Invalid plan: ${plan}`);
+  }
+  return plan as Plan;
+}
+
 function buildSubscriptionData(
   subscription: Stripe.Subscription,
   opts: { customerId: string; plan: string; currentPeriodEnd: Date | null }
@@ -160,7 +169,7 @@ function buildSubscriptionData(
     stripeCustomerId: opts.customerId,
     stripeSubscriptionId: subscription.id,
     stripePriceId: subscription.items.data[0]?.price.id,
-    plan: opts.plan as "PRO" | "PRO_IA",
+    plan: validatePlan(opts.plan),
     status: mapStripeStatus(subscription.status),
     trialEndsAt: subscription.trial_end
       ? new Date(subscription.trial_end * 1000)
@@ -253,7 +262,9 @@ async function handleSubscriptionDeleted(
 
 async function handlePaymentSucceeded(tx: Prisma.TransactionClient, invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
-  const subscriptionId = (invoice as unknown as Record<string, unknown>).subscription as string | null;
+  const subscriptionId = typeof invoice.subscription === "string"
+    ? invoice.subscription
+    : (invoice.subscription as Stripe.Subscription | null)?.id ?? null;
 
   if (!subscriptionId) return;
 
@@ -276,7 +287,9 @@ async function handlePaymentSucceeded(tx: Prisma.TransactionClient, invoice: Str
 
 async function handlePaymentFailed(tx: Prisma.TransactionClient, invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
-  const subscriptionId = (invoice as unknown as Record<string, unknown>).subscription as string | null;
+  const subscriptionId = typeof invoice.subscription === "string"
+    ? invoice.subscription
+    : (invoice.subscription as Stripe.Subscription | null)?.id ?? null;
 
   await tx.subscription.updateMany({
     where: subscriptionId
