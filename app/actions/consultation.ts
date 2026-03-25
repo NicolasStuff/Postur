@@ -1,5 +1,6 @@
 "use server"
 
+import { z } from "zod"
 import { canAccessFeature } from "@/app/actions/subscription"
 import { openAIClinicalGenerationProvider } from "@/lib/ai/openai"
 import { AI_BETA_COMPLIANCE_VERSION, assertAiBetaEnabled } from "@/lib/ai-beta"
@@ -718,6 +719,16 @@ export async function generatePatientRecap(
   return recap
 }
 
+const validatedRecapSchema = z.object({
+  summary: z.string().min(1).max(5000),
+  advice: z.array(z.string().max(1000)),
+  exercises: z.array(z.string().max(1000)),
+  precautions: z.array(z.string().max(1000)),
+  followUp: z.string().max(1000),
+  generatedAt: z.string().min(1),
+  model: z.string().min(1),
+})
+
 export async function saveValidatedRecap(
   appointmentId: string,
   recap: {
@@ -731,6 +742,11 @@ export async function saveValidatedRecap(
   }
 ) {
   const userId = await requireCoreAppAccess()
+
+  const parsed = validatedRecapSchema.safeParse(recap)
+  if (!parsed.success) {
+    throw new Error(await getErrorMessage("validationError"))
+  }
 
   const appointment = await prisma.appointment.findFirst({
     where: {
@@ -747,7 +763,7 @@ export async function saveValidatedRecap(
   await applyConsultationContentPatch(appointmentId, {
     ai: {
       patientRecap: {
-        ...recap,
+        ...parsed.data,
         validatedAt: new Date().toISOString(),
         editedByPractitioner: true,
       },

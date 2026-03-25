@@ -188,8 +188,7 @@ function getLabels(locale: "fr" | "en") {
       siret: "SIRET",
       vatNoticeExempt: "VAT not applicable, art. 293 B of the French Tax Code.",
       vatNoticeApplied: "VAT applied according to the issuer profile.",
-      practitionerType:
-        locale === "en" ? "Osteopath D.O." : "Ostéopathe D.O.",
+      practitionerType: "Osteopath D.O.",
     }
   }
 

@@ -1,6 +1,7 @@
 "use server"
 
 import { Prisma } from "@prisma/client"
+import { z } from "zod"
 
 import {
   INTERNAL_BOOKING_SLOT_MINUTES,
@@ -12,6 +13,23 @@ import { requireCoreAppAccess } from "@/lib/core-access"
 import { getErrorMessage } from "@/lib/i18n/errors"
 import { prisma } from "@/lib/prisma"
 import { computeWeekSchedule } from "@/lib/schedule-windows"
+
+const updateAppointmentDateTimeSchema = z.object({
+  appointmentId: z.string().min(1),
+  start: z.coerce.date(),
+})
+
+const updateAppointmentSchema = z.object({
+  id: z.string().min(1),
+  startTime: z.string().optional(),
+  durationMinutes: z.number().int().positive().optional(),
+  forceOverlap: z.boolean().optional(),
+})
+
+const weekCalendarDataSchema = z.object({
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+})
 
 export async function getAppointments(start: Date, end: Date) {
   const userId = await requireCoreAppAccess()
@@ -169,9 +187,14 @@ export async function updateAppointmentDateTime(data: {
 }) {
   const userId = await requireCoreAppAccess()
 
+  const parsed = updateAppointmentDateTimeSchema.safeParse(data)
+  if (!parsed.success) {
+    throw new Error(await getErrorMessage("validationError"))
+  }
+
   const appointment = await prisma.appointment.findFirst({
     where: {
-      id: data.appointmentId,
+      id: parsed.data.appointmentId,
       userId,
     },
     include: {
@@ -254,8 +277,13 @@ export async function updateAppointment(data: {
 }) {
   const userId = await requireCoreAppAccess()
 
+  const parsed = updateAppointmentSchema.safeParse(data)
+  if (!parsed.success) {
+    throw new Error(await getErrorMessage("validationError"))
+  }
+
   const appointment = await prisma.appointment.findFirst({
-    where: { id: data.id, userId },
+    where: { id: parsed.data.id, userId },
     include: {
       service: {
         select: { duration: true },
@@ -328,6 +356,11 @@ export async function updateAppointment(data: {
 
 export async function getWeekCalendarData(startDate: string, endDate: string) {
   const userId = await requireCoreAppAccess()
+
+  const parsed = weekCalendarDataSchema.safeParse({ startDate, endDate })
+  if (!parsed.success) {
+    throw new Error(await getErrorMessage("validationError"))
+  }
 
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },

@@ -1,4 +1,7 @@
 import type { AppointmentStatus } from '@prisma/client'
+import type { DaySchedule, ScheduleWindow } from '@/lib/schedule-windows'
+
+export type { DaySchedule, ScheduleWindow }
 
 export type CalendarAppointment = {
   id: string
@@ -12,19 +15,6 @@ export type CalendarAppointment = {
 
 export function getDurationMinutes(start: Date, end: Date): number {
   return Math.round((end.getTime() - start.getTime()) / 60000)
-}
-
-export interface ScheduleWindow {
-  startTime: string
-  endTime: string
-  type: 'regular' | 'exception'
-  exceptionId?: string
-  exceptionType?: 'ADDED' | 'BLOCKED'
-}
-
-export interface DaySchedule {
-  date: string
-  windows: ScheduleWindow[]
 }
 
 export interface DragSelection {

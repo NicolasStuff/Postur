@@ -20,13 +20,13 @@ interface PatientData {
     appointments?: Array<{
         id: string
         start: Date | string
-        service?: { name: string }
-        note?: { content: unknown }
+        service?: { name: string | null } | null
+        note?: { content: unknown } | null
     }>
 }
 
 interface PatientFileProps {
-    patient: unknown
+    patient: PatientData
     onNavigate?: () => void
 }
 
@@ -35,7 +35,7 @@ export function PatientFile({ patient, onNavigate }: PatientFileProps) {
     const locale = useLocale()
     const dateLocale = locale === 'fr' ? fr : enUS
 
-    const patientData = patient as PatientData
+    const patientData = patient
     const initials = `${patientData.firstName?.[0] ?? ''}${patientData.lastName?.[0] ?? ''}`.toUpperCase()
 
     return (

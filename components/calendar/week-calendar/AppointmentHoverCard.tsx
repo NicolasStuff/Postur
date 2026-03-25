@@ -1,5 +1,7 @@
+import { TZDate } from '@date-fns/tz'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { BOOKING_TIMEZONE } from '@/lib/booking'
 import type { CalendarAppointment } from './types'
 import { getDurationMinutes } from './types'
 
@@ -44,7 +46,8 @@ interface AppointmentHoverCardProps {
 }
 
 export default function AppointmentHoverCard({ appointment, anchorRect }: AppointmentHoverCardProps) {
-  const dateLabel = format(appointment.start, "EEEE d MMM yyyy 'à' HH:mm", { locale: fr })
+  const parisStart = new TZDate(appointment.start.getTime(), BOOKING_TIMEZONE)
+  const dateLabel = format(parisStart, "EEEE d MMM yyyy 'à' HH:mm", { locale: fr })
   const durationMinutes = getDurationMinutes(appointment.start, appointment.end)
 
   return (

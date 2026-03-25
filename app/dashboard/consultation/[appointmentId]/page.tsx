@@ -32,6 +32,7 @@ export default function ConsultationPage({
 }) {
   const { appointmentId } = use(params)
   const t = useTranslations("consultation.shared")
+  const tDetails = useTranslations("dashboard.consultationDetails")
   const tErrors = useTranslations("errors")
   const queryClient = useQueryClient()
   const searchParams = useSearchParams()
@@ -56,7 +57,10 @@ export default function ConsultationPage({
       await saveConsultationNote(appointmentId, data)
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["consultations"] })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["consultations"] }),
+        queryClient.invalidateQueries({ queryKey: ["consultation", appointmentId] }),
+      ])
     },
   })
 
@@ -121,14 +125,14 @@ export default function ConsultationPage({
   }, [consultation?.patient.id, searchParams])
 
   if (isLoading) {
-    return <div className="flex h-full items-center justify-center">Loading...</div>
+    return <div className="flex h-full items-center justify-center">{tDetails("loading")}</div>
   }
 
   if (!consultation) {
-    return <div>Consultation not found</div>
+    return <div>{tDetails("notFound")}</div>
   }
 
-  const practitionerName = consultation.user?.name || "Praticien"
+  const practitionerName = consultation.user?.name || tDetails("practitioner")
   const practitionerType = consultation.user?.practitionerType || "OSTEOPATH"
   const isSaving = saveMutation.isPending || finishAndBillMutation.isPending
   const finishAndBillDisabledReason =

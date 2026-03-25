@@ -1,4 +1,6 @@
+import { TZDate } from '@date-fns/tz'
 import { useDraggable } from '@dnd-kit/core'
+import { BOOKING_TIMEZONE } from '@/lib/booking'
 import type { CalendarAppointment } from './types'
 import { CALENDAR_STATUS_COLORS, FIRST_HOUR, SLOT_HEIGHT_PX, SLOT_MINUTES, getDurationMinutes } from './types'
 import { durationToSlots } from './utils'
@@ -37,7 +39,8 @@ export default function DraggableAppointment({
   })
 
   const durationSlots = previewDurationSlots ?? durationToSlots(durationMinutes)
-  const top = ((appointment.start.getHours() - FIRST_HOUR) * 60 + appointment.start.getMinutes()) / SLOT_MINUTES * SLOT_HEIGHT_PX
+  const start = new TZDate(appointment.start.getTime(), BOOKING_TIMEZONE)
+  const top = ((start.getHours() - FIRST_HOUR) * 60 + start.getMinutes()) / SLOT_MINUTES * SLOT_HEIGHT_PX
   const height = Math.max(22, durationSlots * SLOT_HEIGHT_PX)
 
   return (

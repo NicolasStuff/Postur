@@ -27,6 +27,7 @@ const statusVariant: Record<string, "default" | "secondary" | "outline" | "destr
 
 export function PatientConsultationsTab({ patient }: { patient: PatientDetail }) {
   const t = useTranslations("patientDetail.consultations")
+  const tStatuses = useTranslations("dashboard.consultationsPage.statuses")
   const locale = useLocale()
   const dateLocale = locale === "fr" ? fr : enUS
 
@@ -72,7 +73,7 @@ export function PatientConsultationsTab({ patient }: { patient: PatientDetail })
                 <TableCell>{appointment.service.name}</TableCell>
                 <TableCell>
                   <Badge variant={statusVariant[appointment.status] ?? "outline"}>
-                    {appointment.status}
+                    {tStatuses(appointment.status.toLowerCase())}
                   </Badge>
                 </TableCell>
                 <TableCell>

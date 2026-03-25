@@ -25,6 +25,7 @@ const invoiceStatusVariant: Record<string, "default" | "secondary" | "outline" |
 
 export function PatientBillingTab({ patient }: { patient: PatientDetail }) {
   const t = useTranslations("patientDetail.billing")
+  const tStatuses = useTranslations("dashboard.billing.statuses")
   const locale = useLocale()
   const dateLocale = locale === "fr" ? fr : enUS
 
@@ -99,7 +100,7 @@ export function PatientBillingTab({ patient }: { patient: PatientDetail }) {
                   <TableCell>{invoice.amount.toFixed(2)} &euro;</TableCell>
                   <TableCell>
                     <Badge variant={invoiceStatusVariant[invoice.status] ?? "outline"}>
-                      {invoice.status}
+                      {tStatuses(invoice.status.toLowerCase())}
                     </Badge>
                   </TableCell>
                 </TableRow>

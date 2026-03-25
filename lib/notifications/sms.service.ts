@@ -43,10 +43,20 @@ function getSmsApiKeyOrThrow(): string {
 
 function formatPhoneNumber(phone: string): string {
   const cleaned = phone.replace(/[\s.\-()]/g, "")
-  if (cleaned.startsWith("+")) return cleaned.slice(1)
-  if (cleaned.startsWith("00")) return cleaned.slice(2)
-  if (cleaned.startsWith("0")) return `33${cleaned.slice(1)}`
-  return cleaned
+  let normalized: string
+  if (cleaned.startsWith("+")) normalized = cleaned.slice(1)
+  else if (cleaned.startsWith("00")) normalized = cleaned.slice(2)
+  else if (cleaned.startsWith("0")) normalized = `33${cleaned.slice(1)}`
+  else normalized = cleaned
+
+  const digits = normalized.replace(/\D/g, "")
+  if (digits.length < 10 || digits.length > 15) {
+    throw new Error(
+      `Numero de telephone invalide (${digits.length} chiffres, attendu entre 10 et 15): ${phone}`,
+    )
+  }
+
+  return normalized
 }
 
 export async function sendSms(params: {

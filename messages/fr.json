@@ -914,7 +914,7 @@
       "date": "Date",
       "patient": "Patient",
       "phone": "Tél",
-      "descriptionLabel": "Description",
+      "pdfLoadError": "Impossible de charger le PDF.",
       "quantity": "Qté",
       "total": "Total",
       "subtotalHt": "Sous-total HT",
@@ -1044,6 +1044,18 @@
         "markAsPaid": "Marquer comme payé",
         "delete": "Supprimer",
         "cancelInvoice": "Annuler la facture"
+      },
+      "deleteDialog": {
+        "title": "Supprimer la facture",
+        "description": "Êtes-vous sûr de vouloir supprimer cette facture ? Cette action est irréversible.",
+        "confirm": "Supprimer",
+        "cancel": "Annuler"
+      },
+      "cancelDialog": {
+        "title": "Annuler la facture",
+        "description": "Êtes-vous sûr de vouloir annuler cette facture ? Cette action est irréversible.",
+        "confirm": "Annuler la facture",
+        "cancel": "Revenir"
       },
       "sendDialog": {
         "title": "Envoyer la facture",

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { Document, Page, pdfjs } from "react-pdf"
 import { Loader2 } from "lucide-react"
 
@@ -10,6 +11,7 @@ import "react-pdf/dist/Page/TextLayer.css"
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`
 
 export function PdfViewer({ url }: { url: string }) {
+  const t = useTranslations("dashboard.billing")
   const [numPages, setNumPages] = useState<number>(0)
 
   return (
@@ -24,7 +26,7 @@ export function PdfViewer({ url }: { url: string }) {
         }
         error={
           <div className="py-20 text-center text-sm text-muted-foreground">
-            Impossible de charger le PDF.
+            {t("pdfLoadError")}
           </div>
         }
       >

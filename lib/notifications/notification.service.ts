@@ -6,6 +6,7 @@ import type {
   Service,
   User,
 } from "@prisma/client"
+import { TZDate } from "@date-fns/tz"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 
@@ -29,12 +30,14 @@ type AppointmentWithRelations = Appointment & {
   user: User
 }
 
+const TIMEZONE = "Europe/Paris"
+
 function formatDate(date: Date): string {
-  return format(date, "EEEE d MMMM yyyy", { locale: fr })
+  return format(new TZDate(date, TIMEZONE), "EEEE d MMMM yyyy", { locale: fr })
 }
 
 function formatTime(date: Date): string {
-  return format(date, "HH'h'mm")
+  return format(new TZDate(date, TIMEZONE), "HH'h'mm")
 }
 
 function getErrorMessage(error: unknown): string {

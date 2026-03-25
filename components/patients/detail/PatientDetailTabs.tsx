@@ -1,6 +1,6 @@
 "use client"
 
-import { useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -11,11 +11,18 @@ import type { PatientDetail } from "@/components/patients/detail/types"
 
 export function PatientDetailTabs({ patient }: { patient: PatientDetail }) {
   const t = useTranslations("patientDetail.tabs")
+  const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const defaultTab = searchParams.get("tab") ?? "overview"
 
   return (
-    <Tabs defaultValue={defaultTab}>
+    <Tabs
+      defaultValue={defaultTab}
+      onValueChange={(value) => {
+        router.replace(pathname + "?tab=" + value, { scroll: false })
+      }}
+    >
       <TabsList>
         <TabsTrigger value="overview">{t("overview")}</TabsTrigger>
         <TabsTrigger value="consultations">{t("consultations")}</TabsTrigger>

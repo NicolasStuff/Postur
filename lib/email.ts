@@ -146,6 +146,15 @@ export async function sendResetPasswordEmail({
   url: string
   name: string | null
 }) {
+  // Validate that the reset URL belongs to our domain
+  const allowedOrigin = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  const parsedUrl = new URL(url)
+  const parsedAllowed = new URL(allowedOrigin)
+  if (parsedUrl.origin !== parsedAllowed.origin) {
+    throw new Error("Invalid reset password URL origin")
+  }
+  const safeUrl = escapeHtml(url)
+
   const { error } = await resend.emails.send({
     from: EMAIL_FROM,
     to,
@@ -158,7 +167,7 @@ export async function sendResetPasswordEmail({
         <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
           Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous pour en choisir un nouveau.
         </p>
-        <a href="${url}" style="display: inline-block; background: #0f172a; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500;">
+        <a href="${safeUrl}" style="display: inline-block; background: #0f172a; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500;">
           Réinitialiser mon mot de passe
         </a>
         <p style="color: #94a3b8; font-size: 13px; line-height: 1.5; margin: 24px 0 0; border-top: 1px solid #e2e8f0; padding-top: 16px;">

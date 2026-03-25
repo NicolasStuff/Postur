@@ -857,6 +857,34 @@
       "workspaceLabel": "Archive & follow-up",
       "results": "{count} invoices",
       "searchPlaceholder": "Search by number, patient or service...",
+      "invoiceNumber": "Invoice No",
+      "date": "Date",
+      "patient": "Patient",
+      "phone": "Tel",
+      "quantity": "Qty",
+      "total": "Total",
+      "subtotalHt": "Subtotal excl. VAT",
+      "vat": "VAT",
+      "vatWithRate": "VAT ({rate}%)",
+      "siret": "SIRET",
+      "pdfLoadError": "Unable to load the PDF.",
+      "practitionerTypes": {
+        "osteopath": "Osteopath D.O.",
+        "naturopath": "Naturopath",
+        "sophrologist": "Sophrologist",
+        "default": "Practitioner"
+      },
+      "specialties": {
+        "osteopath": "Specialized in structural and tissue osteopathy.",
+        "naturopath": "Specialized in naturopathy and natural medicine.",
+        "sophrologist": "Specialized in sophrology and relaxation."
+      },
+      "services": {
+        "osteopath": "Osteopathy Consultation",
+        "naturopath": "Naturopathy Consultation",
+        "sophrologist": "Sophrology Consultation",
+        "default": "Consultation"
+      },
       "stats": {
         "totalRevenue": "Total Revenue (Year)",
         "pendingPayment": "Pending Payment",
@@ -963,6 +991,18 @@
         "markAsPaid": "Mark as paid",
         "delete": "Delete",
         "cancelInvoice": "Cancel invoice"
+      },
+      "deleteDialog": {
+        "title": "Delete invoice",
+        "description": "Are you sure you want to delete this invoice? This action cannot be undone.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
+      "cancelDialog": {
+        "title": "Cancel invoice",
+        "description": "Are you sure you want to cancel this invoice? This action cannot be undone.",
+        "confirm": "Cancel invoice",
+        "cancel": "Go back"
       },
       "sendDialog": {
         "title": "Send invoice",

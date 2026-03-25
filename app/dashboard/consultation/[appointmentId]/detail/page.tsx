@@ -2,7 +2,7 @@
 
 import { use, useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useTranslations, useLocale } from "next-intl"
 import { format } from "date-fns"
 import { fr, enUS } from "date-fns/locale"
@@ -43,6 +43,7 @@ export default function ConsultationDetailPage({
   const t = useTranslations("consultation.detail")
   const locale = useLocale()
   const dateLocale = locale === "fr" ? fr : enUS
+  const router = useRouter()
   const searchParams = useSearchParams()
   const [editDateTimeOpen, setEditDateTimeOpen] = useState(false)
 
@@ -54,6 +55,14 @@ export default function ConsultationDetailPage({
   const backHref = useMemo(() => {
     const from = searchParams.get("from")
     const patientId = searchParams.get("patient")
+
+    if (from === "calendar") {
+      return "/dashboard/calendar"
+    }
+
+    if (from === "detail") {
+      return `/dashboard/consultation/${appointmentId}/detail`
+    }
 
     if (from === "consultations") {
       return patientId
@@ -70,7 +79,7 @@ export default function ConsultationDetailPage({
     }
 
     return "/dashboard/calendar"
-  }, [consultation?.patient.id, searchParams])
+  }, [appointmentId, consultation?.patient.id, searchParams])
 
   if (isLoading) {
     return (
@@ -124,13 +133,14 @@ export default function ConsultationDetailPage({
             </p>
           </div>
         </div>
-        <Button asChild disabled={isCanceled}>
-          <Link
-            href={`/dashboard/consultation/${appointmentId}?from=detail`}
-          >
-            <Play className="mr-2 h-4 w-4" />
-            {startButtonLabel}
-          </Link>
+        <Button
+          disabled={isCanceled}
+          onClick={() =>
+            router.push(`/dashboard/consultation/${appointmentId}?from=detail`)
+          }
+        >
+          <Play className="mr-2 h-4 w-4" />
+          {startButtonLabel}
         </Button>
       </div>
 

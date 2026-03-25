@@ -24,7 +24,7 @@ import {
   invoiceIssuerSelect,
   serializeIssuerSnapshot,
 } from "@/lib/invoice-builder"
-import { requireSessionUserId } from "@/lib/core-access"
+import { requireCoreAppAccess } from "@/lib/core-access"
 import { getErrorMessage } from "@/lib/i18n/errors"
 import { prisma } from "@/lib/prisma"
 
@@ -210,7 +210,7 @@ async function getInvoiceDetailsRecord(invoiceId: string, userId: string) {
 }
 
 export async function getBillingProfileStatus() {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: invoiceIssuerSelect,
@@ -224,7 +224,7 @@ export async function getBillingProfileStatus() {
 }
 
 export async function getInvoices() {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
 
   const invoices = await prisma.invoice.findMany({
     where: { userId },
@@ -257,7 +257,7 @@ export async function createInvoice(data: {
   appointmentId?: string
   serviceName?: string
 }) {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
 
   if (Number.isNaN(data.amount) || data.amount <= 0) {
     throw new Error(await getErrorMessage("validationError"))
@@ -434,7 +434,7 @@ export async function updateDraftInvoice(data: {
     address?: string | null
   }
 }) {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
 
   if (Number.isNaN(data.amount) || data.amount <= 0) {
     throw new Error(await getErrorMessage("validationError"))
@@ -568,7 +568,7 @@ export async function updateInvoiceStatus(
   invoiceId: string,
   status: "DRAFT" | "SENT" | "PAID"
 ) {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
 
   return prisma.$transaction(async (tx) => {
     const invoice = await tx.invoice.findFirst({
@@ -622,7 +622,7 @@ export async function updateInvoiceStatus(
 }
 
 export async function deleteInvoice(invoiceId: string) {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
 
   return prisma.$transaction(async (tx) => {
     const invoice = await tx.invoice.findFirst({
@@ -647,7 +647,7 @@ export async function deleteInvoice(invoiceId: string) {
     }
 
     const deletedInvoice = await tx.invoice.delete({
-      where: { id: invoiceId },
+      where: { id: invoiceId, userId },
     })
 
     await recordAuditEventSafe(tx, {
@@ -672,7 +672,7 @@ export async function deleteInvoice(invoiceId: string) {
 }
 
 export async function cancelInvoice(invoiceId: string) {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
 
   return prisma.$transaction(async (tx) => {
     const invoice = await tx.invoice.findFirst({
@@ -695,7 +695,7 @@ export async function cancelInvoice(invoiceId: string) {
     }
 
     const updatedInvoice = await tx.invoice.update({
-      where: { id: invoiceId },
+      where: { id: invoiceId, userId },
       data: { status: "CANCELLED" },
     })
 
@@ -721,13 +721,15 @@ export async function cancelInvoice(invoiceId: string) {
 }
 
 export async function getInvoiceDetails(invoiceId: string) {
-  const userId = await requireSessionUserId()
+  const userId = await requireCoreAppAccess()
   const invoice = await getInvoiceDetailsRecord(invoiceId, userId)
   await assertBillingProfileReady(invoice.user)
   return mapInvoiceDetails(invoice)
 }
 
 export async function sendInvoiceByEmail(invoiceId: string, recipientEmail: string) {
+  const userId = await requireCoreAppAccess()
+
   const validatedEmail = recipientEmailSchema.parse(recipientEmail)
 
   const reactPdf = await import("@react-pdf/renderer")
@@ -735,8 +737,6 @@ export async function sendInvoiceByEmail(invoiceId: string, recipientEmail: stri
   const { RecapPdfDocument } = await import("@/components/billing/RecapPdfDocument")
   const { sendInvoiceEmail } = await import("@/lib/email")
   const { normalizeConsultationContent } = await import("@/lib/consultation-note")
-
-  const userId = await requireSessionUserId()
 
   try {
     const invoice = await getInvoiceDetailsRecord(invoiceId, userId)

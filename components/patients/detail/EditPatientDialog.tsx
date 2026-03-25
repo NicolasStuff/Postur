@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -56,6 +57,19 @@ export function EditPatientDialog({
     },
   })
 
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        firstName: patient.firstName,
+        lastName: patient.lastName,
+        email: patient.email ?? "",
+        phone: patient.phone ?? "",
+        address: patient.address ?? "",
+        notes: patient.notes ?? "",
+      })
+    }
+  }, [patient, open, form])
+
   const mutation = useMutation({
     mutationFn: (values: FormValues) => updatePatient(patient.id, values),
     onSuccess: async () => {
@@ -87,31 +101,49 @@ export function EditPatientDialog({
             <div className="space-y-2">
               <Label htmlFor="firstName">{t("firstName")}</Label>
               <Input id="firstName" {...form.register("firstName")} />
+              {form.formState.errors.firstName && (
+                <p className="text-sm text-destructive">{form.formState.errors.firstName.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName">{t("lastName")}</Label>
               <Input id="lastName" {...form.register("lastName")} />
+              {form.formState.errors.lastName && (
+                <p className="text-sm text-destructive">{form.formState.errors.lastName.message}</p>
+              )}
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="email">{t("email")}</Label>
             <Input id="email" type="email" {...form.register("email")} />
+            {form.formState.errors.email && (
+              <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="phone">{t("phone")}</Label>
             <Input id="phone" {...form.register("phone")} />
+            {form.formState.errors.phone && (
+              <p className="text-sm text-destructive">{form.formState.errors.phone.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="address">{t("address")}</Label>
             <Input id="address" {...form.register("address")} />
+            {form.formState.errors.address && (
+              <p className="text-sm text-destructive">{form.formState.errors.address.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="notes">{t("notes")}</Label>
             <Textarea id="notes" rows={3} {...form.register("notes")} />
+            {form.formState.errors.notes && (
+              <p className="text-sm text-destructive">{form.formState.errors.notes.message}</p>
+            )}
           </div>
 
           <DialogFooter>

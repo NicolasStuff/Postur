@@ -1,5 +1,14 @@
 import { Resend } from "resend"
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+}
+
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null
@@ -62,17 +71,17 @@ function buildReminderHtml(
 ): string {
   return wrapEmailContent(`
     <h2 style="font-size: 22px; font-weight: 600; margin: 0 0 20px 0; color: #1a1a1a;">
-      Bonjour ${params.patientFirstName},
+      Bonjour ${escapeHtml(params.patientFirstName)},
     </h2>
     <p style="margin: 0 0 16px 0;">
-      Nous vous rappelons votre rendez-vous prevu <strong>${delayLabel}</strong> avec ${params.practitionerName}.
+      Nous vous rappelons votre rendez-vous prevu <strong>${escapeHtml(delayLabel)}</strong> avec ${escapeHtml(params.practitionerName)}.
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0; background-color: #f0f4f8; border-radius: 8px;">
       <tr>
         <td style="padding: 20px;">
-          <p style="margin: 0 0 8px 0; font-weight: 600;">Soin : ${params.serviceName}</p>
-          <p style="margin: 0 0 8px 0;">Date : ${params.date}</p>
-          <p style="margin: 0 0 8px 0;">Heure : ${params.time}</p>
+          <p style="margin: 0 0 8px 0; font-weight: 600;">Soin : ${escapeHtml(params.serviceName)}</p>
+          <p style="margin: 0 0 8px 0;">Date : ${escapeHtml(params.date)}</p>
+          <p style="margin: 0 0 8px 0;">Heure : ${escapeHtml(params.time)}</p>
           <p style="margin: 0;">Duree : ${params.duration} minutes</p>
         </td>
       </tr>
@@ -95,7 +104,7 @@ export async function sendBookingReminderJ3(
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: params.to,
-    subject: `Rappel : votre rendez-vous dans 3 jours avec ${params.practitionerName}`,
+    subject: `Rappel : votre rendez-vous dans 3 jours avec ${escapeHtml(params.practitionerName)}`,
     html: htmlContent,
   })
 
@@ -118,7 +127,7 @@ export async function sendBookingReminderJ2(
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: params.to,
-    subject: `Rappel : votre rendez-vous apres-demain avec ${params.practitionerName}`,
+    subject: `Rappel : votre rendez-vous apres-demain avec ${escapeHtml(params.practitionerName)}`,
     html: htmlContent,
   })
 
@@ -141,7 +150,7 @@ export async function sendBookingReminderJ1(
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: params.to,
-    subject: `Rappel : votre rendez-vous demain avec ${params.practitionerName}`,
+    subject: `Rappel : votre rendez-vous demain avec ${escapeHtml(params.practitionerName)}`,
     html: htmlContent,
   })
 
@@ -167,17 +176,17 @@ export async function sendBookingConfirmation(params: {
 
   const htmlContent = wrapEmailContent(`
     <h2 style="font-size: 22px; font-weight: 600; margin: 0 0 20px 0; color: #1a1a1a;">
-      Bonjour ${params.patientFirstName},
+      Bonjour ${escapeHtml(params.patientFirstName)},
     </h2>
     <p style="margin: 0 0 16px 0;">
-      Votre rendez-vous avec ${params.practitionerName} a bien ete confirme.
+      Votre rendez-vous avec ${escapeHtml(params.practitionerName)} a bien ete confirme.
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0; background-color: #f0f4f8; border-radius: 8px;">
       <tr>
         <td style="padding: 20px;">
-          <p style="margin: 0 0 8px 0; font-weight: 600;">Soin : ${params.serviceName}</p>
-          <p style="margin: 0 0 8px 0;">Date : ${params.date}</p>
-          <p style="margin: 0 0 8px 0;">Heure : ${params.time}</p>
+          <p style="margin: 0 0 8px 0; font-weight: 600;">Soin : ${escapeHtml(params.serviceName)}</p>
+          <p style="margin: 0 0 8px 0;">Date : ${escapeHtml(params.date)}</p>
+          <p style="margin: 0 0 8px 0;">Heure : ${escapeHtml(params.time)}</p>
           <p style="margin: 0;">Duree : ${params.duration} minutes</p>
         </td>
       </tr>
@@ -190,7 +199,7 @@ export async function sendBookingConfirmation(params: {
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: params.to,
-    subject: `Confirmation de votre rendez-vous avec ${params.practitionerName}`,
+    subject: `Confirmation de votre rendez-vous avec ${escapeHtml(params.practitionerName)}`,
     html: htmlContent,
   })
 
@@ -215,17 +224,17 @@ export async function sendBookingCancellation(params: {
 
   const htmlContent = wrapEmailContent(`
     <h2 style="font-size: 22px; font-weight: 600; margin: 0 0 20px 0; color: #1a1a1a;">
-      Bonjour ${params.patientFirstName},
+      Bonjour ${escapeHtml(params.patientFirstName)},
     </h2>
     <p style="margin: 0 0 16px 0;">
-      Votre rendez-vous avec ${params.practitionerName} a ete annule.
+      Votre rendez-vous avec ${escapeHtml(params.practitionerName)} a ete annule.
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px 0; background-color: #f0f4f8; border-radius: 8px;">
       <tr>
         <td style="padding: 20px;">
-          <p style="margin: 0 0 8px 0; font-weight: 600;">Soin : ${params.serviceName}</p>
-          <p style="margin: 0 0 8px 0;">Date : ${params.date}</p>
-          <p style="margin: 0;">Heure : ${params.time}</p>
+          <p style="margin: 0 0 8px 0; font-weight: 600;">Soin : ${escapeHtml(params.serviceName)}</p>
+          <p style="margin: 0 0 8px 0;">Date : ${escapeHtml(params.date)}</p>
+          <p style="margin: 0;">Heure : ${escapeHtml(params.time)}</p>
         </td>
       </tr>
     </table>
@@ -237,7 +246,7 @@ export async function sendBookingCancellation(params: {
   const { data, error } = await resend.emails.send({
     from: FROM_EMAIL,
     to: params.to,
-    subject: `Annulation de votre rendez-vous avec ${params.practitionerName}`,
+    subject: `Annulation de votre rendez-vous avec ${escapeHtml(params.practitionerName)}`,
     html: htmlContent,
   })
 

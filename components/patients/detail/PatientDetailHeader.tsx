@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useTranslations } from "next-intl"
 import { Mail, Phone, MapPin, Pencil, CalendarPlus } from "lucide-react"
-import { useRouter } from "next/navigation"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -14,7 +13,6 @@ import type { PatientDetail } from "@/components/patients/detail/types"
 
 export function PatientDetailHeader({ patient }: { patient: PatientDetail }) {
   const t = useTranslations("patientDetail")
-  const router = useRouter()
   const [editOpen, setEditOpen] = useState(false)
   const [appointmentOpen, setAppointmentOpen] = useState(false)
 

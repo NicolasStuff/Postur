@@ -115,6 +115,7 @@ export async function middleware(request: NextRequest) {
       path: '/',
       sameSite: 'lax',
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
     })
 
     return response
