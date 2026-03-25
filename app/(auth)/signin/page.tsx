@@ -63,7 +63,7 @@ export default function AuthPage() {
 
   const features = [
     "14 jours d'essai gratuit",
-    "Aucune carte bancaire requise",
+    "Annulable à tout moment",
     "Accès à toutes les fonctionnalités",
     "Support prioritaire inclus",
     "Annulable à tout moment",
@@ -301,7 +301,7 @@ export default function AuthPage() {
                 Pourquoi choisir Postur ?
               </p>
               <div className="grid grid-cols-2 gap-3">
-                {["14 jours gratuits", "Sans CB", "Toutes fonctionnalités", "Support inclus"].map((item, i) => (
+                {["14 jours gratuits", "Toutes fonctionnalités", "Support inclus", "Annulable à tout moment"].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm text-slate-600">
                     <Check className="w-4 h-4 text-indigo-500" />
                     {item}

@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     url: baseUrl,
     siteName: 'Postur',
     title: 'Postur - Logiciel de Gestion de Cabinet pour Ostéopathes',
-    description: 'Le logiciel ostéopathe qui combine Body Chart interactif, préparation Factur-X et réservation en ligne. Essai gratuit 14 jours, sans CB.',
+    description: 'Le logiciel ostéopathe qui combine Body Chart interactif, préparation Factur-X et réservation en ligne. Essai gratuit 14 jours.',
     images: [
       {
         url: `${baseUrl}/images/landing-page/new/body-chart-consultation.png`,
