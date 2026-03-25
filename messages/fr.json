@@ -41,6 +41,7 @@
       "consultationHistory": "Historique des Consultations",
       "consultation": "Consultation",
       "noConsultations": "Aucune consultation trouvée",
+      "viewFullProfile": "Voir la fiche complète",
       "editor": {
         "bold": "Gras",
         "italic": "Italique",
@@ -49,6 +50,80 @@
         "orderedList": "Liste numérotée",
         "undo": "Annuler",
         "redo": "Refaire"
+      }
+    },
+    "detail": {
+      "title": "Détail de la consultation",
+      "backToList": "Retour à la liste",
+      "backToCalendar": "Retour au calendrier",
+      "backToPatient": "Retour au patient",
+      "startConsultation": "Démarrer la consultation",
+      "continueConsultation": "Continuer la consultation",
+      "viewConsultation": "Voir la consultation",
+      "appointmentInfo": "Informations du rendez-vous",
+      "dateAndTime": "Date et heure",
+      "duration": "Durée",
+      "durationMinutes": "{minutes} min",
+      "service": "Prestation",
+      "status": "Statut",
+      "editDateTime": "Modifier",
+      "editDateTimeTitle": "Modifier la date et l'heure",
+      "editDateTimeDescription": "Choisissez une nouvelle date et un nouvel horaire pour ce rendez-vous.",
+      "newDate": "Nouvelle date",
+      "newTime": "Nouvel horaire",
+      "saveDateTime": "Enregistrer",
+      "saving": "Enregistrement...",
+      "dateTimeUpdated": "Date et heure mises à jour",
+      "dateTimeUpdateError": "Erreur lors de la mise à jour",
+      "notePreview": "Aperçu de la note",
+      "noNote": "Aucune note pour cette consultation",
+      "patientInfo": "Informations patient",
+      "viewPatient": "Voir le patient",
+      "consultationHistory": "Dernières consultations",
+      "noHistory": "Aucune consultation précédente",
+      "billingStatus": "Facturation",
+      "billed": "Facturée",
+      "notBilled": "Non facturée",
+      "invoiceNumber": "Facture n°{number}",
+      "loading": "Chargement...",
+      "notFound": "Consultation introuvable",
+      "statuses": {
+        "scheduled": "Planifié",
+        "completed": "Terminé",
+        "canceled": "Annulé",
+        "noshow": "Absent"
+      },
+      "reminders": {
+        "title": "Rappels",
+        "none": "Aucun rappel envoyé",
+        "notSent": "Non envoyé",
+        "summary": "{sent}/{total} envoyés, {delivered} délivrés",
+        "kinds": {
+          "bookingconfirmation": "Confirmation",
+          "bookingcancellation": "Annulation",
+          "reminderj3": "Relance J-3",
+          "reminderj2": "Relance J-2",
+          "reminderj1": "Relance J-1",
+          "reminderh1": "Relance H-1"
+        },
+        "channels": {
+          "email": "Email",
+          "sms": "SMS"
+        },
+        "statuses": {
+          "created": "Créé",
+          "sent": "Envoyé",
+          "enroute": "En route",
+          "delivered": "Délivré",
+          "delivery_delayed": "Retardé",
+          "failed": "Échec",
+          "bounced": "Rejeté",
+          "undeliverable": "Non livrable",
+          "undelivered": "Non délivré",
+          "complained": "Plainte",
+          "suppressed": "Supprimé",
+          "unknown": "Inconnu"
+        }
       }
     },
     "osteopath": {
@@ -474,8 +549,64 @@
     "actions": "Actions",
     "noPatients": "Aucun patient trouvé.",
     "viewHistory": "Voir l'historique",
+    "viewProfile": "Voir le profil",
     "newAppointment": "Nouveau Rendez-vous",
     "failedToCreate": "Échec de la création du patient : {error}"
+  },
+  "patientDetail": {
+    "title": "Fiche patient",
+    "back": "Retour",
+    "edit": "Modifier",
+    "newAppointment": "Nouveau RDV",
+    "notFound": "Patient introuvable",
+    "tabs": {
+      "overview": "Aperçu",
+      "consultations": "Consultations",
+      "billing": "Facturation"
+    },
+    "overview": {
+      "notes": "Notes",
+      "noNotes": "Aucune note pour ce patient",
+      "medicalHistory": "Antécédents médicaux",
+      "totalConsultations": "Total consultations",
+      "lastVisit": "Dernière visite",
+      "totalBilled": "Total facturé"
+    },
+    "consultations": {
+      "title": "Consultations",
+      "date": "Date",
+      "service": "Service",
+      "status": "Statut",
+      "note": "Note",
+      "billing": "Facturation",
+      "hasNote": "Oui",
+      "empty": "Aucune consultation"
+    },
+    "billing": {
+      "title": "Factures",
+      "number": "N°",
+      "date": "Date",
+      "service": "Service",
+      "amount": "Montant",
+      "status": "Statut",
+      "totalBilled": "Total facturé",
+      "totalPaid": "Total payé",
+      "totalPending": "En attente",
+      "empty": "Aucune facture"
+    },
+    "editDialog": {
+      "title": "Modifier le patient",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "phone": "Téléphone",
+      "address": "Adresse",
+      "notes": "Notes",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "success": "Patient mis à jour",
+      "error": "Erreur lors de la mise à jour"
+    }
   },
   "booking": {
     "title": "Prendre rendez-vous",

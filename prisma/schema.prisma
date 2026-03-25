@@ -43,11 +43,12 @@ model User {
   aiComplianceVersion String?
 
   // Relations
-  patients         Patient[]
-  appointments     Appointment[]
-  services         Service[]
-  invoices         Invoice[]
-  subscription     Subscription?
+  patients             Patient[]
+  appointments         Appointment[]
+  services             Service[]
+  invoices             Invoice[]
+  subscription         Subscription?
+  scheduleExceptions   ScheduleException[]
 }
 
 model Session {
@@ -133,6 +134,42 @@ enum FacturXStatus {
   EN16931_CANDIDATE
 }
 
+// --- NOTIFICATION ENUMS ---
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+}
+
+enum NotificationProvider {
+  RESEND
+  SMSMODE
+}
+
+enum NotificationKind {
+  BOOKING_CONFIRMATION
+  BOOKING_CANCELLATION
+  REMINDER_J3
+  REMINDER_J2
+  REMINDER_J1
+  REMINDER_H1
+}
+
+enum NotificationStatus {
+  CREATED
+  SENT
+  ENROUTE
+  DELIVERED
+  DELIVERY_DELAYED
+  FAILED
+  BOUNCED
+  UNDELIVERABLE
+  UNDELIVERED
+  COMPLAINED
+  SUPPRESSED
+  UNKNOWN
+}
+
 // --- SUBSCRIPTION MODELS ---
 
 enum SubscriptionStatus {
@@ -206,6 +243,13 @@ model Appointment {
 
   note          ConsultationNote?
   invoice       Invoice?
+
+  reminderJ3SentAt   DateTime?  @db.Timestamptz(3)
+  reminderJ2SentAt   DateTime?  @db.Timestamptz(3)
+  reminderJ1SentAt   DateTime?  @db.Timestamptz(3)
+  reminderH1SentAt   DateTime?  @db.Timestamptz(3)
+
+  notifications AppointmentNotification[]
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -348,4 +392,72 @@ model RateLimitBucket {
 
   @@unique([scope, key, windowStart])
   @@index([scope, windowStart])
+}
+
+// --- NOTIFICATION MODELS ---
+
+model AppointmentNotification {
+  id                String               @id @default(cuid())
+  appointmentId     String
+  appointment       Appointment          @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  kind              NotificationKind
+  channel           NotificationChannel
+  provider          NotificationProvider
+  recipient         String
+  providerMessageId String?
+  status            NotificationStatus   @default(CREATED)
+  providerStatus    String?
+  errorCode         String?
+  errorMessage      String?
+  sentAt            DateTime?            @db.Timestamptz(3)
+  deliveredAt       DateTime?            @db.Timestamptz(3)
+  failedAt          DateTime?            @db.Timestamptz(3)
+  lastEventAt       DateTime?            @db.Timestamptz(3)
+  metadata          Json?
+  events            AppointmentNotificationEvent[]
+  createdAt         DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime             @updatedAt @db.Timestamptz(3)
+
+  @@index([appointmentId, kind, channel])
+  @@index([status])
+  @@unique([provider, providerMessageId])
+}
+
+model AppointmentNotificationEvent {
+  id                String               @id @default(cuid())
+  notificationId    String
+  notification      AppointmentNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  source            NotificationProvider
+  externalEventType String
+  externalStatus    String?
+  dedupeKey         String               @unique
+  payload           Json
+  receivedAt        DateTime             @default(now()) @db.Timestamptz(3)
+
+  @@index([notificationId, receivedAt])
+}
+
+// --- SCHEDULE EXCEPTION MODELS ---
+
+enum ScheduleExceptionType {
+  ADDED
+  BLOCKED
+}
+
+model ScheduleException {
+  id        String                @id @default(cuid())
+  userId    String
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date      DateTime              @db.Date
+  type      ScheduleExceptionType
+  startTime String?
+  endTime   String?
+  reason    String?
+
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+
+  @@index([userId, date])
+  @@index([userId, type, date])
 }

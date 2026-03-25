@@ -4,7 +4,8 @@ import Link from "next/link"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Mail, Phone, MapPin, Calendar, StickyNote } from "lucide-react"
+import { Mail, Phone, MapPin, Calendar, StickyNote, ExternalLink } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { useTranslations, useLocale } from "next-intl"
 import { extractTextFromTipTap } from "@/lib/consultation-note"
 
@@ -86,6 +87,16 @@ export function PatientFile({ patient, onNavigate }: PatientFileProps) {
                 </section>
             )}
 
+            {/* Full Profile Link */}
+            <div className="flex justify-center">
+                <Button variant="outline" size="sm" asChild>
+                    <Link href={`/dashboard/patients/${patientData.id}`}>
+                        <ExternalLink className="mr-2 h-3.5 w-3.5" />
+                        {t('viewFullProfile')}
+                    </Link>
+                </Button>
+            </div>
+
             {/* Consultation History */}
             <section>
                 <div className="flex items-center gap-2 mb-3">
@@ -103,7 +114,7 @@ export function PatientFile({ patient, onNavigate }: PatientFileProps) {
                             patientData.appointments.map((appointment) => (
                                 <Link
                                     key={appointment.id}
-                                    href={`/dashboard/consultation/${appointment.id}?from=patient`}
+                                    href={`/dashboard/consultation/${appointment.id}/detail?from=patient`}
                                     onClick={onNavigate}
                                     className="block rounded-xl border bg-white p-3.5 hover:bg-slate-50 transition-colors"
                                 >

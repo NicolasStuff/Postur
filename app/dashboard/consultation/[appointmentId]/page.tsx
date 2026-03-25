@@ -101,6 +101,14 @@ export default function ConsultationPage({
     const from = searchParams.get("from")
     const patientId = searchParams.get("patient")
 
+    if (from === "detail") {
+      return `/dashboard/consultation/${appointmentId}/detail`
+    }
+
+    if (from === "patientDetail" && patientId) {
+      return `/dashboard/patients/${patientId}`
+    }
+
     if (from === "consultations") {
       return patientId ? `/dashboard/consultations?patient=${patientId}` : "/dashboard/consultations"
     }
@@ -149,7 +157,7 @@ export default function ConsultationPage({
   }
 
   return (
-    <div className="flex h-screen flex-col bg-slate-50/50">
+    <div className="-m-6 h-[calc(100%+3rem)] flex h-screen flex-col bg-slate-50/50">
       <div className="shrink-0">
         <ConsultationHeader
           practitionerName={practitionerName}

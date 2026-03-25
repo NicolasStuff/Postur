@@ -90,6 +90,20 @@ export async function getConsultation(appointmentId: string) {
           status: true,
         },
       },
+      notifications: {
+        select: {
+          id: true,
+          kind: true,
+          channel: true,
+          provider: true,
+          status: true,
+          sentAt: true,
+          deliveredAt: true,
+          errorMessage: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: "asc" },
+      },
       patient: {
         include: {
           appointments: {

@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query"
 import { getPatients } from "@/app/actions/patients"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { CreateAppointmentDialog } from "@/components/calendar/CreateAppointmentDialog"
 import { useTranslations } from "next-intl"
 
@@ -76,11 +77,16 @@ export function PatientList() {
                 )}
                 {filteredPatients?.map((patient) => (
                     <TableRow key={patient.id}>
-                        <TableCell className="flex items-center gap-3 font-medium">
-                            <Avatar className="h-8 w-8">
-                                <AvatarFallback>{patient.firstName[0]}{patient.lastName[0]}</AvatarFallback>
-                            </Avatar>
-                            {patient.firstName} {patient.lastName}
+                        <TableCell className="font-medium">
+                            <Link
+                              href={`/dashboard/patients/${patient.id}`}
+                              className="flex items-center gap-3 hover:underline"
+                            >
+                              <Avatar className="h-8 w-8">
+                                  <AvatarFallback>{patient.firstName[0]}{patient.lastName[0]}</AvatarFallback>
+                              </Avatar>
+                              {patient.firstName} {patient.lastName}
+                            </Link>
                         </TableCell>
                         <TableCell>
                             {patient.email && <div>{patient.email}</div>}
@@ -91,6 +97,9 @@ export function PatientList() {
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4"/></Button></DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => router.push(`/dashboard/patients/${patient.id}`)}>
+                                      {t('viewProfile')}
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => router.push(`/dashboard/consultations?patient=${patient.id}`)}>
                                       {t('viewHistory')}
                                     </DropdownMenuItem>

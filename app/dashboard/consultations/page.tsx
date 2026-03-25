@@ -231,7 +231,7 @@ export default function ConsultationsPage() {
                 className="cursor-pointer"
                 onClick={() =>
                   router.push(
-                    `/dashboard/consultation/${consultation.id}?from=consultations${
+                    `/dashboard/consultation/${consultation.id}/detail?from=consultations${
                       patientFilter ? `&patient=${patientFilter}` : ""
                     }`
                   )
@@ -296,7 +296,7 @@ export default function ConsultationsPage() {
                     onClick={(event) => {
                       event.stopPropagation()
                       router.push(
-                        `/dashboard/consultation/${consultation.id}?from=consultations${
+                        `/dashboard/consultation/${consultation.id}/detail?from=consultations${
                           patientFilter ? `&patient=${patientFilter}` : ""
                         }`
                       )
