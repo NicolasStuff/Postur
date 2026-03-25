@@ -195,6 +195,7 @@ export class DeepgramTranscriptionProvider {
         },
         body: input.audioBody,
         cache: "no-store",
+        // Workaround: duplex "half" is required for streaming a ReadableStream body with fetch in Node.js
         duplex: "half",
       } as RequestInit & { duplex: "half" }
     )

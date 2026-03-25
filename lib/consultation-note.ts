@@ -293,8 +293,13 @@ export function normalizeConsultationContent(value: unknown): ConsultationNoteCo
 
 function deepMergeRecords(
   current: Record<string, unknown>,
-  patch: Record<string, unknown>
+  patch: Record<string, unknown>,
+  depth: number = 0
 ): Record<string, unknown> {
+  if (depth >= 10) {
+    return patch
+  }
+
   const result: Record<string, unknown> = { ...current }
 
   for (const [key, value] of Object.entries(patch)) {
@@ -303,7 +308,7 @@ function deepMergeRecords(
     }
 
     if (isPlainObject(value) && isPlainObject(result[key])) {
-      result[key] = deepMergeRecords(result[key] as Record<string, unknown>, value)
+      result[key] = deepMergeRecords(result[key] as Record<string, unknown>, value, depth + 1)
       continue
     }
 

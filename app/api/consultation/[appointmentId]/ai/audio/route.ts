@@ -112,7 +112,11 @@ async function sniffAudioUpload(file: File) {
       pump()
     },
     cancel(reason) {
-      return reader.cancel(reason)
+      try {
+        return reader.cancel(reason)
+      } catch {
+        // Ignore internal reader cancel errors
+      }
     },
   })
 
@@ -164,6 +168,11 @@ export async function POST(
     }
 
     const { appointmentId } = await context.params
+
+    if (!appointmentId || typeof appointmentId !== 'string' || appointmentId.trim() === '') {
+      return NextResponse.json({ error: "Invalid appointment ID" }, { status: 400 })
+    }
+
     const formData = await request.formData()
     const file = formData.get("file")
     const sourceValue = formData.get("source")

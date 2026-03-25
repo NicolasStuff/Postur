@@ -2,6 +2,9 @@ import { z } from "zod"
 
 import { PatientRecap, SmartNoteSuggestion, SoapDraft } from "@/lib/consultation-note"
 
+const OPENAI_MODEL_MINI = process.env.OPENAI_MODEL_MINI ?? "gpt-5-mini"
+const OPENAI_MODEL_FULL = process.env.OPENAI_MODEL_FULL ?? "gpt-5.4"
+
 const smartNotesSchema = z.object({
   suggestions: z.array(
     z.object({
@@ -132,14 +135,23 @@ async function requestStructuredJson<T>({
     throw new Error("OpenAI returned an empty response")
   }
 
-  const parsedContent = JSON.parse(extractJsonPayload(rawContent))
-  return schema.parse(parsedContent)
+  let parsed;
+  try {
+    parsed = JSON.parse(extractJsonPayload(rawContent))
+  } catch (e) {
+    throw new Error(`Failed to parse AI response as JSON: ${e instanceof Error ? e.message : 'unknown error'}`)
+  }
+  try {
+    return schema.parse(parsed)
+  } catch (e) {
+    throw new Error(`AI response does not match expected schema: ${e instanceof Error ? e.message : 'unknown error'}`)
+  }
 }
 
 export class OpenAIClinicalGenerationProvider {
   async generateSmartNotes(input: SmartNoteGenerationInput): Promise<SmartNoteSuggestion[]> {
     const result = await requestStructuredJson({
-      model: "gpt-5-mini",
+      model: OPENAI_MODEL_MINI,
       schema: smartNotesSchema,
       systemPrompt: [
         "Tu es un assistant clinique pour ostéopathes.",
@@ -172,7 +184,7 @@ export class OpenAIClinicalGenerationProvider {
 
   async generateSoapDraft(input: SoapDraftGenerationInput): Promise<SoapDraft> {
     const result = await requestStructuredJson({
-      model: "gpt-5.4",
+      model: OPENAI_MODEL_FULL,
       schema: soapDraftSchema,
       systemPrompt: [
         "Tu rédiges des brouillons de notes SOAP pour une séance d'ostéopathie.",
@@ -200,13 +212,13 @@ export class OpenAIClinicalGenerationProvider {
     return {
       ...result,
       generatedAt: new Date().toISOString(),
-      model: "gpt-5.4",
+      model: OPENAI_MODEL_FULL,
     }
   }
 
   async generatePatientRecap(input: PatientRecapGenerationInput): Promise<PatientRecap> {
     const result = await requestStructuredJson({
-      model: "gpt-5.4",
+      model: OPENAI_MODEL_FULL,
       schema: patientRecapSchema,
       systemPrompt: [
         "Tu rédiges un compte-rendu patient post-séance pour un logiciel d'ostéopathie.",
@@ -234,7 +246,7 @@ export class OpenAIClinicalGenerationProvider {
     return {
       ...result,
       generatedAt: new Date().toISOString(),
-      model: "gpt-5.4",
+      model: OPENAI_MODEL_FULL,
     }
   }
 }
