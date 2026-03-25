@@ -5,13 +5,15 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const isDevelopment = process.env.NODE_ENV !== "production"
+// 'unsafe-inline' required for Next.js inline scripts and styles.
+// TODO: migrate to nonce-based CSP when Next.js App Router supports it natively.
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com${isDevelopment ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://*.axept.io https://static.axept.io${isDevelopment ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https://www.googletagmanager.com",
   "font-src 'self' data:",
-  `connect-src 'self' https://cdnjs.cloudflare.com${isDevelopment ? " ws: http://localhost:* http://127.0.0.1:*" : ""}`,
+  `connect-src 'self' https://cdnjs.cloudflare.com https://www.google-analytics.com https://*.axept.io${isDevelopment ? " ws: http://localhost:* http://127.0.0.1:*" : ""}`,
   "object-src 'none'",
   "base-uri 'self'",
   "frame-ancestors 'self'",
