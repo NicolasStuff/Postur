@@ -77,8 +77,12 @@ export function AudioSoapModal({
   const isUnmountingRef = useRef(false)
   const transcribeRequestRef = useRef(0)
   const audioChunksRef = useRef<Blob[]>([])
-  const { modalEditorRef, handleModalEditorChange, syncAndClose } = useModalEditorSync(editorContent, onEditorContentSync)
   const [open, setOpen] = useState(false)
+  const { modalEditorRef, handleModalEditorChange, syncAndClose } = useModalEditorSync(
+    open,
+    editorContent,
+    onEditorContentSync
+  )
   const [isRecording, setIsRecording] = useState(false)
   const [recordingDurationMs, setRecordingDurationMs] = useState(0)
   const [isTranscribing, setIsTranscribing] = useState(false)

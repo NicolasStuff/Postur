@@ -22,6 +22,7 @@ interface ConsultationEditorProps {
 export interface ConsultationEditorRef {
     insertText: (text: string) => void
     setContent: (content: Parameters<Editor['commands']['setContent']>[0]) => void
+    getContent: () => ReturnType<Editor["getJSON"]> | null
 }
 
 export const ConsultationEditor = forwardRef<ConsultationEditorRef, ConsultationEditorProps>(
@@ -66,6 +67,13 @@ export const ConsultationEditor = forwardRef<ConsultationEditorRef, Consultation
       if (editor) {
         editor.commands.setContent(content || '<p></p>')
       }
+    },
+    getContent: () => {
+      if (!editor) {
+        return null
+      }
+
+      return editor.getJSON()
     },
   }), [editor])
 

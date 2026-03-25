@@ -65,8 +65,12 @@ export function SuggestionsModal({
   const t = useTranslations("consultation.osteopath.ai")
   const smartNotesRef = useRef(aiState.smartNotes)
   const suggestionRequestRef = useRef(0)
-  const { modalEditorRef, handleModalEditorChange, syncAndClose } = useModalEditorSync(editorContent, onEditorContentSync)
   const [open, setOpen] = useState(false)
+  const { modalEditorRef, handleModalEditorChange, syncAndClose } = useModalEditorSync(
+    open,
+    editorContent,
+    onEditorContentSync
+  )
   const [smartNotesLoading, setSmartNotesLoading] = useState(false)
   const [smartNotesError, setSmartNotesError] = useState<string | null>(null)
   const [editedSuggestions, setEditedSuggestions] = useState<Record<string, string>>({})
