@@ -61,7 +61,7 @@ export function PatientConsultationsTab({ patient }: { patient: PatientDetail })
               <TableRow key={appointment.id}>
                 <TableCell>
                   <Link
-                    href={`/dashboard/consultation/${appointment.id}?from=patientDetail&patient=${patient.id}`}
+                    href={`/dashboard/consultation/${appointment.id}/detail?from=patientDetail&patient=${patient.id}`}
                     className="text-primary hover:underline"
                   >
                     {format(new Date(appointment.start), "dd/MM/yyyy", {
