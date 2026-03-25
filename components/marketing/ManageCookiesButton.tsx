@@ -19,7 +19,7 @@ export function ManageCookiesButton({
         openCookiePreferences()
       }}
     >
-      Gérer mes cookies
+      Gérer mes cookies {/* TODO: move to i18n */}
     </Button>
   )
 }

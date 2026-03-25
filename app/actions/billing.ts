@@ -231,7 +231,15 @@ function buildStructuredInvoiceArtifacts(input: {
 function mapInvoiceListItem(
   invoice: Prisma.InvoiceGetPayload<{
     include: {
-      patient: true
+      patient: {
+        select: {
+          id: true
+          firstName: true
+          lastName: true
+          email: true
+          address: true
+        }
+      }
       appointment: {
         select: {
           id: true
@@ -361,7 +369,15 @@ export async function getInvoices() {
   const invoices = await prisma.invoice.findMany({
     where: { userId },
     include: {
-      patient: true,
+      patient: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          address: true,
+        },
+      },
       appointment: {
         select: {
           id: true,

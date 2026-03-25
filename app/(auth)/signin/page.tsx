@@ -30,7 +30,7 @@ export default function AuthPage() {
       password,
     }, {
       onSuccess: () => {
-        window.location.href = "/dashboard"
+        window.location.href = "/onboarding"
       },
       onError: (ctx) => {
         setError(ctx.error.message)

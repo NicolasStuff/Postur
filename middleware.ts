@@ -13,6 +13,8 @@ const FRENCH_ONLY_ROUTES = [
   '/',
   '/signin',
   '/signup',
+  '/forgot-password',
+  '/reset-password',
 ]
 
 /**
@@ -112,6 +114,7 @@ export async function middleware(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 365, // 1 year
       path: '/',
       sameSite: 'lax',
+      httpOnly: true,
     })
 
     return response

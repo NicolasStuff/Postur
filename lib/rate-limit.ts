@@ -1,3 +1,7 @@
+// Rate limiting implementation using database-backed buckets.
+// Note: Under high load, DB-backed rate limiting may create contention.
+// Consider migrating to Redis or in-memory solution if rate limit checks
+// become a performance bottleneck.
 import { prisma } from "@/lib/prisma"
 
 export class RateLimitExceededError extends Error {

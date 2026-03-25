@@ -19,6 +19,7 @@ import { toast } from "sonner"
 import { useTranslations, useLocale } from "next-intl"
 import { LanguageSelector } from "./LanguageSelector"
 
+// Module-level: safe because getPublicBookingHost reads process.env which is available at module load
 const BOOKING_HOST = getPublicBookingHost()
 
 export function ProfileSettings() {
@@ -79,6 +80,7 @@ export function ProfileSettings() {
         mutationFn: setAiBetaParticipation,
         onSuccess: (_, enabled) => {
             queryClient.invalidateQueries({ queryKey: ['userProfile'] })
+            // TODO: move to i18n translations
             toast.success(
                 enabled
                     ? (locale === "fr"
@@ -198,6 +200,7 @@ export function ProfileSettings() {
             <div className="border-t pt-6 space-y-4">
                 <div className="flex flex-col gap-3 rounded-2xl border bg-slate-50/70 p-5 md:flex-row md:items-center md:justify-between">
                     <div className="space-y-2">
+                        {/* TODO: move to i18n translations */}
                         <div className="flex items-center gap-2">
                             <h3 className="text-sm font-semibold text-slate-900">
                                 {locale === "fr" ? "Bêta IA clinique" : "Clinical AI beta"}
@@ -220,6 +223,7 @@ export function ProfileSettings() {
                         disabled={aiBetaMutation.isPending}
                     >
                         {aiBetaMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {/* TODO: move to i18n translations */}
                         {user?.aiBetaEnabled
                             ? (locale === "fr" ? "Désactiver" : "Disable")
                             : (locale === "fr" ? "Activer la bêta" : "Enable beta")}

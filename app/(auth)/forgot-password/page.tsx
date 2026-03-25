@@ -20,7 +20,7 @@ export default function ForgotPasswordPage() {
     setIsLoading(true)
     setError("")
 
-    const { error } = await authClient.requestPasswordReset({
+    const { error: _error } = await authClient.requestPasswordReset({
       email,
       redirectTo: "/reset-password",
     })

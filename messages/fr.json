@@ -230,7 +230,7 @@
           "pectoralRight": "Pectoral droit",
           "ribsLeft": "Côtes gauches",
           "ribsRight": "Côtes droites",
-          "abdominalsLeft": "Adbominaux gauches",
+          "abdominalsLeft": "Abdominaux gauches",
           "abdominalsRight": "Abdominaux droits",
           "obliquesLeft": "Obliques gauches",
           "obliquesRight": "Obliques droits",
@@ -264,7 +264,7 @@
           "wristLeft": "Poignet gauche (post.)",
           "wristRight": "Poignet droit (post.)",
           "handLeft": "Main gauche (post.) (face dorsale)",
-          "handRight": "Main droit (post.) (face dorsale)",
+          "handRight": "Main droite (post.) (face dorsale)",
           "spine": "Colonne vertébrale",
           "scapularLeft": "Région scapulaire gauche",
           "scapularRight": "Région scapulaire droite",
@@ -281,7 +281,7 @@
           "calfLeft": "Mollet gauche",
           "calfRight": "Mollet droit",
           "ankleLeft": "Cheville gauche (post.)",
-          "ankleRight": "Chevile droite (post.)",
+          "ankleRight": "Cheville droite (post.)",
           "footLeft": "Pied gauche (post.)",
           "footRight": "Pied droit (post.)"
         }

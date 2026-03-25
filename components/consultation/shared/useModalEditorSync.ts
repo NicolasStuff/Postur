@@ -6,6 +6,7 @@ export function useModalEditorSync(
   onEditorContentSync: (content: unknown) => void
 ) {
   const modalEditorRef = useRef<ConsultationEditorRef>(null)
+  // Intentionally not synced from parent — the modal owns its own editor state while open
   const modalEditorContentRef = useRef<unknown>(editorContent)
 
   const handleModalEditorChange = useCallback((content: unknown) => {

@@ -9,7 +9,6 @@ import {
   useRef,
   useState,
 } from "react"
-import { useQuery } from "@tanstack/react-query"
 import { Prisma } from "@prisma/client"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
@@ -17,7 +16,6 @@ import { Clock, FileText, History, Loader2, User } from "lucide-react"
 
 import {
   getBodyChartHistory,
-  getConsultationAIAccess,
   grantAIFeaturesConsent,
   saveBodyChartHistory,
 } from "@/app/actions/consultation"
@@ -74,9 +72,18 @@ interface Consultation {
   } | null
 }
 
+interface AIAccess {
+  hasConsent: boolean
+  anyAI: boolean
+  audioSoap: boolean
+  smartNotesLive: boolean
+  patientRecap: boolean
+}
+
 interface OsteopathConsultationProps {
   consultation: Consultation
   onSave: (data: Prisma.InputJsonValue) => Promise<unknown>
+  aiAccess?: AIAccess | null
 }
 
 export interface OsteopathConsultationRef {
@@ -134,12 +141,8 @@ function buildAIStatePatch(
 export const OsteopathConsultation = forwardRef<
   OsteopathConsultationRef,
   OsteopathConsultationProps
->(function OsteopathConsultation({ consultation, onSave }, ref) {
+>(function OsteopathConsultation({ consultation, onSave, aiAccess }, ref) {
   const t = useTranslations("consultation.osteopath")
-  const { data: aiAccess } = useQuery({
-    queryKey: ["consultation-ai-access"],
-    queryFn: () => getConsultationAIAccess(),
-  })
   const [editorContent, setEditorContent] = useState<unknown>(() => {
     return getConsultationContent(consultation).editor || null
   })
@@ -154,10 +157,13 @@ export const OsteopathConsultation = forwardRef<
   const [showHistory, setShowHistory] = useState(false)
   const [consentOpen, setConsentOpen] = useState(false)
   const [consentLoading, setConsentLoading] = useState(false)
-  const [hasConsentOverride, setHasConsentOverride] = useState(aiAccess?.hasConsent ?? false)
+  const [hasConsentOverride, setHasConsentOverride] = useState<boolean | undefined>(
+    aiAccess?.hasConsent
+  )
   const [history, setHistory] = useState<BodyChartHistoryItem[]>([])
   const [bodyChartRetryNonce, setBodyChartRetryNonce] = useState(0)
-  const hasConsent = aiAccess?.hasConsent || hasConsentOverride
+  const aiAccessLoaded = aiAccess !== undefined
+  const hasConsent = aiAccess?.hasConsent || hasConsentOverride || false
   const noteText = useMemo(() => extractTextFromTipTap(editorContent), [editorContent])
   const editorRef = useRef<ConsultationEditorRef>(null)
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -193,10 +199,6 @@ export const OsteopathConsultation = forwardRef<
       ai: aiState,
     })
   ), [aiState, bodyChartParts, editorContent])
-  const buildEditorPatch = useCallback((): Prisma.InputJsonValue => ({
-    editor: (editorContent ?? null) as Prisma.InputJsonValue,
-    bodyChart: bodyChartParts,
-  }), [bodyChartParts, editorContent])
   const onSaveRef = useRef(onSave)
   onSaveRef.current = onSave
 
@@ -248,12 +250,15 @@ export const OsteopathConsultation = forwardRef<
   useEffect(() => {
     const timer = setTimeout(() => {
       if (editorContent || bodyChartParts.length > 0) {
-        void onSaveRef.current(buildEditorPatch())
+        void onSaveRef.current({
+          editor: (editorContent ?? null) as Prisma.InputJsonValue,
+          bodyChart: bodyChartParts,
+        })
       }
     }, 2000)
 
     return () => clearTimeout(timer)
-  }, [bodyChartParts, buildEditorPatch, editorContent])
+  }, [bodyChartParts, editorContent])
 
   useEffect(() => {
     const persistLatestAIState = async () => {
@@ -319,7 +324,7 @@ export const OsteopathConsultation = forwardRef<
 
     const timer = window.setTimeout(() => {
       void persistLatestAIState()
-    }, 2000)
+    }, 3000)
 
     return () => window.clearTimeout(timer)
   }, [aiState, t])
@@ -382,10 +387,10 @@ export const OsteopathConsultation = forwardRef<
   }, [aiAccess?.hasConsent])
 
   useEffect(() => {
-    if (aiAccess?.anyAI && !hasConsent) {
+    if (aiAccessLoaded && aiAccess?.anyAI && !hasConsent) {
       setConsentOpen(true)
     }
-  }, [aiAccess?.anyAI, hasConsent])
+  }, [aiAccessLoaded, aiAccess?.anyAI, hasConsent])
 
   const handleQuickNote = (text: string) => {
     editorRef.current?.insertText(text)

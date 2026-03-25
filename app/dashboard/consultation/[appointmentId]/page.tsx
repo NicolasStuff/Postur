@@ -170,6 +170,7 @@ export default function ConsultationPage({
           ref={consultationRef}
           consultation={consultation}
           onSave={handleAutosave}
+          aiAccess={aiAccess}
         />
       </div>
 

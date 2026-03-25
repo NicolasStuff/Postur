@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { CheckCircle2, Loader2 } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { toast } from "sonner"
 
 import {
   createPublicAppointment,
@@ -60,7 +61,7 @@ export function BookingFlow({ practitioner, slug }: BookingFlowProps) {
   const mutation = useMutation({
     mutationFn: createPublicAppointment,
     onSuccess: () => setStep("success"),
-    onError: (err) => alert(err.message),
+    onError: (err) => toast.error(err.message),
   })
 
   const handleConfirm = () => {

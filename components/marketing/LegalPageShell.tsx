@@ -20,6 +20,7 @@ export function LegalPageShell({
           <Link href="/" className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-900">
             POSTUR
           </Link>
+          {/* TODO: move to i18n */}
           <Link href="/" className="text-sm text-slate-500 hover:text-slate-900">
             Retour à l’accueil
           </Link>

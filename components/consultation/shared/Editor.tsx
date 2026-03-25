@@ -21,7 +21,7 @@ interface ConsultationEditorProps {
 
 export interface ConsultationEditorRef {
     insertText: (text: string) => void
-    setContent: (content: unknown) => void
+    setContent: (content: Parameters<ReturnType<typeof useEditor>['commands']['setContent']>[0]) => void
 }
 
 export const ConsultationEditor = forwardRef<ConsultationEditorRef, ConsultationEditorProps>(

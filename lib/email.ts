@@ -2,6 +2,15 @@ import { Resend } from "resend"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 const EMAIL_FROM = process.env.EMAIL_FROM || "Postur <facturation@postur.fr>"
 
 interface SendInvoiceEmailParams {
@@ -29,12 +38,20 @@ export async function sendInvoiceEmail({
   pdfBuffer,
   recapPdfBuffer,
 }: SendInvoiceEmailParams) {
+  const safePatientName = escapeHtml(patientName)
+  const safeIssuerName = escapeHtml(issuerName)
+  const safeInvoiceNumber = escapeHtml(invoiceNumber)
+  const safeInvoiceDate = escapeHtml(invoiceDate)
+  const safeTotalAmount = escapeHtml(totalAmount)
+  const safeIssuerAddress = issuerAddress ? escapeHtml(issuerAddress) : null
+  const safeIssuerSiret = issuerSiret ? escapeHtml(issuerSiret) : null
+
   const footerParts = [
-    issuerAddress
-      ? `<p style="margin:0 0 2px;font-size:12px;color:#94a3b8;line-height:1.5;">${issuerAddress}</p>`
+    safeIssuerAddress
+      ? `<p style="margin:0 0 2px;font-size:12px;color:#94a3b8;line-height:1.5;">${safeIssuerAddress}</p>`
       : "",
-    issuerSiret
-      ? `<p style="margin:0;font-size:12px;color:#94a3b8;">SIRET\u00a0: ${issuerSiret}</p>`
+    safeIssuerSiret
+      ? `<p style="margin:0;font-size:12px;color:#94a3b8;">SIRET\u00a0: ${safeIssuerSiret}</p>`
       : "",
   ]
     .filter(Boolean)
@@ -53,7 +70,7 @@ export async function sendInvoiceEmail({
           <tr>
             <td style="padding:32px 36px 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
               <p style="margin:0 0 24px;font-size:18px;font-weight:700;color:#0f172a;letter-spacing:-0.025em;">Postur</p>
-              <p style="margin:0 0 8px;font-size:15px;color:#0f172a;line-height:1.6;">Bonjour ${patientName},</p>
+              <p style="margin:0 0 8px;font-size:15px;color:#0f172a;line-height:1.6;">Bonjour ${safePatientName},</p>
               <p style="margin:0 0 24px;font-size:15px;color:#475569;line-height:1.6;">${recapPdfBuffer ? "Veuillez trouver ci-joint votre facture et le compte-rendu de votre consultation." : "Veuillez trouver ci-joint votre facture."}</p>
             </td>
           </tr>
@@ -62,21 +79,21 @@ export async function sendInvoiceEmail({
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;border-collapse:collapse;">
                 <tr>
                   <td style="padding:16px 20px 12px;font-size:13px;color:#64748b;">N° Facture</td>
-                  <td style="padding:16px 20px 12px;font-size:14px;color:#0f172a;font-weight:600;text-align:right;">${invoiceNumber}</td>
+                  <td style="padding:16px 20px 12px;font-size:14px;color:#0f172a;font-weight:600;text-align:right;">${safeInvoiceNumber}</td>
                 </tr>
                 <tr>
                   <td colspan="2" style="padding:0 20px;"><div style="border-top:1px solid #e2e8f0;"></div></td>
                 </tr>
                 <tr>
                   <td style="padding:12px 20px;font-size:13px;color:#64748b;">Date</td>
-                  <td style="padding:12px 20px;font-size:14px;color:#0f172a;text-align:right;">${invoiceDate}</td>
+                  <td style="padding:12px 20px;font-size:14px;color:#0f172a;text-align:right;">${safeInvoiceDate}</td>
                 </tr>
                 <tr>
                   <td colspan="2" style="padding:0 20px;"><div style="border-top:1px solid #e2e8f0;"></div></td>
                 </tr>
                 <tr>
                   <td style="padding:12px 20px 16px;font-size:13px;color:#64748b;">Montant total</td>
-                  <td style="padding:12px 20px 16px;font-size:18px;color:#0f172a;font-weight:700;text-align:right;">${totalAmount}</td>
+                  <td style="padding:12px 20px 16px;font-size:18px;color:#0f172a;font-weight:700;text-align:right;">${safeTotalAmount}</td>
                 </tr>
               </table>
             </td>
@@ -91,7 +108,7 @@ export async function sendInvoiceEmail({
           </tr>
           <tr>
             <td style="padding:20px 36px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-              <p style="margin:0 0 2px;font-size:13px;color:#475569;font-weight:600;">${issuerName}</p>
+              <p style="margin:0 0 2px;font-size:13px;color:#475569;font-weight:600;">${safeIssuerName}</p>
               ${footerParts}
               <p style="margin:12px 0 0;font-size:11px;color:#cbd5e1;">Envoyé via Postur</p>
             </td>
@@ -136,7 +153,7 @@ export async function sendResetPasswordEmail({
     html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px 0;">
         <p style="color: #1e293b; font-size: 15px; line-height: 1.6; margin: 0 0 16px;">
-          Bonjour${name ? ` ${name}` : ""},
+          Bonjour${name ? ` ${escapeHtml(name)}` : ""},
         </p>
         <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
           Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous pour en choisir un nouveau.

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { CalendarDays, Loader2, ReceiptText, UserRound } from "lucide-react"
 import { useTranslations } from "next-intl"
 
@@ -73,11 +73,18 @@ export function ConsultationBillingForm({
     amount: 0,
     date: "",
   })
+  const lastSyncedDraftRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (!draft) {
       return
     }
+
+    const draftSnapshot = JSON.stringify(draft)
+    if (lastSyncedDraftRef.current === draftSnapshot) {
+      return
+    }
+    lastSyncedDraftRef.current = draftSnapshot
 
     setFormState({
       firstName: draft.patientSnapshot.firstName,

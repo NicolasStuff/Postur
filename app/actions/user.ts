@@ -173,7 +173,7 @@ export async function updateUserProfile(data: {
         throw new Error(await getErrorMessage("invalidSlug"));
     }
     if (slugValidationError === "reserved") {
-            throw new Error(await getErrorMessage("reservedSlug"));
+        throw new Error(await getErrorMessage("reservedSlug"));
     }
 
     const siretValidationError = getSiretValidationError(nextProfile.siret)

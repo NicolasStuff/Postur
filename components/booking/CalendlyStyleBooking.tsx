@@ -9,6 +9,7 @@ import { createPublicAppointment, getPublicAvailableSlots, PublicPractitioner } 
 import { Loader2, CheckCircle2, Clock, ChevronLeft, ChevronRight, ArrowLeft, Globe, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslations } from 'next-intl'
+import { toast } from "sonner"
 
 interface Service {
     id: string
@@ -69,7 +70,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
     const mutation = useMutation({
         mutationFn: createPublicAppointment,
         onSuccess: () => setStep('success'),
-        onError: (err) => alert(err.message)
+        onError: (err) => toast.error(err.message)
     })
 
     // Calendar logic
@@ -86,6 +87,7 @@ export function CalendlyStyleBooking({ practitioner, slug }: CalendlyStyleBookin
 
     const { daysInMonth, startingDay, year, month } = getDaysInMonth(currentMonth)
 
+    // TODO: replace hardcoded French month/day names with i18n
     const monthNames = [
         'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
         'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'

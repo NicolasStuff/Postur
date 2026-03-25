@@ -43,7 +43,10 @@ export default function ResetPasswordPage() {
     await authClient.resetPassword(
       { newPassword: password, token },
       {
-        onSuccess: () => setSuccess(true),
+        onSuccess: () => {
+          setIsLoading(false)
+          setSuccess(true)
+        },
         onError: (ctx) => {
           setError(ctx.error.message || "Le lien est invalide ou expiré.")
           setIsLoading(false)

@@ -252,9 +252,27 @@ export async function getConsultation(appointmentId: string) {
           appointments: {
             orderBy: { start: "desc" },
             take: 5,
-            include: {
-              note: true,
-              service: true,
+            select: {
+              id: true,
+              start: true,
+              end: true,
+              status: true,
+              completedAt: true,
+              note: {
+                select: {
+                  id: true,
+                  createdAt: true,
+                  updatedAt: true,
+                },
+              },
+              service: {
+                select: {
+                  id: true,
+                  name: true,
+                  duration: true,
+                  price: true,
+                },
+              },
             },
           },
         },

@@ -34,7 +34,7 @@ export function NavMain({
       title: string
       url: string
     }[]
-    }[]
+  }[]
 }) {
   const pathname = usePathname()
   const currentPath = pathname.replace(/^\/(fr|en)(?=\/)/, "") || "/"

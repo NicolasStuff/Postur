@@ -207,9 +207,220 @@
         "removedPlural": "Removed",
         "selectedZones": "Selected areas"
       },
+      "bodyParts": {
+        "anterior": {
+          "head": "Head (ant.)",
+          "neckLeft": "Neck (L)",
+          "neckRight": "Neck (R)",
+          "trapLeft": "Left trapezius",
+          "trapRight": "Right trapezius",
+          "shoulderLeft": "Left shoulder (ant.)",
+          "shoulderRight": "Right shoulder (ant.)",
+          "bicepsLeft": "Left biceps",
+          "bicepsRight": "Right biceps",
+          "elbowLeft": "Left elbow (ant.)",
+          "elbowRight": "Right elbow (ant.)",
+          "forearmLeft": "Left forearm (ant.) (flexors)",
+          "forearmRight": "Right forearm (ant.) (flexors)",
+          "wristLeft": "Left wrist (ant.)",
+          "wristRight": "Right wrist (ant.)",
+          "handLeft": "Left hand (ant.) (palmar side)",
+          "handRight": "Right hand (ant.) (palmar side)",
+          "pectoralLeft": "Left pectoral",
+          "pectoralRight": "Right pectoral",
+          "ribsLeft": "Left ribs",
+          "ribsRight": "Right ribs",
+          "abdominalsLeft": "Left abdominals",
+          "abdominalsRight": "Right abdominals",
+          "obliquesLeft": "Left obliques",
+          "obliquesRight": "Right obliques",
+          "hipLeft": "Left hip",
+          "hipRight": "Right hip",
+          "quadricepsLeft": "Left quadriceps",
+          "quadricepsRight": "Right quadriceps",
+          "adductorLeft": "Left adductor",
+          "adductorRight": "Right adductor",
+          "kneeLeft": "Left knee (ant.)",
+          "kneeRight": "Right knee (ant.)",
+          "tibiaLeft": "Left tibia",
+          "tibiaRight": "Right tibia",
+          "ankleLeft": "Left ankle (ant.)",
+          "ankleRight": "Right ankle (ant.)",
+          "footLeft": "Left foot",
+          "footRight": "Right foot"
+        },
+        "posterior": {
+          "head": "Head (post.)",
+          "trapLeft": "Left trapezius",
+          "trapRight": "Right trapezius",
+          "shoulderLeft": "Left shoulder (post.)",
+          "shoulderRight": "Right shoulder (post.)",
+          "tricepsLeft": "Left triceps",
+          "tricepsRight": "Right triceps",
+          "elbowLeft": "Left elbow (post.)",
+          "elbowRight": "Right elbow (post.)",
+          "forearmLeft": "Left forearm (post.) (extensors)",
+          "forearmRight": "Right forearm (post.) (extensors)",
+          "wristLeft": "Left wrist (post.)",
+          "wristRight": "Right wrist (post.)",
+          "handLeft": "Left hand (post.) (dorsal side)",
+          "handRight": "Right hand (post.) (dorsal side)",
+          "spine": "Spine",
+          "scapularLeft": "Left scapular region",
+          "scapularRight": "Right scapular region",
+          "backLeft": "Back (left flank)",
+          "backRight": "Back (right flank)",
+          "lumbarLeft": "Left lumbar",
+          "lumbarRight": "Right lumbar",
+          "buttockLeft": "Left buttock",
+          "buttockRight": "Right buttock",
+          "hamstringsLeft": "Left hamstrings",
+          "hamstringsRight": "Right hamstrings",
+          "kneeLeft": "Left knee (post.)",
+          "kneeRight": "Right knee (post.)",
+          "calfLeft": "Left calf",
+          "calfRight": "Right calf",
+          "ankleLeft": "Left ankle (post.)",
+          "ankleRight": "Right ankle (post.)",
+          "footLeft": "Left foot (post.)",
+          "footRight": "Right foot (post.)"
+        }
+      },
       "errors": {
         "historySaveFailed": "Unable to save chart history",
         "aiSaveFailed": "Unable to save AI data"
+      }
+    },
+    "naturopath": {
+      "patientFile": "Patient File",
+      "anamnesis": {
+        "nutrition": {
+          "title": "Nutrition",
+          "mealsPerDay": "Meals per day",
+          "mealsPerDayPlaceholder": "E.g.: 3 meals + 1 snack",
+          "intolerances": "Intolerances",
+          "intolerancesPlaceholder": "Gluten, lactose...",
+          "hydration": "Hydration",
+          "hydrationPlaceholder": "E.g.: 1.5L/day",
+          "habits": "Habits",
+          "habitsPlaceholder": "Organic, homemade..."
+        },
+        "sleep": {
+          "title": "Sleep",
+          "hours": "Hours of sleep",
+          "hoursPlaceholder": "E.g.: 7h",
+          "wakeQuality": "Wake quality",
+          "wakeQualityPlaceholder": "Tired, energized...",
+          "difficulties": "Difficulties",
+          "difficultiesPlaceholder": "Insomnia, waking up..."
+        },
+        "activity": {
+          "title": "Physical Activity",
+          "frequency": "Frequency and type",
+          "frequencyPlaceholder": "Running 3x/week...",
+          "sedentary": "Sedentary lifestyle",
+          "sedentaryPlaceholder": "Desk 8h/day"
+        },
+        "stress": {
+          "title": "Stress Management",
+          "level": "Stress level",
+          "levelPlaceholder": "High, moderate...",
+          "sources": "Sources",
+          "sourcesPlaceholder": "Work, family...",
+          "techniques": "Techniques practiced",
+          "techniquesPlaceholder": "Meditation, breathing..."
+        },
+        "health": {
+          "title": "General Health",
+          "medicalHistory": "Medical history",
+          "medicalHistoryPlaceholder": "Illnesses, surgeries...",
+          "currentTreatments": "Current treatments",
+          "currentTreatmentsPlaceholder": "Medications, supplements...",
+          "symptoms": "Current symptoms",
+          "symptomsPlaceholder": "Fatigue, pain..."
+        },
+        "goals": {
+          "title": "Health Goals",
+          "desired": "Desired goals",
+          "desiredPlaceholder": "Energy, weight, digestion..."
+        }
+      },
+      "anamnesisQuestionnaire": "Anamnesis Questionnaire",
+      "consultationNotes": "Consultation Notes",
+      "phvBuilder": {
+        "title": "Vital Hygiene Program",
+        "adviceSingular": "advice",
+        "advicePlural": "advices",
+        "library": {
+          "button": "Library",
+          "title": "Advice Library",
+          "categories": {
+            "nutrition": "Nutrition",
+            "stress": "Stress Management",
+            "sleep": "Sleep",
+            "detox": "Detoxification",
+            "exercise": "Physical Activity",
+            "microbiome": "Microbiome",
+            "supplements": "Supplements"
+          },
+          "advice": {
+            "antiInflammatory": {
+              "title": "Anti-inflammatory Diet",
+              "description": "Favor omega-3 rich foods, avoid processed foods"
+            },
+            "hydration": {
+              "title": "Optimal Hydration",
+              "description": "Drink 1.5L to 2L of water per day, between meals"
+            },
+            "stressManagement": {
+              "title": "Stress Management Techniques",
+              "description": "Cardiac coherence 3x/day, daily meditation"
+            },
+            "restorativeSleep": {
+              "title": "Restorative Sleep",
+              "description": "Go to bed before 11 PM, avoid screens 1 hour before bedtime"
+            },
+            "liverDetox": {
+              "title": "Liver Detox",
+              "description": "Black radish and artichoke cure for 3 weeks"
+            },
+            "regularExercise": {
+              "title": "Regular Exercise",
+              "description": "30 minutes of moderate activity per day, 5 days per week"
+            },
+            "microbiomeSupport": {
+              "title": "Microbiome Support",
+              "description": "Daily probiotics and fermented foods"
+            },
+            "vitaminD": {
+              "title": "Vitamin D",
+              "description": "Vitamin D3 supplementation during winter"
+            }
+          }
+        },
+        "emptyState": {
+          "title": "Empty program",
+          "description": "Start building the Vital Hygiene Program by adding advice from the library",
+          "addButton": "Add advice"
+        },
+        "edit": {
+          "titleLabel": "Title",
+          "descriptionLabel": "Description",
+          "cancelButton": "Cancel",
+          "saveButton": "Save"
+        }
+      },
+      "phvGenerator": {
+        "libraryTitle": "Advice Library",
+        "programTitle": "Vital Hygiene Program",
+        "generatePdf": "Generate PDF",
+        "dragDropHint": "Drag and drop advice here to build the program",
+        "sampleAdvice": {
+          "antiInflammatory": "Anti-inflammatory Diet",
+          "stressManagement": "Stress Management",
+          "restorativeSleep": "Restorative Sleep",
+          "liverDetox": "Liver Detox"
+        }
       }
     }
   },
@@ -874,6 +1085,6 @@
     "databaseError": "Database error occurred",
     "invalidSlug": "The public booking URL is invalid",
     "reservedSlug": "This public booking URL is reserved",
-    "invalidSiret": "The SIRET number is invalid"
+    "invalidSiret": "The SIRET must contain 14 digits"
   }
 }

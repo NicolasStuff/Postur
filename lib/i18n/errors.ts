@@ -25,7 +25,12 @@ async function getLocale(): Promise<string> {
 }
 
 /**
- * Error message translations
+ * Server-side error message translations.
+ *
+ * These keys (ERROR_MESSAGES) are used by server actions and API routes.
+ * They are a SEPARATE system from the client-side translations in
+ * messages/en.json and messages/fr.json (which are loaded by next-intl).
+ * Both systems must be kept in sync manually when error wording changes.
  */
 const ERROR_MESSAGES: Record<string, Record<string, string>> = {
   en: {

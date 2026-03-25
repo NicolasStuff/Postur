@@ -109,6 +109,7 @@ enum AppointmentStatus {
   NOSHOW
 }
 
+/// Note: InvoiceStatus uses CANCELLED (UK spelling) vs AppointmentStatus CANCELED (US spelling)
 enum InvoiceStatus {
   DRAFT
   SENT
@@ -246,7 +247,9 @@ model Invoice {
 
   patientId     String
   patient       Patient   @relation(fields: [patientId, userId], references: [id, userId])
-  appointmentId String?   @unique
+  /// FK uses ON DELETE RESTRICT: cannot delete an appointment with an existing invoice.
+  /// Use cancelInvoice or deleteInvoice first.
+  appointmentId String?
   appointment   Appointment? @relation(fields: [appointmentId, userId], references: [id, userId])
 
   number        String
@@ -267,6 +270,7 @@ model Invoice {
   serviceName   String?
   issuerSnapshot Json?
   patientSnapshot Json?
+  /// JSON structure: Array<{ description: string, quantity: number, unitPrice: number, totalPrice: number }>
   lineItems     Json?
   facturXProfile FacturXProfile?
   facturXStatus FacturXStatus @default(INCOMPLETE)
@@ -317,6 +321,7 @@ model WebhookEvent {
 
 model AuditEvent {
   id           String   @id @default(cuid())
+  /// actorUserId/targetUserId are NOT FKs by design — allows logging even if user is deleted
   actorUserId  String
   targetUserId String?
   domain       String
@@ -331,6 +336,7 @@ model AuditEvent {
   @@index([entityType, entityId])
 }
 
+/// TODO: implement periodic cleanup job to purge expired rate limit entries
 model RateLimitBucket {
   id          String   @id @default(cuid())
   scope       String

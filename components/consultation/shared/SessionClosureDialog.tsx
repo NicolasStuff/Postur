@@ -352,7 +352,7 @@ function EditableList({
       <label className="text-sm font-semibold">{label}</label>
       <div className="space-y-2">
         {items.map((item, index) => (
-          <div key={index} className="flex items-center gap-2">
+          <div key={`${index}-${item.slice(0, 32)}`} className="flex items-center gap-2">
             <Input
               value={item}
               onChange={(e) => onChange(index, e.target.value)}

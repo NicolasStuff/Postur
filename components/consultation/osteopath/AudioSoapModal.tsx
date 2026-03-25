@@ -27,11 +27,13 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
 import {
   ConsultationAIState,
-  formatSoapDraftAsText,
   SoapDraftSection,
 } from "@/lib/consultation-note"
 import { ConsultationEditor } from "../shared/Editor"
 import { useModalEditorSync } from "../shared/useModalEditorSync"
+
+/** Visual starting point for the progress bar before real progress kicks in */
+const INITIAL_PROGRESS = 12
 
 type AIErrorCode =
   | "UNAUTHORIZED"
@@ -73,13 +75,14 @@ export function AudioSoapModal({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const mediaStreamRef = useRef<MediaStream | null>(null)
   const isUnmountingRef = useRef(false)
+  const transcribeRequestRef = useRef(0)
   const audioChunksRef = useRef<Blob[]>([])
   const { modalEditorRef, handleModalEditorChange, syncAndClose } = useModalEditorSync(editorContent, onEditorContentSync)
   const [open, setOpen] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [recordingDurationMs, setRecordingDurationMs] = useState(0)
   const [isTranscribing, setIsTranscribing] = useState(false)
-  const [transcriptionProgress, setTranscriptionProgress] = useState(12)
+  const [transcriptionProgress, setTranscriptionProgress] = useState(INITIAL_PROGRESS)
   const [editedSections, setEditedSections] = useState<SoapDraftSection[]>([])
 
   useEffect(() => {
@@ -141,6 +144,9 @@ export function AudioSoapModal({
   }, [])
 
   const handleTranscribeAudio = async (file: File, source: "recorded" | "uploaded") => {
+    const requestId = transcribeRequestRef.current + 1
+    transcribeRequestRef.current = requestId
+
     try {
       setIsTranscribing(true)
       setTranscriptionProgress(18)
@@ -162,6 +168,8 @@ export function AudioSoapModal({
         body: formData,
       })
 
+      if (isUnmountingRef.current || transcribeRequestRef.current !== requestId) return
+
       setTranscriptionProgress(66)
 
       const payload = (await response.json()) as {
@@ -171,6 +179,8 @@ export function AudioSoapModal({
         audioMeta?: ConsultationAIState["audioMeta"]
         soapDraft?: ConsultationAIState["soapDraft"]
       }
+
+      if (isUnmountingRef.current || transcribeRequestRef.current !== requestId) return
 
       if (!response.ok || !payload.transcript || !payload.audioMeta || !payload.soapDraft) {
         throw new Error(resolveAudioErrorMessage(payload.errorCode, payload.error))
@@ -186,11 +196,14 @@ export function AudioSoapModal({
       setTranscriptionProgress(100)
       toast.success(t("toasts.transcriptionReady"))
     } catch (error) {
+      if (isUnmountingRef.current || transcribeRequestRef.current !== requestId) return
       console.error("Transcription failed:", error)
       toast.error(error instanceof Error ? error.message : t("toasts.transcriptionFailed"))
     } finally {
-      window.setTimeout(() => setTranscriptionProgress(12), 500)
-      setIsTranscribing(false)
+      if (!isUnmountingRef.current && transcribeRequestRef.current === requestId) {
+        window.setTimeout(() => setTranscriptionProgress(INITIAL_PROGRESS), 500)
+        setIsTranscribing(false)
+      }
     }
   }
 
@@ -232,9 +245,15 @@ export function AudioSoapModal({
         mediaRecorderRef.current = null
         mediaStreamRef.current?.getTracks().forEach((track) => track.stop())
         mediaStreamRef.current = null
+
+        if (isUnmountingRef.current) {
+          audioChunksRef.current = []
+          return
+        }
+
         setIsRecording(false)
 
-        if (isUnmountingRef.current || blob.size === 0) {
+        if (blob.size === 0) {
           audioChunksRef.current = []
           return
         }
