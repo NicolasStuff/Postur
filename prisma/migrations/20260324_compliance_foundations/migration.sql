@@ -24,6 +24,12 @@ ADD COLUMN "facturXProfile" "FacturXProfile",
 ADD COLUMN "facturXStatus" "FacturXStatus" NOT NULL DEFAULT 'INCOMPLETE',
 ADD COLUMN "facturXXml" TEXT;
 
+-- Ensure columns from initial_schema exist before backfill
+-- (this migration sorts before initial_schema alphabetically)
+ALTER TABLE "Invoice" ADD COLUMN IF NOT EXISTS "serviceName" TEXT;
+ALTER TABLE "Invoice" ADD COLUMN IF NOT EXISTS "vatRate" DECIMAL(5,2);
+ALTER TABLE "Invoice" ADD COLUMN IF NOT EXISTS "vatAmount" DECIMAL(10,2);
+
 -- Best-effort backfill for existing invoices
 UPDATE "Invoice"
 SET
