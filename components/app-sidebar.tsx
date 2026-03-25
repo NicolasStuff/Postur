@@ -5,6 +5,7 @@ import { useMemo } from "react"
 import {
   Briefcase,
   Calendar,
+  Clock,
   Users,
   Settings,
   CreditCard,
@@ -89,6 +90,11 @@ export function AppSidebar({ user, subscription, isAdmin = false, ...props }: Ap
             title: t('calendar'),
             url: "/dashboard/calendar",
             icon: Calendar,
+          },
+          {
+            title: t('availability'),
+            url: "/dashboard/availability",
+            icon: Clock,
           },
         ],
       },

@@ -1,7 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProfileSettings } from "@/components/settings/ProfileSettings"
-import { AvailabilitySettings } from "@/components/settings/AvailabilitySettings"
 import { BillingSettings } from "@/components/settings/BillingSettings"
 import { getTranslations } from 'next-intl/server'
 import { auth } from "@/lib/auth"
@@ -44,7 +43,6 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
       <Tabs defaultValue={defaultTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="profile">{t('tabs.profile')}</TabsTrigger>
-          <TabsTrigger value="availability">{t('tabs.availability')}</TabsTrigger>
           <TabsTrigger value="billing">{t('tabs.billing')}</TabsTrigger>
         </TabsList>
 
@@ -58,18 +56,6 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
                     <ProfileSettings />
                 </CardContent>
              </Card>
-        </TabsContent>
-
-        <TabsContent value="availability">
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('availability.title')}</CardTitle>
-                    <CardDescription>{t('availability.description')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <AvailabilitySettings />
-                </CardContent>
-            </Card>
         </TabsContent>
 
         <TabsContent value="billing">

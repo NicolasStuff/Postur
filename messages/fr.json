@@ -1218,6 +1218,7 @@
     "patients": "Patients",
     "consultations": "Consultations",
     "services": "Services",
+    "availability": "Disponibilités",
     "billing": "Facturation",
     "settings": "Paramètres",
     "adminConversations": "Conversations",
