@@ -13,6 +13,9 @@ primary_region = "cdg" # Paris - Changez selon votre région préférée
     NEXT_PUBLIC_AXEPTIO_COOKIES_VERSION = "352d6c5e-0d71-411f-a3d1-53df20c78d7d"
     NEXT_PUBLIC_AXEPTIO_GOOGLE_ANALYTICS_VENDOR = "google_analytics_4"
     NEXT_PUBLIC_AXEPTIO_GOOGLE_ADS_VENDOR = "google_ads"
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = "pk_live_51TEB9bRVwtFLF4TKQ2dAPFB2x6usbKZmM45trJ2nsN1AKThM6r9ozJcLuBLIoHjJxAr1nHtxbyQGP5eLS8pv5nYp00JTNIq0PU"
+    NEXT_PUBLIC_STRIPE_PRO_PRICE_ID = "price_1TEXahRVwtFLF4TKBlJcG4lV"
+    NEXT_PUBLIC_STRIPE_PRO_IA_PRICE_ID = "price_1TEXaeRVwtFLF4TKNFiPz5TS"
 
 # Configuration HTTP service
 [http_service]
