@@ -81,17 +81,17 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copier le build standalone (inclut un node_modules minimal)
+# Copier le build standalone (inclut @prisma/client via le trace Next.js)
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copier Prisma pour les migrations (release_command dans fly.toml)
+# Copier le schéma Prisma pour les migrations (release_command dans fly.toml)
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# Installer le CLI Prisma pour les migrations
+RUN npm install --no-save prisma
 
 # Changer le propriétaire des fichiers
 RUN chown -R nextjs:nodejs /app
