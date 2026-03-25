@@ -1,5 +1,12 @@
 import Link from 'next/link'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useTranslations } from "next-intl"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 const MINUTE_OPTIONS = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]
 const SELECT_CLASS =
@@ -28,6 +35,7 @@ export default function AppointmentDurationModal({
   onConfirm,
   isPending = false,
 }: AppointmentDurationModalProps) {
+  const t = useTranslations("calendar")
   const hours = Math.floor(value / 60)
   const mins = value % 60
 
@@ -35,7 +43,8 @@ export default function AppointmentDurationModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Modifier la durée</DialogTitle>
+          <DialogTitle>{t("modifyDuration")}</DialogTitle>
+          <DialogDescription>{t("durationEditorDescription")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
@@ -44,11 +53,11 @@ export default function AppointmentDurationModal({
           </div>
 
           <div>
-            <p className="mb-2 text-xs font-medium text-gray-500">Durée</p>
+            <p className="mb-2 text-xs font-medium text-gray-500">{t("duration")}</p>
             <div className="flex gap-2">
               <div className="flex-1">
                 <label htmlFor="duration-hours" className="mb-1 block text-xs text-gray-400">
-                  Heures
+                  {t("hours")}
                 </label>
                 <select
                   id="duration-hours"
@@ -65,7 +74,7 @@ export default function AppointmentDurationModal({
               </div>
               <div className="flex-1">
                 <label htmlFor="duration-mins" className="mb-1 block text-xs text-gray-400">
-                  Minutes
+                  {t("minutes")}
                 </label>
                 <select
                   id="duration-mins"
@@ -81,7 +90,7 @@ export default function AppointmentDurationModal({
                 </select>
               </div>
             </div>
-            <p className="mt-1 text-xs text-gray-500">Modification manuelle, indépendante du service.</p>
+            <p className="mt-1 text-xs text-gray-500">{t("manualDurationNote")}</p>
           </div>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -90,13 +99,13 @@ export default function AppointmentDurationModal({
               disabled={isPending}
               className="rounded-lg bg-primary py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
-              Enregistrer
+              {t("saveDuration")}
             </button>
             <Link
-              href={`/dashboard/consultation/${appointmentId}?from=calendar`}
+              href={`/dashboard/consultation/${appointmentId}/detail?from=calendar`}
               className="rounded-lg border border-gray-200 py-2.5 text-center text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
             >
-              Ouvrir la fiche complète
+              {t("openFullRecord")}
             </Link>
           </div>
         </div>
