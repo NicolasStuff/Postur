@@ -28,11 +28,14 @@ export async function getAppointments(start: Date, end: Date) {
       start: true,
       end: true,
       status: true,
+      notes: true,
       patient: {
         select: {
           id: true,
           firstName: true,
           lastName: true,
+          email: true,
+          phone: true,
         },
       },
       service: {

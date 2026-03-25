@@ -760,7 +760,7 @@ export default function WeekCalendar({
               Ferme
             </span>
             <span className="ml-auto text-[10px] font-medium text-fuchsia-700">
-              Astuce: faites glisser la poignée basse d'un rendez-vous pour ajuster sa durée par 15 min.
+              Astuce: faites glisser la poignée basse d&apos;un rendez-vous pour ajuster sa durée par 15 min.
             </span>
           </div>
         </div>
