@@ -255,7 +255,7 @@ export const OsteopathConsultation = forwardRef<
           bodyChart: bodyChartParts,
         })
       }
-    }, 2000)
+    }, 400)
 
     return () => clearTimeout(timer)
   }, [bodyChartParts, editorContent])
