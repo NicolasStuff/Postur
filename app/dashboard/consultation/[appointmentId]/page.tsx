@@ -13,7 +13,10 @@ import {
   prepareConsultationBillingDraft,
   saveConsultationNote,
 } from "@/app/actions/consultation"
-import { createEmptyConsultationAIState } from "@/lib/consultation-note"
+import {
+  createEmptyConsultationAIState,
+  type ConsultationAIState,
+} from "@/lib/consultation-note"
 import {
   OsteopathConsultation,
   OsteopathConsultationRef,
@@ -21,14 +24,6 @@ import {
 import { SessionClosureDialog } from "@/components/consultation/shared/SessionClosureDialog"
 import { ConsultationHeader } from "@/components/consultation/shared/ConsultationHeader"
 import { toast } from "sonner"
-
-function getRefValue<T>(
-  ref: React.RefObject<OsteopathConsultationRef | null>,
-  getter: (r: OsteopathConsultationRef) => T,
-  fallback: T
-): T {
-  return ref.current ? getter(ref.current) : fallback
-}
 
 export default function ConsultationPage({
   params,
@@ -42,6 +37,9 @@ export default function ConsultationPage({
   const searchParams = useSearchParams()
   const consultationRef = useRef<OsteopathConsultationRef>(null)
   const [closureDialogOpen, setClosureDialogOpen] = useState(false)
+  const [closureAIState, setClosureAIState] = useState<ConsultationAIState>(createEmptyConsultationAIState())
+  const [closureNoteText, setClosureNoteText] = useState("")
+  const [closureBodyChartParts, setClosureBodyChartParts] = useState<string[]>([])
 
   const { data: consultation, isLoading } = useQuery({
     queryKey: ["consultation", appointmentId],
@@ -138,6 +136,11 @@ export default function ConsultationPage({
   }
 
   const handleFinishSession = async () => {
+    if (consultationRef.current) {
+      setClosureAIState(consultationRef.current.getAIState())
+      setClosureNoteText(consultationRef.current.getNoteText())
+      setClosureBodyChartParts(consultationRef.current.getBodyChartParts())
+    }
     setClosureDialogOpen(true)
   }
 
@@ -174,9 +177,9 @@ export default function ConsultationPage({
         open={closureDialogOpen}
         onOpenChange={setClosureDialogOpen}
         appointmentId={appointmentId}
-        noteText={getRefValue(consultationRef, (r) => r.getNoteText(), "")}
-        bodyChartParts={getRefValue(consultationRef, (r) => r.getBodyChartParts(), [])}
-        aiState={getRefValue(consultationRef, (r) => r.getAIState(), createEmptyConsultationAIState())}
+        noteText={closureNoteText}
+        bodyChartParts={closureBodyChartParts}
+        aiState={closureAIState}
         hasConsent={aiAccess?.hasConsent ?? false}
         recapEnabled={aiAccess?.patientRecap ?? false}
         billingDraft={billingDraft ?? null}
@@ -189,8 +192,8 @@ export default function ConsultationPage({
           }
         }}
         isBillingSubmitting={finishAndBillMutation.isPending}
-        onUpdateAI={() => {
-          // Recap validation saves directly via server action
+        onUpdateAI={(patch) => {
+          setClosureAIState((prev) => ({ ...prev, ...patch }))
         }}
       />
     </div>

@@ -145,7 +145,8 @@
             "low": "Confiance faible",
             "medium": "Confiance moyenne",
             "high": "Confiance élevée"
-          }
+          },
+          "close": "Fermer"
         },
         "recap": {
           "title": "Compte-rendu patient",

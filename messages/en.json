@@ -145,7 +145,8 @@
             "low": "Low confidence",
             "medium": "Medium confidence",
             "high": "High confidence"
-          }
+          },
+          "close": "Close"
         },
         "recap": {
           "title": "Patient recap",

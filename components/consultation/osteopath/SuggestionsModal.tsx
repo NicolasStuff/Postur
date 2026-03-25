@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useTranslations } from "next-intl"
 import {
   Loader2,
@@ -29,7 +29,8 @@ import {
   ConsultationAIState,
   SmartNoteSuggestion,
 } from "@/lib/consultation-note"
-import { ConsultationEditor, ConsultationEditorRef } from "../shared/Editor"
+import { ConsultationEditor } from "../shared/Editor"
+import { useModalEditorSync } from "../shared/useModalEditorSync"
 
 interface SuggestionsModalProps {
   appointmentId: string
@@ -64,8 +65,7 @@ export function SuggestionsModal({
   const t = useTranslations("consultation.osteopath.ai")
   const smartNotesRef = useRef(aiState.smartNotes)
   const suggestionRequestRef = useRef(0)
-  const modalEditorRef = useRef<ConsultationEditorRef>(null)
-  const modalEditorContentRef = useRef<unknown>(editorContent)
+  const { modalEditorRef, handleModalEditorChange, syncAndClose } = useModalEditorSync(editorContent, onEditorContentSync)
   const [open, setOpen] = useState(false)
   const [smartNotesLoading, setSmartNotesLoading] = useState(false)
   const [smartNotesError, setSmartNotesError] = useState<string | null>(null)
@@ -119,9 +119,6 @@ export function SuggestionsModal({
     }
   }
 
-  const handleModalEditorChange = useCallback((content: unknown) => {
-    modalEditorContentRef.current = content
-  }, [])
 
   const getSuggestionText = (suggestion: SmartNoteSuggestion) => {
     return editedSuggestions[suggestion.id] ?? suggestion.text
@@ -142,7 +139,7 @@ export function SuggestionsModal({
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => {
       if (!nextOpen) {
-        onEditorContentSync(modalEditorContentRef.current)
+        syncAndClose()
       }
       setOpen(nextOpen)
     }}>
@@ -263,10 +260,10 @@ export function SuggestionsModal({
 
         <DialogFooter className="border-t px-6 py-4">
           <Button variant="outline" onClick={() => {
-            onEditorContentSync(modalEditorContentRef.current)
+            syncAndClose()
             setOpen(false)
           }}>
-            {t("audio.close")}
+            {t("suggestions.close")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -224,6 +224,8 @@ function normalizePatientRecap(value: unknown): PatientRecap | null {
     followUp: normalizeString(value.followUp),
     generatedAt: normalizeString(value.generatedAt),
     model: normalizeString(value.model),
+    ...(typeof value.validatedAt === "string" && { validatedAt: value.validatedAt }),
+    ...(typeof value.editedByPractitioner === "boolean" && { editedByPractitioner: value.editedByPractitioner }),
   }
 }
 

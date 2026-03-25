@@ -1,6 +1,6 @@
 "use client"
 
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react"
+import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { useTranslations } from "next-intl"
 import {
   FileAudio2,
@@ -30,7 +30,8 @@ import {
   formatSoapDraftAsText,
   SoapDraftSection,
 } from "@/lib/consultation-note"
-import { ConsultationEditor, ConsultationEditorRef } from "../shared/Editor"
+import { ConsultationEditor } from "../shared/Editor"
+import { useModalEditorSync } from "../shared/useModalEditorSync"
 
 type AIErrorCode =
   | "UNAUTHORIZED"
@@ -73,8 +74,7 @@ export function AudioSoapModal({
   const mediaStreamRef = useRef<MediaStream | null>(null)
   const isUnmountingRef = useRef(false)
   const audioChunksRef = useRef<Blob[]>([])
-  const modalEditorRef = useRef<ConsultationEditorRef>(null)
-  const modalEditorContentRef = useRef<unknown>(editorContent)
+  const { modalEditorRef, handleModalEditorChange, syncAndClose } = useModalEditorSync(editorContent, onEditorContentSync)
   const [open, setOpen] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [recordingDurationMs, setRecordingDurationMs] = useState(0)
@@ -265,12 +265,8 @@ export function AudioSoapModal({
     mediaRecorderRef.current?.stop()
   }
 
-  const handleModalEditorChange = useCallback((content: unknown) => {
-    modalEditorContentRef.current = content
-  }, [])
-
   const handleClose = () => {
-    onEditorContentSync(modalEditorContentRef.current)
+    syncAndClose()
     setOpen(false)
   }
 
@@ -301,7 +297,7 @@ export function AudioSoapModal({
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => {
       if (!nextOpen) {
-        onEditorContentSync(modalEditorContentRef.current)
+        syncAndClose()
       }
       setOpen(nextOpen)
     }}>
