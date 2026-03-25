@@ -1,6 +1,16 @@
 import { Resend } from "resend"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+let resendInstance: Resend | null = null
+
+function getResend(): Resend {
+  if (!resendInstance) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY is not set")
+    }
+    resendInstance = new Resend(process.env.RESEND_API_KEY)
+  }
+  return resendInstance
+}
 
 function escapeHtml(str: string): string {
   return str
@@ -57,7 +67,7 @@ export async function sendInvoiceEmail({
     .filter(Boolean)
     .join("")
 
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: EMAIL_FROM,
     to,
     subject: `Facture ${invoiceNumber} - ${issuerName}`,
@@ -155,7 +165,7 @@ export async function sendResetPasswordEmail({
   }
   const safeUrl = escapeHtml(url)
 
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: EMAIL_FROM,
     to,
     subject: "Réinitialisez votre mot de passe - Postur",
@@ -189,7 +199,7 @@ export async function sendOtpEmail({
   to: string
   otp: string
 }) {
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: EMAIL_FROM,
     to,
     subject: `${otp} — Code de vérification Postur`,
@@ -270,7 +280,7 @@ export async function sendSupportNotificationEmail({
             "Cette notification a été envoyée automatiquement par la boîte de réception support Postur.",
         }
 
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: EMAIL_FROM,
     to,
     subject: copy.subject,
