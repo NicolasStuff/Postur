@@ -12,11 +12,10 @@ import {
 import { Prisma } from "@prisma/client"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
-import { Clock, FileText, History, Loader2, User } from "lucide-react"
+import { Clock, FileText, History, User } from "lucide-react"
 
 import {
   getBodyChartHistory,
-  grantAIFeaturesConsent,
   saveBodyChartHistory,
 } from "@/app/actions/consultation"
 import { bodyPartLabels } from "@/lib/bodyChartLabels"
@@ -28,7 +27,7 @@ import {
   serializeConsultationContent,
 } from "@/lib/consultation-note"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 
 import { AudioSoapModal } from "./AudioSoapModal"
@@ -73,8 +72,6 @@ interface Consultation {
 }
 
 interface AIAccess {
-  hasConsent: boolean
-  anyAI: boolean
   audioSoap: boolean
   smartNotesLive: boolean
   patientRecap: boolean
@@ -155,15 +152,8 @@ export const OsteopathConsultation = forwardRef<
   const [showTimeline, setShowTimeline] = useState(false)
   const [showPatientFile, setShowPatientFile] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
-  const [consentOpen, setConsentOpen] = useState(false)
-  const [consentLoading, setConsentLoading] = useState(false)
-  const [hasConsentOverride, setHasConsentOverride] = useState<boolean | undefined>(
-    aiAccess?.hasConsent
-  )
   const [history, setHistory] = useState<BodyChartHistoryItem[]>([])
   const [bodyChartRetryNonce, setBodyChartRetryNonce] = useState(0)
-  const aiAccessLoaded = aiAccess !== undefined
-  const hasConsent = aiAccess?.hasConsent || hasConsentOverride || false
   const noteText = useMemo(() => extractTextFromTipTap(editorContent), [editorContent])
   const editorRef = useRef<ConsultationEditorRef>(null)
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -382,16 +372,6 @@ export const OsteopathConsultation = forwardRef<
     }
   }, [bodyChartParts, bodyChartRetryNonce, consultation?.id, loadHistory, t])
 
-  useEffect(() => {
-    setHasConsentOverride(aiAccess?.hasConsent ?? false)
-  }, [aiAccess?.hasConsent])
-
-  useEffect(() => {
-    if (aiAccessLoaded && aiAccess?.anyAI && !hasConsent) {
-      setConsentOpen(true)
-    }
-  }, [aiAccessLoaded, aiAccess?.anyAI, hasConsent])
-
   const handleQuickNote = (text: string) => {
     editorRef.current?.insertText(text)
   }
@@ -408,21 +388,6 @@ export const OsteopathConsultation = forwardRef<
     // Content comes from editor.getJSON() — safe to pass back to setContent
     editorRef.current?.setContent(content as Parameters<NonNullable<typeof editorRef.current>['setContent']>[0])
   }, [])
-
-  const handleGrantConsent = async () => {
-    try {
-      setConsentLoading(true)
-      await grantAIFeaturesConsent()
-      setHasConsentOverride(true)
-      setConsentOpen(false)
-      toast.success(t("ai.toasts.consentGranted"))
-    } catch (error) {
-      console.error("AI consent failed:", error)
-      toast.error(error instanceof Error ? error.message : t("ai.errors.consentRequired"))
-    } finally {
-      setConsentLoading(false)
-    }
-  }
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-white">
@@ -503,7 +468,6 @@ export const OsteopathConsultation = forwardRef<
                 noteText={noteText}
                 bodyChartParts={bodyChartParts}
                 aiState={aiState}
-                hasConsent={hasConsent ?? false}
                 audioSoapEnabled={aiAccess?.audioSoap ?? false}
                 editorContent={editorContent}
                 onEditorContentSync={handleEditorContentSync}
@@ -514,7 +478,6 @@ export const OsteopathConsultation = forwardRef<
                 noteText={noteText}
                 bodyChartParts={bodyChartParts}
                 aiState={aiState}
-                hasConsent={hasConsent ?? false}
                 smartNotesEnabled={aiAccess?.smartNotesLive ?? false}
                 editorContent={editorContent}
                 onEditorContentSync={handleEditorContentSync}
@@ -532,29 +495,6 @@ export const OsteopathConsultation = forwardRef<
           </div>
         </div>
       </div>
-
-      <Dialog open={consentOpen} onOpenChange={setConsentOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("ai.consent.dialogTitle")}</DialogTitle>
-            <DialogDescription>{t("ai.consent.dialogDescription")}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 text-sm text-muted-foreground">
-            <p>{t("ai.consent.points.minimization")}</p>
-            <p>{t("ai.consent.points.vendors")}</p>
-            <p>{t("ai.consent.points.revocation")}</p>
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setConsentOpen(false)}>
-              {t("ai.consent.cancel")}
-            </Button>
-            <Button onClick={handleGrantConsent} disabled={consentLoading}>
-              {consentLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t("ai.consent.accept")}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 })

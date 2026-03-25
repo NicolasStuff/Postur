@@ -33,9 +33,6 @@ export async function GET() {
         defaultVatRate: true,
         slug: true,
         role: true,
-        aiBetaEnabled: true,
-        aiComplianceAcceptedAt: true,
-        aiComplianceVersion: true,
       },
     })
 

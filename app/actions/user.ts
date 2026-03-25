@@ -1,7 +1,6 @@
 "use server"
 
 import { auth } from "@/lib/auth";
-import { AI_BETA_COMPLIANCE_VERSION } from "@/lib/ai-beta";
 import { recordAuditEventSafe } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -50,44 +49,6 @@ export async function getUserProfile() {
     })
     if (!user) return null;
     return serializeUser(user);
-}
-
-export async function setAiBetaParticipation(enabled: boolean) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
-    if (!session) {
-        throw new Error(await getErrorMessage("unauthorized"));
-    }
-
-    const updatedUser = await prisma.user.update({
-        where: { id: session.user.id },
-        data: enabled
-            ? {
-                aiFeaturesConsentAt: new Date(),
-                aiBetaEnabled: true,
-                aiComplianceAcceptedAt: new Date(),
-                aiComplianceVersion: AI_BETA_COMPLIANCE_VERSION,
-            }
-            : {
-                aiFeaturesConsentAt: null,
-                aiBetaEnabled: false,
-            },
-    })
-
-    await recordAuditEventSafe(prisma, {
-        actorUserId: session.user.id,
-        targetUserId: session.user.id,
-        domain: "AI",
-        action: enabled ? "AI_BETA_ENABLED" : "AI_BETA_DISABLED",
-        entityType: "User",
-        entityId: session.user.id,
-        metadata: {
-            aiComplianceVersion: AI_BETA_COMPLIANCE_VERSION,
-        },
-    })
-
-    return serializeUser(updatedUser)
 }
 
 export async function updateUserProfile(data: {

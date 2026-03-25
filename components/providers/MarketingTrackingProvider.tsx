@@ -86,8 +86,6 @@ export function MarketingTrackingProvider({
     })
 
     injectAxeptioScript()
-    // Intentional: one-time setup on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {

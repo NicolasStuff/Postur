@@ -16,7 +16,6 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
-  aiFeaturesConsentAt DateTime?
 
   // Better Auth Relations
   sessions      Session[]
@@ -38,9 +37,6 @@ model User {
   openingHours     Json?
   slotDuration     Int               @default(60)
   language         String            @default("fr") // "fr" or "en"
-  aiBetaEnabled    Boolean           @default(false)
-  aiComplianceAcceptedAt DateTime?
-  aiComplianceVersion String?
 
   // Relations
   patients             Patient[]
@@ -49,6 +45,8 @@ model User {
   invoices             Invoice[]
   subscription         Subscription?
   scheduleExceptions   ScheduleException[]
+  supportConversation  SupportConversation? @relation("SupportConversationRequester")
+  supportMessages      SupportMessage[]     @relation("SupportMessageAuthor")
 }
 
 model Session {
@@ -183,6 +181,16 @@ enum SubscriptionStatus {
 enum SubscriptionPlan {
   PRO
   PRO_IA
+}
+
+enum SupportConversationStatus {
+  OPEN
+  CLOSED
+}
+
+enum SupportAuthorType {
+  USER
+  ADMIN
 }
 
 model Patient {
@@ -461,4 +469,40 @@ model ScheduleException {
 
   @@index([userId, date])
   @@index([userId, type, date])
+}
+
+// --- SUPPORT MODELS ---
+
+model SupportConversation {
+  id                String                    @id @default(cuid())
+  requesterUserId   String                    @unique
+  requester         User                      @relation("SupportConversationRequester", fields: [requesterUserId], references: [id], onDelete: Cascade)
+  status            SupportConversationStatus @default(OPEN)
+  lastMessageAt     DateTime
+  lastUserMessageAt DateTime
+  lastAdminMessageAt DateTime?
+  lastReadByUserAt  DateTime
+  lastReadByAdminAt DateTime?
+  closedAt          DateTime?
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+
+  messages          SupportMessage[]
+
+  @@index([requesterUserId, updatedAt])
+  @@index([status, updatedAt])
+}
+
+model SupportMessage {
+  id             String            @id @default(cuid())
+  conversationId String
+  conversation   SupportConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  authorUserId   String
+  author         User              @relation("SupportMessageAuthor", fields: [authorUserId], references: [id], onDelete: Cascade)
+  authorType     SupportAuthorType
+  body           String            @db.Text
+  createdAt      DateTime          @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([authorUserId, createdAt])
 }

@@ -122,7 +122,7 @@ export default function ConsultationPage({
     }
 
     return "/dashboard/calendar"
-  }, [consultation?.patient.id, searchParams])
+  }, [appointmentId, consultation?.patient.id, searchParams])
 
   if (isLoading) {
     return <div className="flex h-full items-center justify-center">{tDetails("loading")}</div>
@@ -193,7 +193,6 @@ export default function ConsultationPage({
         noteText={closureNoteText}
         bodyChartParts={closureBodyChartParts}
         aiState={closureAIState}
-        hasConsent={aiAccess?.hasConsent ?? false}
         recapEnabled={aiAccess?.patientRecap ?? false}
         billingDraft={billingDraft ?? null}
         isBillingDraftLoading={isBillingDraftLoading}

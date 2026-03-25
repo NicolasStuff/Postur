@@ -42,7 +42,6 @@ type AIErrorCode =
   | "AI_AUDIO_EMPTY"
   | "AI_AUDIO_TOO_LARGE"
   | "AI_AUDIO_INVALID_TYPE"
-  | "AI_CONSENT_REQUIRED"
   | "APPOINTMENT_NOT_FOUND"
   | "TOO_MANY_REQUESTS"
   | "AI_AUDIO_PROCESSING_FAILED"
@@ -52,7 +51,6 @@ interface AudioSoapModalProps {
   noteText: string
   bodyChartParts: string[]
   aiState: ConsultationAIState
-  hasConsent: boolean
   audioSoapEnabled: boolean
   editorContent: unknown
   onEditorContentSync: (content: unknown) => void
@@ -64,7 +62,6 @@ export function AudioSoapModal({
   noteText,
   bodyChartParts,
   aiState,
-  hasConsent,
   audioSoapEnabled,
   editorContent,
   onEditorContentSync,
@@ -109,8 +106,6 @@ export function AudioSoapModal({
         return t("errors.audioTooLarge")
       case "AI_AUDIO_INVALID_TYPE":
         return t("errors.audioInvalidType")
-      case "AI_CONSENT_REQUIRED":
-        return t("errors.consentRequired")
       case "APPOINTMENT_NOT_FOUND":
         return t("errors.appointmentNotFound")
       case "TOO_MANY_REQUESTS":
@@ -311,7 +306,7 @@ export function AudioSoapModal({
     )
   }
 
-  if (!audioSoapEnabled || !hasConsent) {
+  if (!audioSoapEnabled) {
     return null
   }
 

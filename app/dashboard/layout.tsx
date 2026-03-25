@@ -7,6 +7,7 @@ import { hasCoreAppAccess } from "@/lib/subscription-access"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { BillingSettings } from "@/components/settings/BillingSettings"
+import { SupportChatWidget } from "@/components/support/SupportChatWidget"
 
 export default async function DashboardLayout({
   children,
@@ -27,6 +28,7 @@ export default async function DashboardLayout({
   const dbUser = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: {
+      role: true,
       practitionerType: true,
       slug: true,
       companyName: true,
@@ -47,17 +49,22 @@ export default async function DashboardLayout({
     },
   })
 
+  const pathname = headerStore.get("x-pathname") || ""
+  const isAdmin = dbUser?.role === "ADMIN"
+  const isAdminRoute = pathname.startsWith("/dashboard/admin")
+
   // Check if user has completed onboarding
-  if (!dbUser || !isOnboardingComplete(dbUser)) {
+  if (!dbUser || (!isAdmin && !isOnboardingComplete(dbUser))) {
     redirect("/onboarding")
   }
 
   // Check subscription status
   const subscription = dbUser.subscription
   const hasActiveSubscription = hasCoreAppAccess(subscription)
-  const pathname = headerStore.get("x-pathname") || ""
   const canAccessWithoutSubscription =
-    pathname.startsWith("/dashboard/settings") || pathname.startsWith("/dashboard/billing")
+    isAdmin ||
+    pathname.startsWith("/dashboard/settings") ||
+    pathname.startsWith("/dashboard/billing")
 
   // Calculate trial days remaining
   let trialDaysRemaining = 0
@@ -84,7 +91,7 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <AppSidebar user={userData} subscription={subscriptionData} />
+      <AppSidebar user={userData} subscription={subscriptionData} isAdmin={isAdmin} />
       <SidebarInset>
         <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
           {hasActiveSubscription || canAccessWithoutSubscription ? (
@@ -93,6 +100,7 @@ export default async function DashboardLayout({
             <BillingSettings subscription={subscription} showUpgradeModal />
           )}
         </main>
+        {!isAdmin && !isAdminRoute ? <SupportChatWidget /> : null}
       </SidebarInset>
     </SidebarProvider>
   )

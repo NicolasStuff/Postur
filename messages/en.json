@@ -793,6 +793,38 @@
         "open": "Open"
       }
     },
+    "adminConversations": {
+      "title": "Support conversations",
+      "description": "Handle messages from logged-in users and reply to them live from inside Postur.",
+      "searchPlaceholder": "Search by name, email, or practice...",
+      "emptyTitle": "No conversations yet",
+      "emptyDescription": "New support messages will appear here as soon as a user reaches out.",
+      "placeholderTitle": "Select a conversation",
+      "placeholderDescription": "Choose a thread on the left to read the history and answer the user.",
+      "replyPlaceholder": "Write your reply...",
+      "replyHint": "Use Ctrl/Cmd + Enter to send quickly.",
+      "filters": {
+        "all": "All",
+        "open": "Open",
+        "closed": "Resolved"
+      },
+      "statuses": {
+        "open": "Open",
+        "closed": "Resolved"
+      },
+      "actions": {
+        "reply": "Reply",
+        "close": "Mark as resolved",
+        "reopen": "Reopen"
+      },
+      "messageLabels": {
+        "admin": "You",
+        "user": "User"
+      },
+      "errors": {
+        "reply": "Unable to send the reply."
+      }
+    },
     "patientsPage": {
       "title": "Patients"
     },
@@ -1188,10 +1220,29 @@
     "services": "Services",
     "billing": "Billing",
     "settings": "Settings",
+    "adminConversations": "Conversations",
+    "adminBadge": "Admin",
     "sections": {
       "activity": "Activity",
       "patientCare": "Patient care",
-      "management": "Management"
+      "management": "Management",
+      "admin": "Administration"
+    }
+  },
+  "support": {
+    "widget": {
+      "title": "Postur support",
+      "subtitle": "Ask questions, share feedback, or tell us where you need help.",
+      "reopenHint": "This conversation was marked as resolved. Send a new message to reopen it.",
+      "emptyTitle": "How can we help?",
+      "emptyDescription": "Use this space for questions, remarks, or help requests about the product.",
+      "inputPlaceholder": "Tell us what you need...",
+      "hint": "Ctrl/Cmd + Enter to send.",
+      "send": "Send",
+      "sendError": "Unable to send your message.",
+      "you": "You",
+      "supportLabel": "Support",
+      "newBadge": "New"
     }
   },
   "navigation": {

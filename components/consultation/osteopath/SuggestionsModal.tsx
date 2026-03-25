@@ -37,7 +37,6 @@ interface SuggestionsModalProps {
   noteText: string
   bodyChartParts: string[]
   aiState: ConsultationAIState
-  hasConsent: boolean
   smartNotesEnabled: boolean
   editorContent: unknown
   onEditorContentSync: (content: unknown) => void
@@ -56,7 +55,6 @@ export function SuggestionsModal({
   noteText,
   bodyChartParts,
   aiState,
-  hasConsent,
   smartNotesEnabled,
   editorContent,
   onEditorContentSync,
@@ -80,7 +78,7 @@ export function SuggestionsModal({
   }, [aiState.smartNotes])
 
   const handleGenerateSmartNotes = async () => {
-    if (!smartNotesEnabled || !hasConsent) return
+    if (!smartNotesEnabled) return
 
     const normalizedNoteText = noteText.trim()
     if (bodyChartParts.length === 0 && !normalizedNoteText) {
@@ -136,7 +134,7 @@ export function SuggestionsModal({
     modalEditorRef.current?.insertText(getSuggestionText(suggestion))
   }
 
-  if (!smartNotesEnabled || !hasConsent) {
+  if (!smartNotesEnabled) {
     return null
   }
 

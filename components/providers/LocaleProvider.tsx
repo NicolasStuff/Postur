@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { updateUserLocale, getUserLocale, type LocaleType } from '@/app/actions/locale'
 
 /**
@@ -38,7 +38,6 @@ export function LocaleProvider({ children, initialLocale = 'fr' }: LocaleProvide
   const [locale, setLocaleState] = useState<LocaleType>(initialLocale)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
-  const pathname = usePathname()
 
   // Fetch user's locale on mount
   useEffect(() => {

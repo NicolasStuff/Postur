@@ -217,3 +217,94 @@ export async function sendOtpEmail({
     throw new Error(error.message)
   }
 }
+
+export async function sendSupportNotificationEmail({
+  to,
+  requesterName,
+  requesterEmail,
+  requesterCompanyName,
+  messagePreview,
+  conversationUrl,
+  locale,
+}: {
+  to: string
+  requesterName: string | null
+  requesterEmail: string
+  requesterCompanyName: string | null
+  messagePreview: string
+  conversationUrl: string
+  locale: "fr" | "en"
+}) {
+  const safeRequesterName = escapeHtml(requesterName || requesterEmail)
+  const safeRequesterEmail = escapeHtml(requesterEmail)
+  const safeRequesterCompanyName = requesterCompanyName
+    ? escapeHtml(requesterCompanyName)
+    : null
+  const safeMessagePreview = escapeHtml(messagePreview)
+  const safeConversationUrl = escapeHtml(conversationUrl)
+
+  const copy =
+    locale === "en"
+      ? {
+          subject: `New support message from ${requesterName || requesterEmail}`,
+          title: "New support message",
+          intro: "A logged-in user sent you a new support message in Postur.",
+          sender: "User",
+          email: "Email",
+          company: "Practice",
+          message: "Message",
+          cta: "Open conversation",
+          footer:
+            "This notification was sent automatically by Postur support inbox.",
+        }
+      : {
+          subject: `Nouveau message support de ${requesterName || requesterEmail}`,
+          title: "Nouveau message support",
+          intro: "Un utilisateur connecté vous a envoyé un nouveau message dans Postur.",
+          sender: "Utilisateur",
+          email: "Email",
+          company: "Cabinet",
+          message: "Message",
+          cta: "Ouvrir la conversation",
+          footer:
+            "Cette notification a été envoyée automatiquement par la boîte de réception support Postur.",
+        }
+
+  const { error } = await resend.emails.send({
+    from: EMAIL_FROM,
+    to,
+    subject: copy.subject,
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:32px 0;">
+        <p style="margin:0 0 20px;font-size:20px;font-weight:700;color:#0f172a;">${copy.title}</p>
+        <p style="margin:0 0 24px;font-size:15px;color:#475569;line-height:1.6;">${copy.intro}</p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;">
+          <tr>
+            <td style="padding:20px 24px;">
+              <p style="margin:0 0 6px;font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">${copy.sender}</p>
+              <p style="margin:0 0 16px;font-size:16px;color:#0f172a;font-weight:600;">${safeRequesterName}</p>
+              <p style="margin:0 0 6px;font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">${copy.email}</p>
+              <p style="margin:0 0 16px;font-size:14px;color:#0f172a;">${safeRequesterEmail}</p>
+              ${
+                safeRequesterCompanyName
+                  ? `<p style="margin:0 0 6px;font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">${copy.company}</p>
+              <p style="margin:0 0 16px;font-size:14px;color:#0f172a;">${safeRequesterCompanyName}</p>`
+                  : ""
+              }
+              <p style="margin:0 0 6px;font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;">${copy.message}</p>
+              <div style="padding:14px 16px;border-radius:10px;background:#f8fafc;color:#0f172a;font-size:14px;line-height:1.6;white-space:pre-wrap;">${safeMessagePreview}</div>
+              <div style="margin-top:24px;">
+                <a href="${safeConversationUrl}" style="display:inline-block;background:#0f172a;color:#ffffff;padding:12px 18px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;">${copy.cta}</a>
+              </div>
+            </td>
+          </tr>
+        </table>
+        <p style="margin:20px 0 0;font-size:12px;color:#94a3b8;line-height:1.5;">${copy.footer}</p>
+      </div>
+    `,
+  })
+
+  if (error) {
+    throw new Error(error.message)
+  }
+}

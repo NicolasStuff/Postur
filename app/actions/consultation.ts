@@ -3,7 +3,6 @@
 import { z } from "zod"
 import { canAccessFeature } from "@/app/actions/subscription"
 import { openAIClinicalGenerationProvider } from "@/lib/ai/openai"
-import { AI_BETA_COMPLIANCE_VERSION, assertAiBetaEnabled } from "@/lib/ai-beta"
 import { recordAuditEventSafe } from "@/lib/audit"
 import { bodyPartLabels, normalizeBodyChartPartIds } from "@/lib/bodyChartLabels"
 import {
@@ -548,58 +547,17 @@ export async function getBodyChartHistory(appointmentId: string) {
 }
 
 export async function getConsultationAIAccess() {
-  const userId = await requireCoreAppAccess()
   const [audioSoap, smartNotesLive, patientRecap] = await Promise.all([
     canAccessFeature("ai_audio_soap"),
     canAccessFeature("ai_smart_notes_live"),
     canAccessFeature("ai_patient_recap"),
   ])
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      aiFeaturesConsentAt: true,
-      aiBetaEnabled: true,
-      aiComplianceAcceptedAt: true,
-    },
-  })
 
   return {
     audioSoap,
     smartNotesLive,
     patientRecap,
-    anyAI: audioSoap || smartNotesLive || patientRecap,
-    hasConsent: Boolean(
-      user?.aiFeaturesConsentAt || (user?.aiBetaEnabled && user?.aiComplianceAcceptedAt)
-    ),
   }
-}
-
-export async function grantAIFeaturesConsent() {
-  const userId = await requireCoreAppAccess()
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      aiFeaturesConsentAt: new Date(),
-      aiBetaEnabled: true,
-      aiComplianceAcceptedAt: new Date(),
-      aiComplianceVersion: AI_BETA_COMPLIANCE_VERSION,
-    },
-  })
-
-  await recordAuditEventSafe(prisma, {
-    actorUserId: userId,
-    targetUserId: userId,
-    domain: "AI",
-    action: "AI_BETA_ENABLED",
-    entityType: "User",
-    entityId: userId,
-    metadata: {
-      aiComplianceVersion: AI_BETA_COMPLIANCE_VERSION,
-    },
-  })
-
-  return { success: true }
 }
 
 export async function generateSmartNoteSuggestions(
@@ -614,7 +572,6 @@ export async function generateSmartNoteSuggestions(
   if (!(await canAccessFeature("ai_smart_notes_live"))) {
     throw new Error(await getErrorMessage("aiFeatureUnavailable"))
   }
-  await assertAiBetaEnabled(userId)
 
   const normalizedBodyChart = normalizeBodyChartPartIds(data.bodyChart)
   const normalizedNoteText = data.noteText.trim()
@@ -672,7 +629,6 @@ export async function generatePatientRecap(
   if (!(await canAccessFeature("ai_patient_recap"))) {
     throw new Error(await getErrorMessage("aiFeatureUnavailable"))
   }
-  await assertAiBetaEnabled(userId)
 
   const normalizedBodyChart = normalizeBodyChartPartIds(data.bodyChart)
   const normalizedNoteText = data.noteText.trim()

@@ -1,12 +1,11 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { getUserProfile, setAiBetaParticipation, updateUserProfile } from "@/app/actions/user"
+import { getUserProfile, updateUserProfile } from "@/app/actions/user"
 import {
     getPublicBookingHost,
     getSiretValidationError,
@@ -74,26 +73,6 @@ export function ProfileSettings() {
         onError: (err) => {
             toast.error(t('profileUpdateError') + ': ' + err.message)
         }
-    })
-
-    const aiBetaMutation = useMutation({
-        mutationFn: setAiBetaParticipation,
-        onSuccess: (_, enabled) => {
-            queryClient.invalidateQueries({ queryKey: ['userProfile'] })
-            // TODO: move to i18n translations
-            toast.success(
-                enabled
-                    ? (locale === "fr"
-                        ? "Bêta IA activée avec succès"
-                        : "AI beta enabled successfully")
-                    : (locale === "fr"
-                        ? "Bêta IA désactivée"
-                        : "AI beta disabled")
-            )
-        },
-        onError: (error: Error) => {
-            toast.error(error.message)
-        },
     })
 
     if (isLoading) return <div className="p-4"><Loader2 className="animate-spin"/></div>
@@ -195,40 +174,6 @@ export function ProfileSettings() {
                     {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
                     {t('saveChanges')}
                 </Button>
-            </div>
-
-            <div className="border-t pt-6 space-y-4">
-                <div className="flex flex-col gap-3 rounded-2xl border bg-slate-50/70 p-5 md:flex-row md:items-center md:justify-between">
-                    <div className="space-y-2">
-                        {/* TODO: move to i18n translations */}
-                        <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-semibold text-slate-900">
-                                {locale === "fr" ? "Bêta IA clinique" : "Clinical AI beta"}
-                            </h3>
-                            <Badge variant={user?.aiBetaEnabled ? "default" : "secondary"}>
-                                {user?.aiBetaEnabled
-                                    ? (locale === "fr" ? "Activée" : "Enabled")
-                                    : (locale === "fr" ? "Désactivée" : "Disabled")}
-                            </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                            {locale === "fr"
-                                ? "Active les fonctions IA d’assistance clinique avec consentement explicite, traçabilité et garde bêta."
-                                : "Enables clinical AI assistance features with explicit consent, auditability, and beta gating."}
-                        </p>
-                    </div>
-                    <Button
-                        variant={user?.aiBetaEnabled ? "outline" : "default"}
-                        onClick={() => aiBetaMutation.mutate(!user?.aiBetaEnabled)}
-                        disabled={aiBetaMutation.isPending}
-                    >
-                        {aiBetaMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {/* TODO: move to i18n translations */}
-                        {user?.aiBetaEnabled
-                            ? (locale === "fr" ? "Désactiver" : "Disable")
-                            : (locale === "fr" ? "Activer la bêta" : "Enable beta")}
-                    </Button>
-                </div>
             </div>
         </div>
     )

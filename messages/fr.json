@@ -844,6 +844,38 @@
         "open": "Ouvrir"
       }
     },
+    "adminConversations": {
+      "title": "Conversations support",
+      "description": "Centralisez les demandes de vos utilisateurs connectés et répondez-leur en direct depuis Postur.",
+      "searchPlaceholder": "Rechercher un nom, un email ou un cabinet...",
+      "emptyTitle": "Aucune conversation",
+      "emptyDescription": "Les nouveaux messages support apparaîtront ici dès qu'un utilisateur vous écrira.",
+      "placeholderTitle": "Sélectionnez une conversation",
+      "placeholderDescription": "Choisissez un fil à gauche pour lire l'historique et répondre au client.",
+      "replyPlaceholder": "Écrivez votre réponse...",
+      "replyHint": "Utilisez Ctrl/Cmd + Entrée pour envoyer rapidement.",
+      "filters": {
+        "all": "Toutes",
+        "open": "Ouvertes",
+        "closed": "Traitées"
+      },
+      "statuses": {
+        "open": "Ouverte",
+        "closed": "Traitée"
+      },
+      "actions": {
+        "reply": "Répondre",
+        "close": "Marquer comme traité",
+        "reopen": "Rouvrir"
+      },
+      "messageLabels": {
+        "admin": "Vous",
+        "user": "Client"
+      },
+      "errors": {
+        "reply": "Impossible d'envoyer la réponse."
+      }
+    },
     "patientsPage": {
       "title": "Patients"
     },
@@ -1188,10 +1220,29 @@
     "services": "Services",
     "billing": "Facturation",
     "settings": "Paramètres",
+    "adminConversations": "Conversations",
+    "adminBadge": "Admin",
     "sections": {
       "activity": "Activité",
       "patientCare": "Patientèle",
-      "management": "Gestion"
+      "management": "Gestion",
+      "admin": "Administration"
+    }
+  },
+  "support": {
+    "widget": {
+      "title": "Support Postur",
+      "subtitle": "Posez vos questions, partagez vos remarques ou demandez de l'aide.",
+      "reopenHint": "Cette conversation a été marquée comme traitée. Envoyez un nouveau message pour la rouvrir.",
+      "emptyTitle": "Comment peut-on vous aider ?",
+      "emptyDescription": "Écrivez-nous ici si vous avez une remarque, une question ou un besoin d'accompagnement.",
+      "inputPlaceholder": "Décrivez votre besoin...",
+      "hint": "Ctrl/Cmd + Entrée pour envoyer.",
+      "send": "Envoyer",
+      "sendError": "Impossible d'envoyer votre message.",
+      "you": "Vous",
+      "supportLabel": "Support",
+      "newBadge": "Nouveau"
     }
   },
   "navigation": {

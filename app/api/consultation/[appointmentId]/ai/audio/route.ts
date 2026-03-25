@@ -3,7 +3,6 @@ import { Prisma } from "@prisma/client"
 import { fileTypeFromBuffer } from "file-type"
 import { auth } from "@/lib/auth"
 import { deepgramTranscriptionProvider } from "@/lib/ai/deepgram"
-import { assertAiBetaEnabled } from "@/lib/ai-beta"
 import { openAIClinicalGenerationProvider } from "@/lib/ai/openai"
 import { recordAuditEventSafe } from "@/lib/audit"
 import { bodyPartLabels, normalizeBodyChartPartIds } from "@/lib/bodyChartLabels"
@@ -26,7 +25,6 @@ async function createErrorResponse(
     | "AI_AUDIO_EMPTY"
     | "AI_AUDIO_TOO_LARGE"
     | "AI_AUDIO_INVALID_TYPE"
-    | "AI_CONSENT_REQUIRED"
     | "APPOINTMENT_NOT_FOUND"
     | "AI_AUDIO_PROCESSING_FAILED"
     | "TOO_MANY_REQUESTS",
@@ -159,12 +157,6 @@ export async function POST(
 
     if (!canSubscriptionAccessFeature(subscription, "ai_audio_soap")) {
       return createErrorResponse("AI_FEATURE_UNAVAILABLE", 403, "aiFeatureUnavailable")
-    }
-
-    try {
-      await assertAiBetaEnabled(session.user.id)
-    } catch {
-      return createErrorResponse("AI_CONSENT_REQUIRED", 403, "aiConsentRequired")
     }
 
     const { appointmentId } = await context.params

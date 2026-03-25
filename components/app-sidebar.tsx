@@ -10,6 +10,8 @@ import {
   CreditCard,
   FileText,
   LayoutDashboard,
+  MessageCircle,
+  Shield,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -45,64 +47,85 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
     avatar: string
   }
   subscription?: SubscriptionData | null
+  isAdmin?: boolean
 }
 
-export function AppSidebar({ user, subscription, ...props }: AppSidebarProps) {
+export function AppSidebar({ user, subscription, isAdmin = false, ...props }: AppSidebarProps) {
   const t = useTranslations('sidebar')
   const tSub = useTranslations('subscription')
+  const homeUrl = isAdmin ? "/dashboard/admin/conversations" : "/dashboard"
 
-  const navGroups = useMemo(() => [
-    {
-      label: t('sections.activity'),
-      items: [
+  const navGroups = useMemo(() => {
+    if (isAdmin) {
+      return [
         {
-          title: t('dashboard'),
-          url: "/dashboard",
-          icon: LayoutDashboard,
+          label: t('sections.admin'),
+          items: [
+            {
+              title: t('adminConversations'),
+              url: "/dashboard/admin/conversations",
+              icon: MessageCircle,
+            },
+          ],
         },
-        {
-          title: t('consultations'),
-          url: "/dashboard/consultations",
-          icon: FileText,
-        },
-        {
-          title: t('calendar'),
-          url: "/dashboard/calendar",
-          icon: Calendar,
-        },
-      ],
-    },
-    {
-      label: t('sections.patientCare'),
-      items: [
-        {
-          title: t('patients'),
-          url: "/dashboard/patients",
-          icon: Users,
-        },
-      ],
-    },
-    {
-      label: t('sections.management'),
-      items: [
-        {
-          title: t('services'),
-          url: "/dashboard/services",
-          icon: Briefcase,
-        },
-        {
-          title: t('billing'),
-          url: "/dashboard/billing",
-          icon: CreditCard,
-        },
-        {
-          title: t('settings'),
-          url: "/dashboard/settings",
-          icon: Settings,
-        },
-      ],
-    },
-  ], [t])
+      ]
+    }
+
+    const groups = [
+      {
+        label: t('sections.activity'),
+        items: [
+          {
+            title: t('dashboard'),
+            url: "/dashboard",
+            icon: LayoutDashboard,
+          },
+          {
+            title: t('consultations'),
+            url: "/dashboard/consultations",
+            icon: FileText,
+          },
+          {
+            title: t('calendar'),
+            url: "/dashboard/calendar",
+            icon: Calendar,
+          },
+        ],
+      },
+      {
+        label: t('sections.patientCare'),
+        items: [
+          {
+            title: t('patients'),
+            url: "/dashboard/patients",
+            icon: Users,
+          },
+        ],
+      },
+      {
+        label: t('sections.management'),
+        items: [
+          {
+            title: t('services'),
+            url: "/dashboard/services",
+            icon: Briefcase,
+          },
+          {
+            title: t('billing'),
+            url: "/dashboard/billing",
+            icon: CreditCard,
+          },
+          {
+            title: t('settings'),
+            url: "/dashboard/settings",
+            icon: Settings,
+          },
+        ],
+      },
+    ]
+
+    return groups
+  }, [isAdmin, t])
 
   const defaultUser = {
     name: "Jean Dupont",
@@ -133,7 +156,7 @@ export function AppSidebar({ user, subscription, ...props }: AppSidebarProps) {
     return null
   }
 
-  const badge = getSubscriptionBadge()
+  const badge = isAdmin ? null : getSubscriptionBadge()
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -142,13 +165,22 @@ export function AppSidebar({ user, subscription, ...props }: AppSidebarProps) {
           <SidebarMenuItem>
             <div className="flex items-center">
               <SidebarMenuButton size="lg" asChild className="flex-1">
-                <Link href="/dashboard">
+                <Link href={homeUrl}>
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
                     <Image src="/images/logo.svg" alt="Postur" width={32} height={32} />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <div className="flex items-center gap-2">
                       <span className="truncate font-semibold">{t('appName')}</span>
+                      {isAdmin && (
+                        <Badge
+                          variant="secondary"
+                          className="bg-slate-950 px-1.5 py-0 text-[10px] text-white hover:bg-slate-950"
+                        >
+                          <Shield className="mr-1 size-3" />
+                          {t('adminBadge')}
+                        </Badge>
+                      )}
                       {badge && (
                         <Badge
                           variant="secondary"

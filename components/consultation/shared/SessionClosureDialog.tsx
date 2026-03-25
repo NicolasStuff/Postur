@@ -9,7 +9,6 @@ import {
   Plus,
   RefreshCcw,
   Sparkles,
-  Trash2,
   X,
 } from "lucide-react"
 import { toast } from "sonner"
@@ -45,7 +44,6 @@ interface SessionClosureDialogProps {
   noteText: string
   bodyChartParts: string[]
   aiState: ConsultationAIState
-  hasConsent: boolean
   recapEnabled: boolean
   billingDraft: ConsultationBillingDraft | null
   isBillingDraftLoading: boolean
@@ -83,7 +81,6 @@ export function SessionClosureDialog({
   noteText,
   bodyChartParts,
   aiState,
-  hasConsent,
   recapEnabled,
   billingDraft,
   isBillingDraftLoading,
@@ -97,7 +94,8 @@ export function SessionClosureDialog({
   const [isSavingRecap, setIsSavingRecap] = useState(false)
   const [recapForm, setRecapForm] = useState<RecapFormState | null>(null)
 
-  const canGenerateRecap = recapEnabled && hasConsent && (Boolean(noteText) || Boolean(aiState.soapDraft?.summary))
+  const canGenerateRecap =
+    recapEnabled && (Boolean(noteText) || Boolean(aiState.soapDraft?.summary))
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {

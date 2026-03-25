@@ -17,6 +17,7 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
     const dbUser = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
+        role: true,
         practitionerType: true,
         slug: true,
         companyName: true,
@@ -24,6 +25,10 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
         siret: true,
       },
     });
+
+    if (dbUser?.role === "ADMIN") {
+      redirect("/dashboard/admin/conversations");
+    }
 
     // Redirect to onboarding if profile not completed, otherwise to dashboard
     if (dbUser && isOnboardingComplete(dbUser)) {
