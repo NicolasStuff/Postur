@@ -405,7 +405,8 @@ export const OsteopathConsultation = forwardRef<
 
   const handleEditorContentSync = useCallback((content: unknown) => {
     setEditorContent(content)
-    editorRef.current?.setContent(content)
+    // Content comes from editor.getJSON() — safe to pass back to setContent
+    editorRef.current?.setContent(content as Parameters<NonNullable<typeof editorRef.current>['setContent']>[0])
   }, [])
 
   const handleGrantConsent = async () => {

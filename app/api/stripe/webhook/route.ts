@@ -123,15 +123,10 @@ export async function POST(req: Request) {
 }
 
 function getSubscriptionPeriodEnd(subscription: Stripe.Subscription): Date | null {
-  const periodEnd = subscription.current_period_end;
-  if (typeof periodEnd === "number") {
-    return new Date(periodEnd * 1000);
-  }
-
+  // In Stripe v20, current_period_end lives on SubscriptionItem, not Subscription
   const item = subscription.items?.data?.[0];
-  const itemPeriodEnd = item?.current_period_end;
-  if (typeof itemPeriodEnd === "number") {
-    return new Date(itemPeriodEnd * 1000);
+  if (item?.current_period_end) {
+    return new Date(item.current_period_end * 1000);
   }
 
   return null;
@@ -262,9 +257,11 @@ async function handleSubscriptionDeleted(
 
 async function handlePaymentSucceeded(tx: Prisma.TransactionClient, invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
-  const subscriptionId = typeof invoice.subscription === "string"
-    ? invoice.subscription
-    : (invoice.subscription as Stripe.Subscription | null)?.id ?? null;
+  // In Stripe v20, subscription is under parent.subscription_details
+  const sub = invoice.parent?.subscription_details?.subscription;
+  const subscriptionId = typeof sub === "string"
+    ? sub
+    : (sub as Stripe.Subscription | null)?.id ?? null;
 
   if (!subscriptionId) return;
 
@@ -287,9 +284,11 @@ async function handlePaymentSucceeded(tx: Prisma.TransactionClient, invoice: Str
 
 async function handlePaymentFailed(tx: Prisma.TransactionClient, invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
-  const subscriptionId = typeof invoice.subscription === "string"
-    ? invoice.subscription
-    : (invoice.subscription as Stripe.Subscription | null)?.id ?? null;
+  // In Stripe v20, subscription is under parent.subscription_details
+  const sub = invoice.parent?.subscription_details?.subscription;
+  const subscriptionId = typeof sub === "string"
+    ? sub
+    : (sub as Stripe.Subscription | null)?.id ?? null;
 
   await tx.subscription.updateMany({
     where: subscriptionId

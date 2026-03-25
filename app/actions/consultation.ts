@@ -104,6 +104,7 @@ export async function getConsultation(appointmentId: string) {
               note: {
                 select: {
                   id: true,
+                  content: true,
                   createdAt: true,
                   updatedAt: true,
                 },
