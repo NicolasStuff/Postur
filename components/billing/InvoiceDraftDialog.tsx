@@ -82,6 +82,7 @@ export function InvoiceDraftDialog({
   const amountPreview = useMemo(() => {
     if (!invoice) return null
 
+    // VAT rate source of truth: prefer user profile default, fall back to invoice-level rate
     return calculateInvoiceAmounts(formState.amount, {
       isVatExempt: invoice.user.isVatExempt,
       vatRate: invoice.user.defaultVatRate ?? invoice.vatRate ?? null,

@@ -206,9 +206,18 @@ export default function BillingPage() {
     )
   }
 
-  const totalAmount = invoices?.reduce((sum, invoice) => sum + invoice.amount, 0) ?? 0
-  const sentAmount =
-    invoices?.filter((invoice) => invoice.status === "SENT").reduce((sum, invoice) => sum + invoice.amount, 0) ?? 0
+  const totalAmount = Number(
+    (invoices
+      ?.filter((invoice) => invoice.status === "SENT" || invoice.status === "PAID")
+      .reduce((sum, invoice) => sum + invoice.amount, 0) ?? 0
+    ).toFixed(2)
+  )
+  const sentAmount = Number(
+    (invoices
+      ?.filter((invoice) => invoice.status === "SENT")
+      .reduce((sum, invoice) => sum + invoice.amount, 0) ?? 0
+    ).toFixed(2)
+  )
   const draftCount = invoices?.filter((invoice) => invoice.status === "DRAFT").length ?? 0
 
   return (
