@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
+import { normalizeBodyChartPartId, normalizeBodyChartPartIds } from "@/lib/bodyChartLabels"
 
 const bpa: Record<string, Record<string, string>> = {
     fr: {
@@ -176,18 +177,25 @@ interface BodyChartProps {
 }
 
 export function BodyChart({ className, value = [], onChange, readOnly = false }: BodyChartProps) {
-    const [selectedParts, setSelectedParts] = useState<string[]>(value)
+    const [selectedParts, setSelectedParts] = useState<string[]>(() => normalizeBodyChartPartIds(value))
+
+    useEffect(() => {
+        setSelectedParts(normalizeBodyChartPartIds(value))
+    }, [value])
+
     const togglePart = (partName: string) => {
         if (readOnly) return
-        const newParts = selectedParts.includes(partName) 
-            ? selectedParts.filter(p => p !== partName) 
-            : [...selectedParts, partName]
+
+        const partId = normalizeBodyChartPartId(partName)
+        const newParts = selectedParts.includes(partId) 
+            ? selectedParts.filter(p => p !== partId) 
+            : [...selectedParts, partId]
         
         setSelectedParts(newParts)
         onChange?.(newParts)
     }
 
-    const isSelected = (partName: string) => selectedParts.includes(partName)
+    const isSelected = (partName: string) => selectedParts.includes(normalizeBodyChartPartId(partName))
 
     const partsAnt = getBodyPart('fr').filter(p => p.face === 'ant')
     const partsPost = getBodyPart('fr').filter(p => p.face === 'post')

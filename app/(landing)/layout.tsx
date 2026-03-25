@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
 
+import { MarketingTrackingProvider } from "@/components/providers/MarketingTrackingProvider"
+
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://postur.fr'
 
 export const metadata: Metadata = {
@@ -7,12 +9,12 @@ export const metadata: Metadata = {
 
   // Titres SEO optimisés pour les mots-clés
   title: {
-    default: 'Postur - Logiciel de Gestion de Cabinet pour Ostéopathes | Body Chart & Facture-X',
+    default: 'Postur - Logiciel de Gestion de Cabinet pour Ostéopathes | Body Chart & préparation Factur-X',
     template: '%s | Postur - Logiciel Ostéopathe',
   },
 
   // Description optimisée (155-160 caractères max)
-  description: 'Postur : le logiciel de gestion de cabinet ostéopathe avec Body Chart interactif, facturation Facture-X 2026 et réservation en ligne. Essai gratuit 14 jours.',
+  description: 'Postur : le logiciel de gestion de cabinet ostéopathe avec Body Chart interactif, préparation Factur-X et réservation en ligne. Essai gratuit 14 jours.',
 
   // Mots-clés stratégiques
   keywords: [
@@ -68,7 +70,7 @@ export const metadata: Metadata = {
     url: baseUrl,
     siteName: 'Postur',
     title: 'Postur - Logiciel de Gestion de Cabinet pour Ostéopathes',
-    description: 'Le premier logiciel ostéopathe qui combine Body Chart interactif, Facture-X native et Réservation en ligne. Essai gratuit 14 jours, sans CB.',
+    description: 'Le logiciel ostéopathe qui combine Body Chart interactif, préparation Factur-X et réservation en ligne. Essai gratuit 14 jours, sans CB.',
     images: [
       {
         url: `${baseUrl}/images/landing-page/new/body-chart-consultation.png`,
@@ -91,7 +93,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Postur - Logiciel de Gestion de Cabinet pour Ostéopathes',
-    description: 'Body Chart interactif, Facture-X 2026, Réservation en ligne. Le logiciel moderne pour ostéopathes exigeants. Essai gratuit 14 jours.',
+    description: 'Body Chart interactif, préparation Factur-X, réservation en ligne. Le logiciel moderne pour ostéopathes exigeants. Essai gratuit 14 jours.',
     images: [`${baseUrl}/images/landing-page/new/body-chart-consultation.png`],
     creator: '@postur_fr',
   },
@@ -127,5 +129,5 @@ export default function LandingLayout({
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return <MarketingTrackingProvider surface="public">{children}</MarketingTrackingProvider>
 }

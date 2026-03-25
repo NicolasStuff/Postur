@@ -5,8 +5,27 @@ import { format } from "date-fns"
 import { fr, enUS } from "date-fns/locale"
 import { GoogleBookingTutorial } from "@/components/dashboard/GoogleBookingTutorial"
 import { getTranslations, getLocale } from 'next-intl/server'
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
+import { headers } from "next/headers"
+import { redirect } from "next/navigation"
 
 export default async function DashboardPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (session?.user?.id) {
+    const adminUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    })
+
+    if (adminUser?.role === "ADMIN") {
+      redirect("/dashboard/admin/conversations")
+    }
+  }
+
   const data = await getDashboardData()
   const locale = await getLocale()
   const dateLocale = locale === 'fr' ? fr : enUS

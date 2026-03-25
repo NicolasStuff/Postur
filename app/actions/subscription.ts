@@ -2,8 +2,12 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import {
+  ACTIVE_SUBSCRIPTION_STATUSES,
+  canSubscriptionAccessFeature,
+} from "@/lib/subscription-access";
 import { headers } from "next/headers";
-import { SubscriptionStatus, SubscriptionPlan } from "@prisma/client";
+import { SubscriptionPlan, SubscriptionStatus } from "@prisma/client";
 
 export interface SubscriptionData {
   id: string;
@@ -37,34 +41,12 @@ export async function hasActiveSubscription(): Promise<boolean> {
   const subscription = await getSubscription();
   if (!subscription) return false;
 
-  const activeStatuses: SubscriptionStatus[] = ["TRIALING", "ACTIVE", "PAST_DUE"];
-  return activeStatuses.includes(subscription.status);
+  return ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status);
 }
 
 export async function canAccessFeature(feature: string): Promise<boolean> {
   const subscription = await getSubscription();
-  if (!subscription) return false;
-
-  // Check if subscription is active
-  const activeStatuses: SubscriptionStatus[] = ["TRIALING", "ACTIVE", "PAST_DUE"];
-  if (!activeStatuses.includes(subscription.status)) return false;
-
-  // During trial, access to all features
-  if (subscription.status === "TRIALING") return true;
-
-  // AI features only available in PRO_IA plan
-  const aiFeatures = [
-    "ai_consultation_summary",
-    "ai_diagnosis_suggestions",
-    "ai_smart_notes",
-  ];
-
-  if (aiFeatures.includes(feature)) {
-    return subscription.plan === "PRO_IA";
-  }
-
-  // All other features available in both plans
-  return true;
+  return canSubscriptionAccessFeature(subscription, feature);
 }
 
 export async function getTrialDaysRemaining(): Promise<number | null> {
@@ -90,6 +72,5 @@ export async function isTrialExpired(): Promise<boolean> {
   }
 
   // Not in trial, check if subscription is inactive
-  const activeStatuses: SubscriptionStatus[] = ["TRIALING", "ACTIVE", "PAST_DUE"];
-  return !activeStatuses.includes(subscription.status);
+  return !ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status);
 }

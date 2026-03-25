@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +44,11 @@ export function BillingSettings({ subscription, showUpgradeModal }: BillingSetti
   };
 
   const handleSubscribe = async (priceId: string) => {
+    if (!priceId) {
+      toast.error(t("configurationError"));
+      return;
+    }
+
     setLoading(priceId);
     try {
       const response = await fetch("/api/stripe/checkout", {
@@ -53,11 +59,14 @@ export function BillingSettings({ subscription, showUpgradeModal }: BillingSetti
 
       const data = await response.json();
 
-      if (data.url) {
-        window.location.href = data.url;
+      if (!response.ok || !data.url) {
+        throw new Error(data.error || t("checkoutError"));
       }
+
+      window.location.href = data.url;
     } catch (error) {
       console.error("Checkout error:", error);
+      toast.error(t("checkoutError"));
     } finally {
       setLoading(null);
     }
@@ -89,10 +98,11 @@ export function BillingSettings({ subscription, showUpgradeModal }: BillingSetti
     });
   };
 
-  const isActive = subscription && ["TRIALING", "ACTIVE", "PAST_DUE"].includes(subscription.status);
+  const canStartNewSubscription =
+    !subscription || subscription.status === "CANCELED" || subscription.status === "UNPAID";
 
   // Show plans if no subscription or subscription is inactive
-  if (!subscription || !isActive) {
+  if (canStartNewSubscription) {
     return (
       <div className="space-y-6">
         {showUpgradeModal && (
@@ -149,6 +159,8 @@ export function BillingSettings({ subscription, showUpgradeModal }: BillingSetti
     );
   }
 
+  const currentSubscription = subscription!
+
   // Show current subscription
   return (
     <div className="space-y-6">
@@ -158,13 +170,13 @@ export function BillingSettings({ subscription, showUpgradeModal }: BillingSetti
             <div>
               <CardTitle className="flex items-center gap-3">
                 {t("billing.currentPlan")}
-                {getStatusBadge(subscription.status)}
+                {getStatusBadge(currentSubscription.status)}
               </CardTitle>
               <CardDescription className="mt-1">
-                {subscription.plan === "PRO_IA" ? "Pro + IA" : "Pro"} - {subscription.plan === "PRO_IA" ? "39" : "29"}€/{t("month")}
+                {currentSubscription.plan === "PRO_IA" ? "Pro + IA" : "Pro"} - {currentSubscription.plan === "PRO_IA" ? "39" : "29"}€/{t("month")}
               </CardDescription>
             </div>
-            {subscription.plan === "PRO_IA" && (
+            {currentSubscription.plan === "PRO_IA" && (
               <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg">
                 <Sparkles className="h-5 w-5 text-white" />
               </div>
@@ -173,18 +185,18 @@ export function BillingSettings({ subscription, showUpgradeModal }: BillingSetti
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2 text-sm">
-            {subscription.status === "TRIALING" && subscription.trialEndsAt && (
+            {currentSubscription.status === "TRIALING" && currentSubscription.trialEndsAt && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Fin de l&apos;essai</span>
-                <span className="font-medium">{formatDate(subscription.trialEndsAt)}</span>
+                <span className="font-medium">{formatDate(currentSubscription.trialEndsAt)}</span>
               </div>
             )}
-            {subscription.currentPeriodEnd && subscription.status !== "TRIALING" && (
+            {currentSubscription.currentPeriodEnd && currentSubscription.status !== "TRIALING" && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
-                  {subscription.cancelAtPeriodEnd ? "Accès jusqu'au" : "Prochain renouvellement"}
+                  {currentSubscription.cancelAtPeriodEnd ? "Accès jusqu'au" : "Prochain renouvellement"}
                 </span>
-                <span className="font-medium">{formatDate(subscription.currentPeriodEnd)}</span>
+                <span className="font-medium">{formatDate(currentSubscription.currentPeriodEnd)}</span>
               </div>
             )}
           </div>
@@ -200,7 +212,7 @@ export function BillingSettings({ subscription, showUpgradeModal }: BillingSetti
       </Card>
 
       {/* Upgrade prompt for Pro users */}
-      {subscription.plan === "PRO" && subscription.status === "ACTIVE" && (
+      {currentSubscription.plan === "PRO" && currentSubscription.status === "ACTIVE" && (
         <Card className="border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -247,11 +259,13 @@ interface PlanCardProps {
 
 function PlanCard({ name, price, features, priceId, popular, isLoading, onSubscribe }: PlanCardProps) {
   const t = useTranslations("subscription");
+  const isConfigured = Boolean(priceId);
 
   return (
     <Card
       className={cn(
-        "relative cursor-pointer transition-all hover:shadow-lg",
+        "relative transition-all hover:shadow-lg",
+        isConfigured ? "cursor-pointer" : "cursor-not-allowed opacity-80",
         popular && "border-indigo-500 border-2"
       )}
     >
@@ -280,6 +294,12 @@ function PlanCard({ name, price, features, priceId, popular, isLoading, onSubscr
           ))}
         </ul>
 
+        {!isConfigured && (
+          <p className="text-sm font-medium text-amber-700">
+            {t("configurationError")}
+          </p>
+        )}
+
         <Button
           className={cn(
             "w-full",
@@ -287,7 +307,7 @@ function PlanCard({ name, price, features, priceId, popular, isLoading, onSubscr
               ? "bg-indigo-600 hover:bg-indigo-700"
               : "bg-slate-800 hover:bg-slate-900"
           )}
-          disabled={isLoading !== null}
+          disabled={isLoading !== null || !isConfigured}
           onClick={() => onSubscribe(priceId)}
         >
           {isLoading === priceId ? (
@@ -296,7 +316,7 @@ function PlanCard({ name, price, features, priceId, popular, isLoading, onSubscr
               {t("redirecting")}
             </>
           ) : (
-            t("startTrial")
+            isConfigured ? t("startTrial") : t("configurationCta")
           )}
         </Button>
       </CardContent>

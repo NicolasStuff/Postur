@@ -1,21 +1,11 @@
 "use server"
 
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
+import { requireCoreAppAccess } from "@/lib/core-access"
 import { prisma } from "@/lib/prisma"
 import { startOfDay, endOfDay, startOfWeek, endOfWeek } from "date-fns"
-import { getErrorMessage } from "@/lib/i18n/errors"
 
 export async function getDashboardData() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  if (!session?.user?.id) {
-    throw new Error(await getErrorMessage("unauthorized"))
-  }
-
-  const userId = session.user.id
+  const userId = await requireCoreAppAccess()
   const now = new Date()
   const todayStart = startOfDay(now)
   const todayEnd = endOfDay(now)
@@ -68,9 +58,20 @@ export async function getDashboardData() {
         not: "CANCELED",
       },
     },
-    include: {
-      patient: true,
-      service: true,
+    select: {
+      id: true,
+      start: true,
+      patient: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+      service: {
+        select: {
+          name: true,
+        },
+      },
     },
     orderBy: {
       start: "asc",

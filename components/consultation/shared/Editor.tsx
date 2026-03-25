@@ -1,6 +1,6 @@
 "use client"
 
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent, type Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Button } from '@/components/ui/button'
 import { Bold, Italic, List, ListOrdered, Strikethrough, Undo, Redo } from 'lucide-react'
@@ -21,11 +21,27 @@ interface ConsultationEditorProps {
 
 export interface ConsultationEditorRef {
     insertText: (text: string) => void
+    setContent: (content: Parameters<Editor['commands']['setContent']>[0]) => void
+    getContent: () => ReturnType<Editor["getJSON"]> | null
 }
 
 export const ConsultationEditor = forwardRef<ConsultationEditorRef, ConsultationEditorProps>(
   function ConsultationEditor({ initialContent, onChange }, ref) {
   const t = useTranslations('consultation.shared.editor')
+
+  const formatTextForInsertion = (text: string) => {
+    const escapeHtml = (value: string) =>
+      value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+
+    return text
+      .trim()
+      .split(/\n{2,}/)
+      .map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, "<br/>")}</p>`)
+      .join("")
+  }
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -44,9 +60,21 @@ export const ConsultationEditor = forwardRef<ConsultationEditorRef, Consultation
   useImperativeHandle(ref, () => ({
     insertText: (text: string) => {
       if (editor) {
-        editor.chain().focus().insertContent(` ${text} `).run()
+        editor.chain().focus().insertContent(formatTextForInsertion(text)).run()
       }
-    }
+    },
+    setContent: (content: Parameters<Editor['commands']['setContent']>[0]) => {
+      if (editor) {
+        editor.commands.setContent(content || '<p></p>')
+      }
+    },
+    getContent: () => {
+      if (!editor) {
+        return null
+      }
+
+      return editor.getJSON()
+    },
   }), [editor])
 
   if (!editor) {

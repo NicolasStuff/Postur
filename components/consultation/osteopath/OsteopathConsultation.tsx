@@ -1,225 +1,500 @@
 "use client"
 
-import { BodyChart } from "./BodyChart"
-import { ConsultationEditor, ConsultationEditorRef } from "../shared/Editor"
-import { TraumaTimeline } from "./TraumaTimeline"
-import { QuickNotes } from "./QuickNotes"
-import { PatientFile } from "../shared/PatientFile"
-import { BodyChartHistoryViewer } from "./BodyChartHistoryViewer"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Clock, User, FileText, History } from "lucide-react"
-import { useState, useEffect, useRef } from "react"
-import { saveBodyChartHistory, getBodyChartHistory } from "@/app/actions/consultation"
-import { bodyPartLabels } from "@/lib/bodyChartLabels"
-import { toast } from "sonner"
-import { useTranslations } from "next-intl"
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import { Prisma } from "@prisma/client"
+import { useTranslations } from "next-intl"
+import { toast } from "sonner"
+import { Clock, FileText, History, User } from "lucide-react"
+
+import {
+  getBodyChartHistory,
+  saveBodyChartHistory,
+} from "@/app/actions/consultation"
+import { bodyPartLabels } from "@/lib/bodyChartLabels"
+import {
+  ConsultationAIState,
+  createEmptyConsultationAIState,
+  extractTextFromTipTap,
+  normalizeConsultationContent,
+  serializeConsultationContent,
+} from "@/lib/consultation-note"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+
+import { AudioSoapModal } from "./AudioSoapModal"
+import { SuggestionsModal } from "./SuggestionsModal"
+import { BodyChart } from "./BodyChart"
+import { BodyChartHistoryViewer } from "./BodyChartHistoryViewer"
+import { QuickNotes } from "./QuickNotes"
+import { TraumaTimeline } from "./TraumaTimeline"
+import { ConsultationEditor, ConsultationEditorRef } from "../shared/Editor"
+import { PatientFile } from "../shared/PatientFile"
 
 interface BodyChartHistoryItem {
-    id: string
-    createdAt: Date
-    selectedParts: string[]
+  id: string
+  createdAt: Date
+  selectedParts: string[]
 }
 
 interface Patient {
+  id: string
+  firstName: string
+  lastName: string
+  email?: string | null
+  phone?: string | null
+  medicalHistory?: unknown
+  appointments?: Array<{
     id: string
-    firstName: string
-    lastName: string
-    email?: string | null
-    phone?: string | null
-    medicalHistory?: unknown
+    start: Date | string
+    service?: { name: string | null } | null
+    note?: { content: unknown } | null
+  }>
 }
 
 interface Consultation {
-    id: string
-    patient: Patient
-    note?: {
-        content?: Prisma.JsonValue
-    } | null
+  id: string
+  patient: Patient
+  user?: {
+    name?: string | null
+  } | null
+  note?: {
+    content?: Prisma.JsonValue | Prisma.InputJsonValue
+  } | null
+}
+
+interface AIAccess {
+  audioSoap: boolean
+  smartNotesLive: boolean
+  patientRecap: boolean
 }
 
 interface OsteopathConsultationProps {
-    consultation: Consultation
-    onSave: (data: Prisma.InputJsonValue) => void
+  consultation: Consultation
+  onSave: (data: Prisma.InputJsonValue) => Promise<unknown>
+  aiAccess?: AIAccess | null
 }
 
-export function OsteopathConsultation({ consultation, onSave }: OsteopathConsultationProps) {
-    const t = useTranslations('consultation.osteopath')
+export interface OsteopathConsultationRef {
+  getDraft: () => Prisma.InputJsonValue
+  saveNow: () => Promise<void>
+  getAIState: () => ConsultationAIState
+  getNoteText: () => string
+  getBodyChartParts: () => string[]
+  getEditorContent: () => unknown
+}
 
-    // Helper to safely extract content from JsonValue
-    const getConsultationContent = () => {
-        const content = consultation?.note?.content
-        if (content && typeof content === 'object' && content !== null && !Array.isArray(content)) {
-            return content as { editor?: unknown; bodyChart?: string[] }
-        }
-        return {}
+function getConsultationContent(consultation: Consultation) {
+  return normalizeConsultationContent(consultation.note?.content)
+}
+
+function aiValuesEqual(left: unknown, right: unknown) {
+  return JSON.stringify(left) === JSON.stringify(right)
+}
+
+function buildAIStatePatch(
+  previousAIState: ConsultationAIState,
+  nextAIState: ConsultationAIState
+): Prisma.InputJsonValue | null {
+  const aiPatch: Record<string, Prisma.InputJsonValue> = {}
+
+  if (!aiValuesEqual(previousAIState.transcript, nextAIState.transcript)) {
+    aiPatch.transcript = nextAIState.transcript as unknown as Prisma.InputJsonValue
+  }
+
+  if (!aiValuesEqual(previousAIState.audioMeta, nextAIState.audioMeta)) {
+    aiPatch.audioMeta = nextAIState.audioMeta as unknown as Prisma.InputJsonValue
+  }
+
+  if (!aiValuesEqual(previousAIState.soapDraft, nextAIState.soapDraft)) {
+    aiPatch.soapDraft = nextAIState.soapDraft as unknown as Prisma.InputJsonValue
+  }
+
+  if (!aiValuesEqual(previousAIState.smartNotes, nextAIState.smartNotes)) {
+    aiPatch.smartNotes = nextAIState.smartNotes as unknown as Prisma.InputJsonValue
+  }
+
+  if (!aiValuesEqual(previousAIState.patientRecap, nextAIState.patientRecap)) {
+    aiPatch.patientRecap = nextAIState.patientRecap as unknown as Prisma.InputJsonValue
+  }
+
+  if (Object.keys(aiPatch).length === 0) {
+    return null
+  }
+
+  return {
+    ai: aiPatch as unknown as Prisma.InputJsonValue,
+  }
+}
+
+export const OsteopathConsultation = forwardRef<
+  OsteopathConsultationRef,
+  OsteopathConsultationProps
+>(function OsteopathConsultation({ consultation, onSave, aiAccess }, ref) {
+  const t = useTranslations("consultation.osteopath")
+  const [editorContent, setEditorContent] = useState<unknown>(() => {
+    return getConsultationContent(consultation).editor || null
+  })
+  const [bodyChartParts, setBodyChartParts] = useState<string[]>(() => {
+    return getConsultationContent(consultation).bodyChart || []
+  })
+  const [aiState, setAIState] = useState<ConsultationAIState>(() => {
+    return getConsultationContent(consultation).ai || createEmptyConsultationAIState()
+  })
+  const [showTimeline, setShowTimeline] = useState(false)
+  const [showPatientFile, setShowPatientFile] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
+  const [history, setHistory] = useState<BodyChartHistoryItem[]>([])
+  const [bodyChartRetryNonce, setBodyChartRetryNonce] = useState(0)
+  const noteText = useMemo(() => extractTextFromTipTap(editorContent), [editorContent])
+  const editorRef = useRef<ConsultationEditorRef>(null)
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const bodyChartRetryTimeoutRef = useRef<number | null>(null)
+  const latestAIStateRef = useRef<ConsultationAIState>(
+    getConsultationContent(consultation).ai || createEmptyConsultationAIState()
+  )
+  const aiSaveInFlightRef = useRef(false)
+  const lastSavedBodyChartPartsRef = useRef<string[]>(
+    getConsultationContent(consultation).bodyChart || []
+  )
+  const lastLoadedConsultationIdRef = useRef(consultation.id)
+  const lastPersistedAIStateRef = useRef<ConsultationAIState>(
+    getConsultationContent(consultation).ai || createEmptyConsultationAIState()
+  )
+  const lastPersistedAISnapshotRef = useRef(
+    JSON.stringify(getConsultationContent(consultation).ai || createEmptyConsultationAIState())
+  )
+
+  const loadHistory = useCallback(async () => {
+    try {
+      const historyData = await getBodyChartHistory(consultation.id)
+      setHistory(historyData)
+    } catch (error) {
+      console.error("Failed to load history:", error)
     }
+  }, [consultation.id])
 
-    // Initialize state with existing consultation data
-    const [editorContent, setEditorContent] = useState<unknown>(() => {
-        return getConsultationContent().editor || null
+  const buildDraft = useCallback((): Prisma.InputJsonValue => (
+    serializeConsultationContent({
+      editor: editorContent ?? null,
+      bodyChart: bodyChartParts,
+      ai: aiState,
     })
-    const [bodyChartParts, setBodyChartParts] = useState<string[]>(() => {
-        return getConsultationContent().bodyChart || []
-    })
-    const [showTimeline, setShowTimeline] = useState(false)
-    const [showPatientFile, setShowPatientFile] = useState(false)
-    const [showHistory, setShowHistory] = useState(false)
-    const [history, setHistory] = useState<BodyChartHistoryItem[]>([])
-    const editorRef = useRef<ConsultationEditorRef>(null)
-    const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  ), [aiState, bodyChartParts, editorContent])
+  const onSaveRef = useRef(onSave)
+  onSaveRef.current = onSave
 
-    const loadHistory = async () => {
-        try {
-            const historyData = await getBodyChartHistory(consultation.id)
-            setHistory(historyData)
-        } catch (error) {
-            console.error("Failed to load history:", error)
-        }
+  const persistDraft = useCallback(async () => {
+    await onSave(buildDraft())
+  }, [buildDraft, onSave])
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      getDraft: buildDraft,
+      saveNow: persistDraft,
+      getAIState: () => aiState,
+      getNoteText: () => noteText,
+      getBodyChartParts: () => bodyChartParts,
+      getEditorContent: () => editorContent,
+    }),
+    [aiState, bodyChartParts, buildDraft, editorContent, noteText, persistDraft]
+  )
+
+  useEffect(() => {
+    if (lastLoadedConsultationIdRef.current === consultation.id) {
+      return
     }
 
-    // Load history when consultation changes
-    useEffect(() => {
-        if (consultation?.id) {
-            loadHistory()
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadHistory is defined inside component but doesn't need to be a dependency
-    }, [consultation?.id])
-
-    // Auto-save logic (simplified wrapper)
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (editorContent || bodyChartParts.length > 0) {
-                onSave({
-                    editor: editorContent as Prisma.InputJsonValue,
-                    bodyChart: bodyChartParts
-                })
-            }
-        }, 2000)
-        return () => clearTimeout(timer)
-    }, [editorContent, bodyChartParts, onSave])
-
-    // Save body chart history with debounce
-    useEffect(() => {
-        if (saveTimeoutRef.current) {
-            clearTimeout(saveTimeoutRef.current)
-        }
-
-        saveTimeoutRef.current = setTimeout(async () => {
-            if (bodyChartParts.length > 0 && consultation?.id) {
-                try {
-                    await saveBodyChartHistory(consultation.id, bodyChartParts)
-                    await loadHistory() // Reload history after save
-                } catch (error) {
-                    console.error("Failed to save body chart history:", error)
-                    toast.error(t('errors.historySaveFailed'))
-                }
-            }
-        }, 5000) // Wait 5 seconds before saving to history
-
-        return () => {
-            if (saveTimeoutRef.current) {
-                clearTimeout(saveTimeoutRef.current)
-            }
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadHistory and t are stable, only need to react to bodyChartParts and consultation.id changes
-    }, [bodyChartParts, consultation?.id])
-
-    const handleQuickNote = (text: string) => {
-        editorRef.current?.insertText(text)
-    }
-
-    return (
-        <div className="flex flex-col h-full bg-white overflow-hidden">
-            {/* Compact Toolbar */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-t bg-slate-50/50 shrink-0">
-                <div className="flex items-center gap-2">
-                    <Sheet open={showTimeline} onOpenChange={setShowTimeline}>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8 text-xs">
-                                <Clock className="h-3.5 w-3.5 mr-1.5" />
-                                {t('toolbar.timeline')}
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="left" className="w-[600px] sm:max-w-[600px]">
-                            <SheetHeader>
-                                <SheetTitle>{t('toolbar.traumaticTimeline')}</SheetTitle>
-                            </SheetHeader>
-                            <div className="mt-4">
-                                <TraumaTimeline history={consultation.patient.medicalHistory} />
-                            </div>
-                        </SheetContent>
-                    </Sheet>
-
-                    <Sheet open={showPatientFile} onOpenChange={setShowPatientFile}>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8 text-xs">
-                                <User className="h-3.5 w-3.5 mr-1.5" />
-                                {t('toolbar.patientFile')}
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="left" className="w-[400px] sm:max-w-[400px]">
-                            <SheetHeader>
-                                <SheetTitle>{t('toolbar.patientFile')}</SheetTitle>
-                            </SheetHeader>
-                            <div className="mt-4">
-                                <PatientFile patient={consultation.patient} />
-                            </div>
-                        </SheetContent>
-                    </Sheet>
-
-                    <Sheet open={showHistory} onOpenChange={setShowHistory}>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8 text-xs">
-                                <History className="h-3.5 w-3.5 mr-1.5" />
-                                {t('toolbar.historyChart')}
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="left" className="w-[500px] sm:max-w-[500px]">
-                            <SheetHeader>
-                                <SheetTitle>{t('toolbar.historySelections')}</SheetTitle>
-                            </SheetHeader>
-                            <div className="mt-4 overflow-auto h-[calc(100vh-8rem)]">
-                                <BodyChartHistoryViewer
-                                    history={history}
-                                    muscleLabels={bodyPartLabels}
-                                />
-                            </div>
-                        </SheetContent>
-                    </Sheet>
-                </div>
-
-                <QuickNotes onAddNote={handleQuickNote} />
-            </div>
-
-            {/* Main Work Area: Body Map + Notes */}
-            <div className="flex-1 min-h-0 flex overflow-hidden">
-                {/* Body Chart - Left Side (60%) */}
-                <div className="w-[60%] border-r overflow-auto flex items-center justify-center bg-slate-50/30 p-4">
-                    <BodyChart
-                        value={bodyChartParts}
-                        onChange={setBodyChartParts}
-                        className="border-0 shadow-none"
-                    />
-                </div>
-
-                {/* Editor - Right Side (40%) */}
-                <div className="w-[40%] overflow-hidden flex flex-col bg-white">
-                    <div className="px-3 py-2 border-b bg-slate-50/30 flex items-center gap-2 shrink-0">
-                        <FileText className="h-4 w-4 text-slate-500" />
-                        <span className="text-sm font-medium text-slate-700">{t('editor.title')}</span>
-                    </div>
-                    <div className="flex-1 overflow-hidden">
-                        <ConsultationEditor
-                            ref={editorRef}
-                            key={consultation.id}
-                            initialContent={editorContent}
-                            onChange={setEditorContent}
-                        />
-                    </div>
-                </div>
-            </div>
-        </div>
+    lastLoadedConsultationIdRef.current = consultation.id
+    const content = getConsultationContent(consultation)
+    setEditorContent(content.editor || null)
+    setBodyChartParts(content.bodyChart || [])
+    setAIState(content.ai || createEmptyConsultationAIState())
+    latestAIStateRef.current = content.ai || createEmptyConsultationAIState()
+    lastSavedBodyChartPartsRef.current = content.bodyChart || []
+    lastPersistedAIStateRef.current = content.ai || createEmptyConsultationAIState()
+    lastPersistedAISnapshotRef.current = JSON.stringify(
+      content.ai || createEmptyConsultationAIState()
     )
-}
+  }, [consultation])
+
+  useEffect(() => {
+    latestAIStateRef.current = aiState
+  }, [aiState])
+
+  useEffect(() => {
+    if (consultation?.id) {
+      void loadHistory()
+    }
+  }, [consultation?.id, loadHistory])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (editorContent || bodyChartParts.length > 0) {
+        void onSaveRef.current({
+          editor: (editorContent ?? null) as Prisma.InputJsonValue,
+          bodyChart: bodyChartParts,
+        })
+      }
+    }, 400)
+
+    return () => clearTimeout(timer)
+  }, [bodyChartParts, editorContent])
+
+  useEffect(() => {
+    const persistLatestAIState = async () => {
+      if (aiSaveInFlightRef.current) {
+        return
+      }
+
+      const currentAIState = latestAIStateRef.current
+      const nextSnapshot = JSON.stringify(currentAIState)
+
+      if (nextSnapshot === lastPersistedAISnapshotRef.current) {
+        return
+      }
+
+      const patch = buildAIStatePatch(lastPersistedAIStateRef.current, currentAIState)
+
+      if (!patch) {
+        lastPersistedAIStateRef.current = currentAIState
+        lastPersistedAISnapshotRef.current = nextSnapshot
+        return
+      }
+
+      aiSaveInFlightRef.current = true
+
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+          await onSaveRef.current(patch)
+          lastPersistedAIStateRef.current = currentAIState
+          lastPersistedAISnapshotRef.current = nextSnapshot
+          aiSaveInFlightRef.current = false
+
+          if (JSON.stringify(latestAIStateRef.current) !== nextSnapshot) {
+            void persistLatestAIState()
+          }
+
+          return
+        } catch (error) {
+          console.error("Failed to save AI state:", error)
+
+          if (attempt === 0) {
+            await new Promise<void>((resolve) => {
+              window.setTimeout(() => resolve(), 1500)
+            })
+            continue
+          }
+
+          aiSaveInFlightRef.current = false
+          if (JSON.stringify(latestAIStateRef.current) !== nextSnapshot) {
+            window.setTimeout(() => {
+              void persistLatestAIState()
+            }, 0)
+          }
+          toast.error(t("errors.aiSaveFailed"))
+          return
+        }
+      }
+    }
+
+    const nextSnapshot = JSON.stringify(aiState)
+    if (nextSnapshot === lastPersistedAISnapshotRef.current) {
+      return
+    }
+
+    const timer = window.setTimeout(() => {
+      void persistLatestAIState()
+    }, 3000)
+
+    return () => window.clearTimeout(timer)
+  }, [aiState, t])
+
+  useEffect(() => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+    }
+
+    saveTimeoutRef.current = setTimeout(async () => {
+      const previousBodyChartParts = lastSavedBodyChartPartsRef.current
+
+      if ((bodyChartParts.length > 0 || previousBodyChartParts.length > 0) && consultation?.id) {
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+          try {
+            await saveBodyChartHistory(consultation.id, bodyChartParts)
+            lastSavedBodyChartPartsRef.current = bodyChartParts
+            await loadHistory()
+            return
+          } catch (error) {
+            console.error("Failed to save body chart history:", error)
+
+            if (attempt === 0) {
+              await new Promise<void>((resolve) => {
+                window.setTimeout(() => resolve(), 1500)
+              })
+              continue
+            }
+
+            toast.error(t("errors.historySaveFailed"))
+
+            if (
+              bodyChartRetryTimeoutRef.current === null &&
+              JSON.stringify(lastSavedBodyChartPartsRef.current) !== JSON.stringify(bodyChartParts)
+            ) {
+              bodyChartRetryTimeoutRef.current = window.setTimeout(() => {
+                bodyChartRetryTimeoutRef.current = null
+                setBodyChartRetryNonce((currentValue) => currentValue + 1)
+              }, 5000)
+            }
+          }
+        }
+      }
+    }, 5000)
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+      }
+
+      if (bodyChartRetryTimeoutRef.current !== null) {
+        window.clearTimeout(bodyChartRetryTimeoutRef.current)
+        bodyChartRetryTimeoutRef.current = null
+      }
+    }
+  }, [bodyChartParts, bodyChartRetryNonce, consultation?.id, loadHistory, t])
+
+  const handleQuickNote = (text: string) => {
+    editorRef.current?.insertText(text)
+  }
+
+  const handleUpdateAI = useCallback((patch: Partial<ConsultationAIState>) => {
+    setAIState((currentState) => ({
+      ...currentState,
+      ...patch,
+    }))
+  }, [])
+
+  const handleEditorContentSync = useCallback((content: unknown) => {
+    setEditorContent(content)
+    // Content comes from editor.getJSON() — safe to pass back to setContent
+    editorRef.current?.setContent(content as Parameters<NonNullable<typeof editorRef.current>['setContent']>[0])
+  }, [])
+
+  return (
+    <div className="flex h-full flex-col overflow-hidden bg-white">
+      <div className="shrink-0 border-y bg-muted/50 px-4 py-2.5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Sheet open={showTimeline} onOpenChange={setShowTimeline}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 text-xs">
+                  <Clock className="mr-1.5 h-3.5 w-3.5" />
+                  {t("toolbar.timeline")}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[600px] sm:max-w-[600px]">
+                <SheetHeader>
+                  <SheetTitle>{t("toolbar.traumaticTimeline")}</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4">
+                  <TraumaTimeline history={consultation.patient.medicalHistory} />
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <Dialog open={showPatientFile} onOpenChange={setShowPatientFile}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 text-xs">
+                  <User className="mr-1.5 h-3.5 w-3.5" />
+                  {t("toolbar.patientFile")}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{t("toolbar.patientFile")}</DialogTitle>
+                </DialogHeader>
+                <PatientFile patient={consultation.patient} onNavigate={() => setShowPatientFile(false)} />
+              </DialogContent>
+            </Dialog>
+
+            <Sheet open={showHistory} onOpenChange={setShowHistory}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 text-xs">
+                  <History className="mr-1.5 h-3.5 w-3.5" />
+                  {t("toolbar.historyChart")}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[500px] sm:max-w-[500px]">
+                <SheetHeader>
+                  <SheetTitle>{t("toolbar.historySelections")}</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4 h-[calc(100vh-8rem)] overflow-auto">
+                  <BodyChartHistoryViewer history={history} muscleLabels={bodyPartLabels} />
+                </div>
+              </SheetContent>
+            </Sheet>
+
+          </div>
+
+          <QuickNotes onAddNote={handleQuickNote} />
+        </div>
+      </div>
+
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <div className="flex w-[60%] items-center justify-center overflow-auto border-r bg-muted/30 p-4">
+          <BodyChart
+            value={bodyChartParts}
+            onChange={setBodyChartParts}
+            className="border-0 shadow-none"
+          />
+        </div>
+
+        <div className="flex w-[40%] flex-col overflow-hidden bg-white">
+          <div className="flex shrink-0 items-center gap-2 border-b bg-muted/50 px-3 py-2">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">{t("editor.title")}</span>
+            <div className="ml-auto flex items-center gap-1.5">
+              <AudioSoapModal
+                appointmentId={consultation.id}
+                noteText={noteText}
+                bodyChartParts={bodyChartParts}
+                aiState={aiState}
+                audioSoapEnabled={aiAccess?.audioSoap ?? false}
+                editorContent={editorContent}
+                onEditorContentSync={handleEditorContentSync}
+                onUpdateAI={handleUpdateAI}
+              />
+              <SuggestionsModal
+                appointmentId={consultation.id}
+                noteText={noteText}
+                bodyChartParts={bodyChartParts}
+                aiState={aiState}
+                smartNotesEnabled={aiAccess?.smartNotesLive ?? false}
+                editorContent={editorContent}
+                onEditorContentSync={handleEditorContentSync}
+                onUpdateAI={handleUpdateAI}
+              />
+            </div>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <ConsultationEditor
+              ref={editorRef}
+              key={consultation.id}
+              initialContent={editorContent}
+              onChange={setEditorContent}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+})

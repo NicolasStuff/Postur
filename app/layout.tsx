@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     default: 'Postur - Logiciel de Gestion de Cabinet pour Ostéopathes',
     template: '%s | Postur',
   },
-  description: 'Logiciel de gestion de cabinet pour ostéopathes avec Body Chart interactif, facturation Facture-X et réservation en ligne.',
+  description: 'Logiciel de gestion de cabinet pour ostéopathes avec Body Chart interactif, préparation Factur-X et réservation en ligne.',
   robots: {
     index: false,
     follow: false,

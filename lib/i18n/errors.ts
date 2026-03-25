@@ -1,10 +1,17 @@
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 /**
  * Get the user's locale from request headers
  * Falls back to 'fr' if no locale is found
  */
 async function getLocale(): Promise<string> {
+  const cookieStore = await cookies();
+  const cookieLocale = cookieStore.get("NEXT_LOCALE")?.value;
+
+  if (cookieLocale === "en" || cookieLocale === "fr") {
+    return cookieLocale;
+  }
+
   const headersList = await headers();
   const acceptLanguage = headersList.get("accept-language");
 
@@ -18,7 +25,12 @@ async function getLocale(): Promise<string> {
 }
 
 /**
- * Error message translations
+ * Server-side error message translations.
+ *
+ * These keys (ERROR_MESSAGES) are used by server actions and API routes.
+ * They are a SEPARATE system from the client-side translations in
+ * messages/en.json and messages/fr.json (which are loaded by next-intl).
+ * Both systems must be kept in sync manually when error wording changes.
  */
 const ERROR_MESSAGES: Record<string, Record<string, string>> = {
   en: {
@@ -35,6 +47,8 @@ const ERROR_MESSAGES: Record<string, Record<string, string>> = {
     appointmentNotFound: "Appointment not found",
     patientNotFound: "Patient not found",
     consultationNotFound: "Consultation not found",
+    consultationAlreadyBilled: "This consultation has already been billed",
+    consultationCannotBeBilled: "Only attended appointments that have already started can be billed",
     invalidDate: "Invalid date",
     invalidTimeSlot: "Invalid time slot",
     slotNotAvailable: "This time slot is not available",
@@ -51,6 +65,27 @@ const ERROR_MESSAGES: Record<string, Record<string, string>> = {
     timeoutError: "Request timed out",
     validationError: "Validation error",
     databaseError: "Database error occurred",
+    defaultVatRateRequired: "Set a default VAT rate when VAT is enabled",
+    billingProfileIncomplete: "Complete your billing profile before creating or editing invoices",
+    invoiceLocked: "Only draft invoices can still be edited",
+    invoiceCannotDelete: "Only draft invoices can be deleted",
+    invoiceCannotCancel: "This invoice cannot be cancelled",
+    invalidStatusTransition: "This status change is not allowed",
+    emailSendFailed: "Failed to send the email",
+    subscriptionRequired: "An active subscription is required to access this feature",
+    invalidSlug: "The public booking URL is invalid",
+    reservedSlug: "This public booking URL is reserved",
+    slugAlreadyExists: "This public booking URL is already in use",
+    invalidSiret: "The SIRET must contain 14 digits",
+    profileIncomplete: "Complete your practice information to continue",
+    tooManyRequests: "Too many requests. Please try again later",
+    aiFeatureUnavailable: "These AI features are only available with Pro + AI",
+    aiConsentRequired: "You must accept AI data processing before using these features",
+    aiAudioFileRequired: "Add an audio file to start the transcription",
+    aiAudioEmpty: "The uploaded audio file is empty",
+    aiAudioTooLarge: "The uploaded audio file is too large",
+    aiAudioProcessingFailed: "Unable to transcribe the audio right now",
+    patientRecapRequiresNote: "Add a note or use the SOAP draft to generate a patient recap",
   },
   fr: {
     unauthorized: "Non authentifié",
@@ -66,6 +101,8 @@ const ERROR_MESSAGES: Record<string, Record<string, string>> = {
     appointmentNotFound: "Rendez-vous introuvable",
     patientNotFound: "Patient introuvable",
     consultationNotFound: "Consultation introuvable",
+    consultationAlreadyBilled: "Cette consultation a déjà été facturée",
+    consultationCannotBeBilled: "Seuls les rendez-vous commencés et honorés peuvent être facturés",
     invalidDate: "Date invalide",
     invalidTimeSlot: "Créneau horaire invalide",
     slotNotAvailable: "Ce créneau horaire n'est pas disponible",
@@ -82,6 +119,27 @@ const ERROR_MESSAGES: Record<string, Record<string, string>> = {
     timeoutError: "Délai d'attente dépassé",
     validationError: "Erreur de validation",
     databaseError: "Erreur de base de données",
+    defaultVatRateRequired: "Définissez un taux de TVA par défaut lorsque la TVA est activée",
+    billingProfileIncomplete: "Complétez votre profil de facturation avant de créer ou modifier des factures",
+    invoiceLocked: "Seules les factures en brouillon peuvent encore être modifiées",
+    invoiceCannotDelete: "Seules les factures en brouillon peuvent être supprimées",
+    invoiceCannotCancel: "Cette facture ne peut pas être annulée",
+    invalidStatusTransition: "Ce changement de statut n'est pas autorisé",
+    emailSendFailed: "L'envoi de l'email a échoué",
+    subscriptionRequired: "Un abonnement actif est requis pour accéder à cette fonctionnalité",
+    invalidSlug: "L'URL publique de réservation est invalide",
+    reservedSlug: "Cette URL publique de réservation est réservée",
+    slugAlreadyExists: "Cette URL publique de réservation est déjà utilisée",
+    invalidSiret: "Le SIRET doit contenir 14 chiffres",
+    profileIncomplete: "Complétez les informations de votre cabinet pour continuer",
+    tooManyRequests: "Trop de requêtes. Merci de réessayer plus tard",
+    aiFeatureUnavailable: "Ces fonctionnalités IA sont réservées à Pro + IA",
+    aiConsentRequired: "Vous devez accepter le traitement IA avant d'utiliser ces fonctionnalités",
+    aiAudioFileRequired: "Ajoutez un fichier audio pour lancer la transcription",
+    aiAudioEmpty: "Le fichier audio importé est vide",
+    aiAudioTooLarge: "Le fichier audio importé est trop volumineux",
+    aiAudioProcessingFailed: "Impossible de transcrire l'audio pour le moment",
+    patientRecapRequiresNote: "Ajoutez une note ou utilisez le brouillon SOAP pour générer un compte-rendu patient",
   },
 };
 

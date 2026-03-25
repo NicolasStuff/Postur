@@ -1,7 +1,12 @@
-import { stripe, getPlanByPriceId } from "@/lib/stripe";
-import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+
+import { prisma } from "@/lib/prisma";
+import { stripe, getPlanByPriceId } from "@/lib/stripe";
+
+const MAX_RETRIES = 5;
+const RETRY_BASE_DELAY_MS = 100;
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -13,112 +18,129 @@ export async function POST(req: Request) {
 
   let event: Stripe.Event;
 
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    throw new Error("STRIPE_WEBHOOK_SECRET is not set");
+  }
+
   try {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      webhookSecret
     );
   } catch (err) {
     console.error("Webhook signature verification failed:", err);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  // Idempotency check
-  const existingEvent = await prisma.webhookEvent.findUnique({
-    where: { stripeEventId: event.id },
-  });
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      const duplicate = await prisma.$transaction(
+        async (tx) => {
+          await tx.webhookEvent.upsert({
+            where: { stripeEventId: event.id },
+            create: {
+              stripeEventId: event.id,
+              eventType: event.type,
+              processed: false,
+            },
+            update: {
+              eventType: event.type,
+            },
+          });
 
-  if (existingEvent?.processed) {
-    return NextResponse.json({ received: true, duplicate: true });
-  }
+          const lockedRows = await tx.$queryRaw<Array<{ processed: boolean }>>`
+            SELECT "processed"
+            FROM "WebhookEvent"
+            WHERE "stripeEventId" = ${event.id}
+            FOR UPDATE
+          `;
+          const lockedEvent = lockedRows[0];
 
-  // Create webhook event record if it doesn't exist
-  if (!existingEvent) {
-    await prisma.webhookEvent.create({
-      data: {
-        stripeEventId: event.id,
-        eventType: event.type,
-        processed: false,
-      },
-    });
-  }
+          if (lockedEvent?.processed) {
+            return true;
+          }
 
-  try {
-    switch (event.type) {
-      case "checkout.session.completed":
-        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
-        break;
+          switch (event.type) {
+            case "checkout.session.completed":
+              await handleCheckoutCompleted(tx, event.data.object as Stripe.Checkout.Session);
+              break;
 
-      case "customer.subscription.created":
-      case "customer.subscription.updated":
-        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
-        break;
+            case "customer.subscription.created":
+            case "customer.subscription.updated":
+              await handleSubscriptionUpdated(tx, event.data.object as Stripe.Subscription);
+              break;
 
-      case "customer.subscription.deleted":
-        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
-        break;
+            case "customer.subscription.deleted":
+              await handleSubscriptionDeleted(tx, event.data.object as Stripe.Subscription);
+              break;
 
-      case "invoice.payment_succeeded":
-        await handlePaymentSucceeded(event.data.object as Stripe.Invoice);
-        break;
+            case "invoice.payment_succeeded":
+              await handlePaymentSucceeded(tx, event.data.object as Stripe.Invoice);
+              break;
 
-      case "invoice.payment_failed":
-        await handlePaymentFailed(event.data.object as Stripe.Invoice);
-        break;
+            case "invoice.payment_failed":
+              await handlePaymentFailed(tx, event.data.object as Stripe.Invoice);
+              break;
 
-      // Events that don't need processing — acknowledge silently
-      default:
-        break;
+            default:
+              break;
+          }
+
+          await tx.webhookEvent.update({
+            where: { stripeEventId: event.id },
+            data: { processed: true },
+          });
+
+          return false;
+        },
+        {
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        }
+      );
+
+      if (duplicate) {
+        return NextResponse.json({ received: true, duplicate: true });
+      }
+
+      return NextResponse.json({ received: true });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2034" &&
+        attempt < MAX_RETRIES - 1
+      ) {
+        const delay = RETRY_BASE_DELAY_MS * Math.pow(2, attempt) + Math.random() * 50;
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+
+      console.error(`Error processing webhook ${event.type}:`, error);
+      return NextResponse.json(
+        { error: "Webhook processing failed" },
+        { status: 500 }
+      );
     }
-
-    // Mark event as processed
-    await prisma.webhookEvent.update({
-      where: { stripeEventId: event.id },
-      data: { processed: true },
-    });
-
-    return NextResponse.json({ received: true });
-  } catch (error) {
-    console.error(`Error processing webhook ${event.type}:`, error);
-    return NextResponse.json(
-      { error: "Webhook processing failed" },
-      { status: 500 }
-    );
   }
+
+  return NextResponse.json({ error: "Transaction failed after retries" }, { status: 500 });
 }
 
-/**
- * Safely extract currentPeriodEnd from a Stripe subscription object.
- * Handles API version differences where the field may be missing or null.
- */
 function getSubscriptionPeriodEnd(subscription: Stripe.Subscription): Date | null {
-  // Try direct property (may not exist in newer API versions)
-  const sub = subscription as unknown as Record<string, unknown>;
-  const periodEnd = sub.current_period_end;
-  if (typeof periodEnd === "number") {
-    return new Date(periodEnd * 1000);
-  }
-
-  // Fallback: use items period end
-  const item = subscription.items?.data?.[0] as unknown as Record<string, unknown> | undefined;
-  const itemPeriodEnd = item?.current_period_end;
-  if (typeof itemPeriodEnd === "number") {
-    return new Date(itemPeriodEnd * 1000);
+  // In Stripe v20, current_period_end lives on SubscriptionItem, not Subscription
+  const item = subscription.items?.data?.[0];
+  if (item?.current_period_end) {
+    return new Date(item.current_period_end * 1000);
   }
 
   return null;
 }
 
-/**
- * Resolve userId from Stripe subscription metadata or customer metadata.
- */
 async function resolveUserId(subscription: Stripe.Subscription): Promise<string | null> {
-  // Try subscription metadata first
   const userId = subscription.metadata?.userId;
   if (userId) return userId;
 
-  // Fallback: fetch customer and check its metadata
   const customerId = subscription.customer as string;
   try {
     const customer = await stripe.customers.retrieve(customerId);
@@ -129,9 +151,16 @@ async function resolveUserId(subscription: Stripe.Subscription): Promise<string 
   }
 }
 
-/**
- * Build the subscription data object for Prisma create/update.
- */
+const VALID_PLANS = ["PRO", "PRO_IA"] as const;
+type Plan = (typeof VALID_PLANS)[number];
+
+function validatePlan(plan: string): Plan {
+  if (!(VALID_PLANS as readonly string[]).includes(plan)) {
+    throw new Error(`Invalid plan: ${plan}`);
+  }
+  return plan as Plan;
+}
+
 function buildSubscriptionData(
   subscription: Stripe.Subscription,
   opts: { customerId: string; plan: string; currentPeriodEnd: Date | null }
@@ -140,7 +169,7 @@ function buildSubscriptionData(
     stripeCustomerId: opts.customerId,
     stripeSubscriptionId: subscription.id,
     stripePriceId: subscription.items.data[0]?.price.id,
-    plan: opts.plan as "PRO" | "PRO_IA",
+    plan: validatePlan(opts.plan),
     status: mapStripeStatus(subscription.status),
     trialEndsAt: subscription.trial_end
       ? new Date(subscription.trial_end * 1000)
@@ -150,7 +179,7 @@ function buildSubscriptionData(
   };
 }
 
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+async function handleCheckoutCompleted(tx: Prisma.TransactionClient, session: Stripe.Checkout.Session) {
   const userId = session.metadata?.userId;
   const customerId = session.customer as string;
   const subscriptionId = session.subscription as string;
@@ -169,52 +198,61 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     currentPeriodEnd: getSubscriptionPeriodEnd(subscription),
   });
 
-  await prisma.subscription.upsert({
+  await tx.subscription.upsert({
     where: { userId },
     create: { userId, ...data },
     update: data,
   });
 }
 
-async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+async function handleSubscriptionUpdated(
+  tx: Prisma.TransactionClient,
+  subscription: Stripe.Subscription
+) {
   const customerId = subscription.customer as string;
   const priceId = subscription.items.data[0]?.price.id;
   const currentPeriodEnd = getSubscriptionPeriodEnd(subscription);
 
-  const existingSubscription = await prisma.subscription.findUnique({
-    where: { stripeCustomerId: customerId },
+  const existingSubscription = await tx.subscription.findFirst({
+    where: {
+      OR: [{ stripeSubscriptionId: subscription.id }, { stripeCustomerId: customerId }],
+    },
   });
 
   const plan = getPlanByPriceId(priceId) || existingSubscription?.plan || "PRO";
   const data = buildSubscriptionData(subscription, { customerId, plan, currentPeriodEnd });
 
   if (existingSubscription) {
-    await prisma.subscription.update({
-      where: { stripeCustomerId: customerId },
+    await tx.subscription.update({
+      where: { id: existingSubscription.id },
       data,
     });
     return;
   }
 
-  // Subscription not in DB yet (race condition: this event arrived before checkout.session.completed)
   const userId = await resolveUserId(subscription);
   if (!userId) {
     console.error("Cannot resolve userId for customer:", customerId);
     return;
   }
 
-  await prisma.subscription.upsert({
+  await tx.subscription.upsert({
     where: { userId },
     create: { userId, ...data },
     update: data,
   });
 }
 
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+async function handleSubscriptionDeleted(
+  tx: Prisma.TransactionClient,
+  subscription: Stripe.Subscription
+) {
   const customerId = subscription.customer as string;
 
-  await prisma.subscription.updateMany({
-    where: { stripeCustomerId: customerId },
+  await tx.subscription.updateMany({
+    where: {
+      OR: [{ stripeSubscriptionId: subscription.id }, { stripeCustomerId: customerId }],
+    },
     data: {
       status: "CANCELED",
       cancelAtPeriodEnd: false,
@@ -222,31 +260,45 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   });
 }
 
-async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
+async function handlePaymentSucceeded(tx: Prisma.TransactionClient, invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
-  const subscriptionId = (invoice as unknown as Record<string, unknown>).subscription as string | null;
+  // In Stripe v20, subscription is under parent.subscription_details
+  const sub = invoice.parent?.subscription_details?.subscription;
+  const subscriptionId = typeof sub === "string"
+    ? sub
+    : (sub as Stripe.Subscription | null)?.id ?? null;
 
   if (!subscriptionId) return;
 
-  // Don't overwrite TRIALING status — trial invoices (0€) also trigger this event
-  const existing = await prisma.subscription.findFirst({
-    where: { stripeCustomerId: customerId },
+  const existing = await tx.subscription.findFirst({
+    where: subscriptionId
+      ? { stripeSubscriptionId: subscriptionId }
+      : { stripeCustomerId: customerId },
     select: { status: true },
   });
 
   if (existing?.status === "TRIALING") return;
 
-  await prisma.subscription.updateMany({
-    where: { stripeCustomerId: customerId },
+  await tx.subscription.updateMany({
+    where: subscriptionId
+      ? { stripeSubscriptionId: subscriptionId }
+      : { stripeCustomerId: customerId },
     data: { status: "ACTIVE" },
   });
 }
 
-async function handlePaymentFailed(invoice: Stripe.Invoice) {
+async function handlePaymentFailed(tx: Prisma.TransactionClient, invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
+  // In Stripe v20, subscription is under parent.subscription_details
+  const sub = invoice.parent?.subscription_details?.subscription;
+  const subscriptionId = typeof sub === "string"
+    ? sub
+    : (sub as Stripe.Subscription | null)?.id ?? null;
 
-  await prisma.subscription.updateMany({
-    where: { stripeCustomerId: customerId },
+  await tx.subscription.updateMany({
+    where: subscriptionId
+      ? { stripeSubscriptionId: subscriptionId }
+      : { stripeCustomerId: customerId },
     data: { status: "PAST_DUE" },
   });
 }

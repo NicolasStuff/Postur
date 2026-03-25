@@ -1,6 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ServicesSettings } from "@/components/settings/ServicesSettings"
 import { ProfileSettings } from "@/components/settings/ProfileSettings"
 import { AvailabilitySettings } from "@/components/settings/AvailabilitySettings"
 import { BillingSettings } from "@/components/settings/BillingSettings"
@@ -46,7 +45,6 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
         <TabsList>
           <TabsTrigger value="profile">{t('tabs.profile')}</TabsTrigger>
           <TabsTrigger value="availability">{t('tabs.availability')}</TabsTrigger>
-          <TabsTrigger value="services">{t('tabs.services')}</TabsTrigger>
           <TabsTrigger value="billing">{t('tabs.billing')}</TabsTrigger>
         </TabsList>
 
@@ -70,18 +68,6 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
                 </CardHeader>
                 <CardContent>
                     <AvailabilitySettings />
-                </CardContent>
-            </Card>
-        </TabsContent>
-
-        <TabsContent value="services">
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('services.title')}</CardTitle>
-                    <CardDescription>{t('services.description')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ServicesSettings />
                 </CardContent>
             </Card>
         </TabsContent>

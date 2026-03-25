@@ -8,10 +8,10 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postur
-      POSTGRES_PASSWORD: postur_dev_password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: postur_dev
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -31,7 +31,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postur:postur_dev_password@postgres:5432/postur_dev
+      - DATABASE_URL=postgresql://postur:${POSTGRES_PASSWORD}@postgres:5432/postur_dev
       - NEXT_PUBLIC_APP_URL=http://localhost:3001
     depends_on:
       postgres:

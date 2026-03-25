@@ -52,6 +52,10 @@ export const PLANS = {
       "priority_support",
       "ai_consultation_summary",
       "ai_diagnosis_suggestions",
+      "ai_smart_notes",
+      "ai_audio_soap",
+      "ai_smart_notes_live",
+      "ai_patient_recap",
     ],
   },
 } as const;

@@ -6,23 +6,25 @@ import { NextResponse } from 'next/server';
  */
 export async function GET() {
   try {
-    // Vérification basique de l'état de l'application
-    const healthCheck = {
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      environment: process.env.NODE_ENV,
-    };
-
-    return NextResponse.json(healthCheck, { status: 200 });
-  } catch (error) {
     return NextResponse.json(
+      { status: 'ok' },
       {
-        status: 'error',
-        timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 503 }
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-store',
+        },
+      }
+    );
+  } catch (error) {
+    console.error('Healthcheck failed', error)
+    return NextResponse.json(
+      { status: 'error' },
+      {
+        status: 503,
+        headers: {
+          'Cache-Control': 'no-store',
+        },
+      }
     );
   }
 }

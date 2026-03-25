@@ -13,6 +13,8 @@ const FRENCH_ONLY_ROUTES = [
   '/',
   '/signin',
   '/signup',
+  '/forgot-password',
+  '/reset-password',
 ]
 
 /**
@@ -68,6 +70,7 @@ export async function middleware(request: NextRequest) {
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-user-locale', 'fr')
     requestHeaders.set('x-next-intl-locale', 'fr')
+    requestHeaders.set('x-pathname', pathname)
 
     // Continue without locale handling
     return NextResponse.next({
@@ -97,6 +100,7 @@ export async function middleware(request: NextRequest) {
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-user-locale', locale)
     requestHeaders.set('x-next-intl-locale', locale)
+    requestHeaders.set('x-pathname', pathname)
 
     // Continue without URL rewriting, just pass headers
     const response = NextResponse.next({
@@ -110,6 +114,8 @@ export async function middleware(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 365, // 1 year
       path: '/',
       sameSite: 'lax',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
     })
 
     return response
@@ -122,6 +128,7 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-user-locale', routing.defaultLocale)
   requestHeaders.set('x-next-intl-locale', routing.defaultLocale)
+  requestHeaders.set('x-pathname', pathname)
 
   return NextResponse.next({
     request: {

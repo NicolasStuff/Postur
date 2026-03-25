@@ -15,7 +15,7 @@ model User {
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime  @default(now()) @updatedAt
 
   // Better Auth Relations
   sessions      Session[]
@@ -31,6 +31,7 @@ model User {
   companyName      String?
   companyAddress   String?
   isVatExempt      Boolean           @default(true)
+  defaultVatRate   Decimal?          @db.Decimal(5, 2)
 
   // Settings
   openingHours     Json?
@@ -38,11 +39,14 @@ model User {
   language         String            @default("fr") // "fr" or "en"
 
   // Relations
-  patients         Patient[]
-  appointments     Appointment[]
-  services         Service[]
-  invoices         Invoice[]
-  subscription     Subscription?
+  patients             Patient[]
+  appointments         Appointment[]
+  services             Service[]
+  invoices             Invoice[]
+  subscription         Subscription?
+  scheduleExceptions   ScheduleException[]
+  supportConversation  SupportConversation? @relation("SupportConversationRequester")
+  supportMessages      SupportMessage[]     @relation("SupportMessageAuthor")
 }
 
 model Session {
@@ -104,10 +108,64 @@ enum AppointmentStatus {
   NOSHOW
 }
 
+/// Note: InvoiceStatus uses CANCELLED (UK spelling) vs AppointmentStatus CANCELED (US spelling)
 enum InvoiceStatus {
   DRAFT
   SENT
   PAID
+  CANCELLED
+}
+
+enum InvoiceBuyerType {
+  INDIVIDUAL
+  BUSINESS
+}
+
+enum FacturXProfile {
+  BASIC
+  EN16931
+}
+
+enum FacturXStatus {
+  INCOMPLETE
+  BASIC_READY
+  EN16931_CANDIDATE
+}
+
+// --- NOTIFICATION ENUMS ---
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+}
+
+enum NotificationProvider {
+  RESEND
+  SMSMODE
+}
+
+enum NotificationKind {
+  BOOKING_CONFIRMATION
+  BOOKING_CANCELLATION
+  REMINDER_J3
+  REMINDER_J2
+  REMINDER_J1
+  REMINDER_H1
+}
+
+enum NotificationStatus {
+  CREATED
+  SENT
+  ENROUTE
+  DELIVERED
+  DELIVERY_DELAYED
+  FAILED
+  BOUNCED
+  UNDELIVERABLE
+  UNDELIVERED
+  COMPLAINED
+  SUPPRESSED
+  UNKNOWN
 }
 
 // --- SUBSCRIPTION MODELS ---
@@ -123,6 +181,16 @@ enum SubscriptionStatus {
 enum SubscriptionPlan {
   PRO
   PRO_IA
+}
+
+enum SupportConversationStatus {
+  OPEN
+  CLOSED
+}
+
+enum SupportAuthorType {
+  USER
+  ADMIN
 }
 
 model Patient {
@@ -146,6 +214,8 @@ model Patient {
   updatedAt     DateTime  @updatedAt
 
   @@unique([userId, email])
+  @@unique([id, userId])
+  @@index([userId])
 }
 
 model Service {
@@ -158,6 +228,8 @@ model Service {
   price         Decimal   @db.Decimal(10, 2)
 
   appointments  Appointment[]
+
+  @@unique([id, userId])
 }
 
 model Appointment {
@@ -166,19 +238,34 @@ model Appointment {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   patientId     String
-  patient       Patient   @relation(fields: [patientId], references: [id])
+  patient       Patient   @relation(fields: [patientId, userId], references: [id, userId], onDelete: Restrict)
 
   serviceId     String
-  service       Service   @relation(fields: [serviceId], references: [id])
+  service       Service   @relation(fields: [serviceId, userId], references: [id, userId], onDelete: Restrict)
 
   start         DateTime
   end           DateTime
   status        AppointmentStatus @default(PLANNED)
+  notes         String?
+  completedAt   DateTime?
+  billedAt      DateTime?
 
   note          ConsultationNote?
+  invoice       Invoice?
+
+  reminderJ3SentAt   DateTime?  @db.Timestamptz(3)
+  reminderJ2SentAt   DateTime?  @db.Timestamptz(3)
+  reminderJ1SentAt   DateTime?  @db.Timestamptz(3)
+  reminderH1SentAt   DateTime?  @db.Timestamptz(3)
+
+  notifications AppointmentNotification[]
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@unique([id, userId])
+  @@index([userId, start])
+  @@index([userId, status, start])
 }
 
 model ConsultationNote {
@@ -212,16 +299,44 @@ model Invoice {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   patientId     String
-  patient       Patient   @relation(fields: [patientId], references: [id])
+  patient       Patient   @relation(fields: [patientId, userId], references: [id, userId], onDelete: Restrict)
+  /// FK uses ON DELETE RESTRICT: cannot delete an appointment with an existing invoice.
+  /// Use cancelInvoice or deleteInvoice first.
+  appointmentId String?
+  appointment   Appointment? @relation(fields: [appointmentId, userId], references: [id, userId], onDelete: Restrict)
 
   number        String
   date          DateTime  @default(now())
+  serviceDate   DateTime?
+  dueDate       DateTime?
+  currency      String    @default("EUR")
+  paymentTerms  String    @default("Paiement comptant")
+  buyerType     InvoiceBuyerType @default(INDIVIDUAL)
+  buyerCompanyName String?
+  buyerSiren    String?
+  buyerVatNumber String?
 
   amount        Decimal   @db.Decimal(10, 2)
+  vatRate       Decimal?  @db.Decimal(5, 2)
+  vatAmount     Decimal?  @db.Decimal(10, 2)
   status        InvoiceStatus @default(DRAFT)
+  serviceName   String?
+  issuerSnapshot Json?
+  patientSnapshot Json?
+  /// JSON structure: Array<{ description: string, quantity: number, unitPrice: number, totalPrice: number }>
+  lineItems     Json?
+  facturXProfile FacturXProfile?
+  facturXStatus FacturXStatus @default(INCOMPLETE)
+  facturXXml    String?   @db.Text
   pdfUrl        String?
 
   createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  @@unique([id, userId])
+  @@unique([appointmentId, userId])
+  @@unique([userId, number])
+  @@index([userId, date])
 }
 
 model Subscription {
@@ -255,4 +370,139 @@ model WebhookEvent {
   createdAt     DateTime @default(now())
 
   @@index([stripeEventId])
+}
+
+model AuditEvent {
+  id           String   @id @default(cuid())
+  /// actorUserId/targetUserId are NOT FKs by design — allows logging even if user is deleted
+  actorUserId  String
+  targetUserId String?
+  domain       String
+  action       String
+  entityType   String
+  entityId     String
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  @@index([actorUserId, createdAt])
+  @@index([domain, createdAt])
+  @@index([entityType, entityId])
+}
+
+/// TODO: implement periodic cleanup job to purge expired rate limit entries
+model RateLimitBucket {
+  id          String   @id @default(cuid())
+  scope       String
+  key         String
+  windowStart DateTime
+  count       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([scope, key, windowStart])
+  @@index([scope, windowStart])
+}
+
+// --- NOTIFICATION MODELS ---
+
+model AppointmentNotification {
+  id                String               @id @default(cuid())
+  appointmentId     String
+  appointment       Appointment          @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  kind              NotificationKind
+  channel           NotificationChannel
+  provider          NotificationProvider
+  recipient         String
+  providerMessageId String?
+  status            NotificationStatus   @default(CREATED)
+  providerStatus    String?
+  errorCode         String?
+  errorMessage      String?
+  sentAt            DateTime?            @db.Timestamptz(3)
+  deliveredAt       DateTime?            @db.Timestamptz(3)
+  failedAt          DateTime?            @db.Timestamptz(3)
+  lastEventAt       DateTime?            @db.Timestamptz(3)
+  metadata          Json?
+  events            AppointmentNotificationEvent[]
+  createdAt         DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime             @updatedAt @db.Timestamptz(3)
+
+  @@index([appointmentId, kind, channel])
+  @@index([status])
+  @@unique([provider, providerMessageId])
+}
+
+model AppointmentNotificationEvent {
+  id                String               @id @default(cuid())
+  notificationId    String
+  notification      AppointmentNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  source            NotificationProvider
+  externalEventType String
+  externalStatus    String?
+  dedupeKey         String               @unique
+  payload           Json
+  receivedAt        DateTime             @default(now()) @db.Timestamptz(3)
+
+  @@index([notificationId, receivedAt])
+}
+
+// --- SCHEDULE EXCEPTION MODELS ---
+
+enum ScheduleExceptionType {
+  ADDED
+  BLOCKED
+}
+
+model ScheduleException {
+  id        String                @id @default(cuid())
+  userId    String
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date      DateTime              @db.Date
+  type      ScheduleExceptionType
+  startTime String?
+  endTime   String?
+  reason    String?
+
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+
+  @@index([userId, date])
+  @@index([userId, type, date])
+}
+
+// --- SUPPORT MODELS ---
+
+model SupportConversation {
+  id                String                    @id @default(cuid())
+  requesterUserId   String                    @unique
+  requester         User                      @relation("SupportConversationRequester", fields: [requesterUserId], references: [id], onDelete: Cascade)
+  status            SupportConversationStatus @default(OPEN)
+  lastMessageAt     DateTime
+  lastUserMessageAt DateTime
+  lastAdminMessageAt DateTime?
+  lastReadByUserAt  DateTime
+  lastReadByAdminAt DateTime?
+  closedAt          DateTime?
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+
+  messages          SupportMessage[]
+
+  @@index([requesterUserId, updatedAt])
+  @@index([status, updatedAt])
+}
+
+model SupportMessage {
+  id             String            @id @default(cuid())
+  conversationId String
+  conversation   SupportConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  authorUserId   String
+  author         User              @relation("SupportMessageAuthor", fields: [authorUserId], references: [id], onDelete: Cascade)
+  authorType     SupportAuthorType
+  body           String            @db.Text
+  createdAt      DateTime          @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([authorUserId, createdAt])
 }

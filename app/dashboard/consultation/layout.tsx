@@ -3,9 +3,5 @@ export default function ConsultationLayout({
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <div className="-m-6 h-[calc(100%+3rem)]">
-      {children}
-    </div>
-  )
+  return <>{children}</>
 }

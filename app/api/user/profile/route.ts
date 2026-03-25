@@ -26,6 +26,11 @@ export async function GET() {
         name: true,
         language: true,
         practitionerType: true,
+        companyName: true,
+        companyAddress: true,
+        siret: true,
+        isVatExempt: true,
+        defaultVatRate: true,
         slug: true,
         role: true,
       },
@@ -38,7 +43,10 @@ export async function GET() {
       )
     }
 
-    return NextResponse.json(user)
+    return NextResponse.json({
+      ...user,
+      defaultVatRate: user.defaultVatRate ? user.defaultVatRate.toNumber() : null,
+    })
   } catch (error) {
     console.error('Error fetching user profile:', error)
     return NextResponse.json(

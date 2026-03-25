@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, Check, Shield, Calendar, FileText, User, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { MarketingFooter } from "@/components/marketing/MarketingFooter"
 import { MobileMenu } from "@/components/landing/MobileMenu"
 import { FAQ } from "@/components/landing/FAQ"
 import { HeroSection } from "@/components/landing/HeroSection"
@@ -44,14 +45,14 @@ const jsonLd = {
       applicationCategory: "BusinessApplication",
       applicationSubCategory: "Logiciel médical",
       operatingSystem: "Web, macOS, Windows",
-      description: "Logiciel de gestion de cabinet pour ostéopathes avec Body Chart interactif, facturation Facture-X et réservation en ligne",
+      description: "Logiciel de gestion de cabinet pour ostéopathes avec Body Chart interactif, préparation Factur-X et réservation en ligne",
       offers: [
         {
           "@type": "Offer",
           name: "Pro",
           price: "29",
           priceCurrency: "EUR",
-          priceValidUntil: "2025-12-31",
+          priceValidUntil: "2027-12-31",
           availability: "https://schema.org/InStock",
           url: "https://postur.fr/#pricing",
         },
@@ -60,19 +61,19 @@ const jsonLd = {
           name: "Pro + IA",
           price: "39",
           priceCurrency: "EUR",
-          priceValidUntil: "2025-12-31",
+          priceValidUntil: "2027-12-31",
           availability: "https://schema.org/InStock",
           url: "https://postur.fr/#pricing",
         },
       ],
       featureList: [
         "Body Chart interactif SVG",
-        "Facturation Facture-X 2026",
+        "Préparation Factur-X 2026",
         "Réservation en ligne intégrée",
         "Rappels SMS et email automatiques",
         "Gestion des dossiers patients",
         "Export comptable automatique",
-        "Conforme RGPD et HDS",
+        "Approche RGPD par conception",
       ],
       screenshot: "https://postur.fr/images/landing-page/new/body-chart-consultation.png",
       softwareVersion: "1.0",
@@ -88,8 +89,8 @@ const jsonLd = {
       "@type": "WebPage",
       "@id": "https://postur.fr/#webpage",
       url: "https://postur.fr",
-      name: "Postur - Logiciel de Gestion de Cabinet pour Ostéopathes | Body Chart & Facture-X",
-      description: "Le premier logiciel ostéopathe qui combine Body Chart interactif, Facture-X native et Réservation en ligne. Essai gratuit 14 jours.",
+      name: "Postur - Logiciel de Gestion de Cabinet pour Ostéopathes | Body Chart & préparation Factur-X",
+      description: "Le logiciel ostéopathe qui combine Body Chart interactif, préparation Factur-X et réservation en ligne. Essai gratuit 14 jours.",
       isPartOf: { "@id": "https://postur.fr/#website" },
       about: { "@id": "https://postur.fr/#software" },
       inLanguage: "fr-FR",
@@ -200,11 +201,11 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center gap-2 font-bold text-lg text-slate-600">
                   <Shield className="h-5 w-5 text-slate-400" aria-hidden="true" />
-                  <span>Hébergé en France (HDS)</span>
+                  <span>Infrastructure hébergée en France</span>
                 </div>
                 <div className="flex items-center gap-2 font-bold text-lg text-slate-600">
                   <Lock className="h-5 w-5 text-slate-400" aria-hidden="true" />
-                  <span>Conforme RGPD</span>
+                  <span>Pensé pour le RGPD</span>
                 </div>
               </div>
             </div>
@@ -266,17 +267,17 @@ export default function LandingPage() {
                           <FileText className="h-5 w-5 text-slate-600" aria-hidden="true" />
                         </div>
                         <h3 className="text-xl font-semibold text-slate-900">
-                          Facturation Facture-X
+                          Préparation Factur-X
                         </h3>
                         <p className="text-slate-500 leading-relaxed">
-                          La réforme <strong className="text-slate-700">facturation électronique 2026</strong> arrive.
-                          Postur génère vos factures ostéopathe au format <strong className="text-slate-700">Facture-X</strong> légal automatiquement.
+                          La réforme <strong className="text-slate-700">facturation électronique 2026-2027</strong> arrive.
+                          Postur pose les bases de votre <strong className="text-slate-700">préparation Factur-X</strong> sans surpromesse sur la chaîne réglementaire complète.
                         </p>
                       </article>
                       <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
                         <code className="flex items-center gap-3 text-sm text-slate-600">
                           <Check className="h-4 w-4 text-green-500 shrink-0" aria-hidden="true" />
-                          <span className="font-mono">facture_2024-001.xml</span>
+                          <span className="font-mono">draft_facturx_invoice.xml</span>
                         </code>
                       </div>
                     </div>
@@ -415,7 +416,7 @@ export default function LandingPage() {
                     <div className="rounded-xl overflow-hidden border border-slate-200/80 bg-white shadow-sm">
                       <Image
                         src="/images/landing-page/new/billing-dashboard.png"
-                        alt="Tableau de bord facturation Postur - Gestion des factures ostéopathe format Facture-X"
+                        alt="Tableau de bord facturation Postur - Gestion des factures ostéopathe avec préparation Factur-X"
                         width={800}
                         height={500}
                         className="w-full h-auto"
@@ -471,11 +472,11 @@ export default function LandingPage() {
                         "Patients illimités",
                         "Consultations illimitées",
                         "Body Chart interactif",
-                        "Facturation Facture-X 2026",
+                        "Préparation Factur-X",
                         "Réservation en ligne",
                         "Rappels SMS & email automatiques",
                         "Support prioritaire",
-                        "Hébergement HDS France",
+                        "Infrastructure hébergée en France",
                       ].map((feature, i) => (
                         <div key={i} className="flex items-start gap-3">
                           <Check className="h-5 w-5 text-slate-400 shrink-0 mt-0.5" aria-hidden="true" />
@@ -522,11 +523,9 @@ export default function LandingPage() {
                         <span className="text-slate-900 font-medium text-[15px]">Tout le plan Pro, plus :</span>
                       </div>
                       {[
-                        "Assistant IA en consultation",
-                        "Résumé automatique des séances",
-                        "Suggestions diagnostiques IA",
-                        "Notes intelligentes",
-                        "Accès prioritaire aux nouveautés",
+                        "Audio vers note SOAP",
+                        "Suggestions de notes en direct",
+                        "Compte-rendu patient intelligent",
                       ].map((feature, i) => (
                         <div key={i} className="flex items-start gap-3">
                           <Check className="h-5 w-5 text-indigo-500 shrink-0 mt-0.5" aria-hidden="true" />
@@ -557,80 +556,7 @@ export default function LandingPage() {
           </section>
         </main>
 
-        {/* Footer */}
-        <footer className="bg-slate-50 border-t border-slate-100 py-16" role="contentinfo">
-          <div className="container mx-auto px-6 grid md:grid-cols-4 gap-12">
-            <div className="col-span-2">
-              <div className="flex items-center gap-2 mb-6">
-                <Image
-                  src="/images/logo/logo.svg"
-                  alt="Postur - Logiciel de gestion pour ostéopathes"
-                  width={40}
-                  height={40}
-                  className="h-10 w-auto"
-                />
-                <span className="text-xl font-bold tracking-tighter text-slate-900">POSTUR</span>
-              </div>
-              <p className="max-w-sm text-slate-500 leading-relaxed">
-                <strong>Postur</strong> : le logiciel de gestion de cabinet moderne pour les ostéopathes exigeants.
-                <br />
-                Gagnez du temps sur l&apos;administratif, sécurisez votre pratique.
-              </p>
-            </div>
-            <nav aria-label="Navigation produit">
-              <h3 className="font-bold text-slate-900 mb-6">Produit</h3>
-              <ul className="space-y-4 text-sm text-slate-500">
-                <li>
-                  <Link href="#features" className="hover:text-indigo-600 transition-colors">
-                    Fonctionnalités
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#pricing" className="hover:text-indigo-600 transition-colors">
-                    Tarifs
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/signin?tab=signin" className="hover:text-indigo-600 transition-colors">
-                    Connexion
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-            <nav aria-label="Navigation légale">
-              <h3 className="font-bold text-slate-900 mb-6">Légal</h3>
-              <ul className="space-y-4 text-sm text-slate-500">
-                <li>
-                  <Link href="#" className="hover:text-indigo-600 transition-colors">
-                    Mentions Légales
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-indigo-600 transition-colors">
-                    Politique de Confidentialité
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-indigo-600 transition-colors">
-                    CGV
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-indigo-600 transition-colors">
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-          </div>
-          <div className="container mx-auto px-6 pt-8 mt-12 border-t border-slate-200 text-center text-sm text-slate-400 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p>&copy; 2025 Postur. Fait avec passion en France.</p>
-            <p className="text-xs opacity-70">
-              Logiciel ostéopathe Mac &amp; PC | Gestion cabinet ostéopathie | Facture-X ostéopathe | Alternative
-              Doctolib
-            </p>
-          </div>
-        </footer>
+        <MarketingFooter />
       </div>
     </>
   )

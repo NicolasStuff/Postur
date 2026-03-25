@@ -7,7 +7,7 @@ const faqItems = [
     id: "securite-donnees",
     question: "Est-ce que mes données patients sont en sécurité ?",
     answer:
-      "Oui, Postur utilise un hébergement certifié HDS (Hébergeur de Données de Santé) chiffré et conforme aux standards de santé français et européens. Vos données patient vous appartiennent et sont sauvegardées quotidiennement sur des serveurs situés en France. Notre infrastructure est conforme RGPD et répond aux exigences légales pour les professions de santé.",
+      "Postur applique une approche stricte de sécurité et de minimisation des données, avec une infrastructure hébergée en France. La trajectoire HDS et la gouvernance RGPD santé font partie de la feuille de route de conformité en cours de déploiement.",
   },
   {
     id: "import-patients",
@@ -19,7 +19,7 @@ const faqItems = [
     id: "facture-x-obligation",
     question: "La Facture-X est-elle obligatoire pour les ostéopathes ?",
     answer:
-      "La facturation électronique au format Facture-X deviendra progressivement obligatoire pour toutes les entreprises assujetties à la TVA dès 2026 (réception) et 2027 (émission). Les ostéopathes, même en franchise de TVA, devront se conformer à ces nouvelles normes. S'équiper maintenant avec Postur, c'est éviter la panique plus tard et moderniser votre gestion administrative dès aujourd'hui.",
+      "La réforme de la facturation électronique se déploie progressivement à partir de 2026 pour la réception et 2027 pour l’émission selon le profil d’entreprise. Postur prépare les fondations structurées nécessaires, mais la chaîne réglementaire complète dépend aussi d’un raccordement PDP et des validations officielles.",
   },
   {
     id: "body-chart-fonctionnement",

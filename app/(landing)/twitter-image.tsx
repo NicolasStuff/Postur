@@ -1,8 +1,6 @@
 import { ImageResponse } from 'next/og'
 
-export const runtime = 'edge'
-
-export const alt = 'Postur - Logiciel Ostéopathe avec Body Chart et Facture-X'
+export const alt = 'Postur - Logiciel Ostéopathe avec Body Chart et préparation Factur-X'
 export const size = {
   width: 1200,
   height: 630,
@@ -91,7 +89,7 @@ export default async function Image() {
               maxWidth: '800px',
             }}
           >
-            Body Chart interactif • Facture-X 2026 • Réservation en ligne
+            Body Chart interactif • Préparation Factur-X • Réservation en ligne
           </p>
         </div>
 

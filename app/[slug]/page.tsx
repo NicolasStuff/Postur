@@ -22,7 +22,7 @@ export default async function PublicBookingPage({ params }: { params: Promise<{ 
       {/* Footer */}
       <footer className="py-4 text-center">
         <p className="text-sm text-gray-500">
-          Propulsé par <span className="font-semibold text-gray-700">Postur</span>
+          Propulsé par <a href="https://postur.fr" target="_blank" rel="noopener noreferrer" className="font-semibold text-gray-700 hover:text-blue-600 transition-colors">Postur</a>
         </p>
       </footer>
     </div>

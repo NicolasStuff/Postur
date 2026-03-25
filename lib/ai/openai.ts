@@ -1,0 +1,254 @@
+import { z } from "zod"
+
+import { PatientRecap, SmartNoteSuggestion, SoapDraft } from "@/lib/consultation-note"
+
+const OPENAI_MODEL_MINI = process.env.OPENAI_MODEL_MINI ?? "gpt-5-mini"
+const OPENAI_MODEL_FULL = process.env.OPENAI_MODEL_FULL ?? "gpt-5.4"
+
+const smartNotesSchema = z.object({
+  suggestions: z.array(
+    z.object({
+      text: z.string().min(1),
+      reason: z.string().min(1),
+      confidence: z.enum(["low", "medium", "high"]),
+      inputMode: z.enum(["chart-only", "notes-only", "combined", "conflict"]),
+    })
+  ),
+})
+
+const soapDraftSchema = z.object({
+  summary: z.string().min(1),
+  sections: z.array(
+    z.object({
+      label: z.string().min(1),
+      content: z.string().min(1),
+    })
+  ),
+})
+
+const patientRecapSchema = z.object({
+  summary: z.string().min(1),
+  advice: z.array(z.string().min(1)),
+  exercises: z.array(z.string().min(1)),
+  precautions: z.array(z.string().min(1)),
+  followUp: z.string().min(1),
+})
+
+interface OpenAIChatCompletionResponse {
+  choices?: Array<{
+    message?: {
+      content?: string
+    }
+  }>
+}
+
+interface SmartNoteGenerationInput {
+  serviceName: string
+  bodyChartLabels: string[]
+  noteText: string
+}
+
+interface SoapDraftGenerationInput {
+  serviceName: string
+  transcript: string
+  bodyChartLabels: string[]
+  existingNoteText: string
+}
+
+interface PatientRecapGenerationInput {
+  serviceName: string
+  bodyChartLabels: string[]
+  noteText: string
+  soapSummary: string
+}
+
+function getOpenAIApiKey() {
+  const apiKey = process.env.OPENAI_API_KEY
+
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY is not set")
+  }
+
+  return apiKey
+}
+
+function extractJsonPayload(rawContent: string) {
+  const fencedMatch = rawContent.match(/```json\s*([\s\S]*?)```/i)
+  if (fencedMatch?.[1]) {
+    return fencedMatch[1].trim()
+  }
+
+  const jsonStart = rawContent.indexOf("{")
+  const jsonEnd = rawContent.lastIndexOf("}")
+
+  if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+    return rawContent.slice(jsonStart, jsonEnd + 1)
+  }
+
+  return rawContent.trim()
+}
+
+async function requestStructuredJson<T>({
+  model,
+  schema,
+  systemPrompt,
+  userPrompt,
+}: {
+  model: string
+  schema: z.ZodSchema<T>
+  systemPrompt: string
+  userPrompt: string
+}) {
+  const apiKey = getOpenAIApiKey()
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+    }),
+    cache: "no-store",
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`OpenAI generation failed: ${errorText}`)
+  }
+
+  const data = (await response.json()) as OpenAIChatCompletionResponse
+  const rawContent = data.choices?.[0]?.message?.content
+
+  if (!rawContent) {
+    throw new Error("OpenAI returned an empty response")
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(extractJsonPayload(rawContent))
+  } catch (e) {
+    throw new Error(`Failed to parse AI response as JSON: ${e instanceof Error ? e.message : 'unknown error'}`)
+  }
+  try {
+    return schema.parse(parsed)
+  } catch (e) {
+    throw new Error(`AI response does not match expected schema: ${e instanceof Error ? e.message : 'unknown error'}`)
+  }
+}
+
+export class OpenAIClinicalGenerationProvider {
+  async generateSmartNotes(input: SmartNoteGenerationInput): Promise<SmartNoteSuggestion[]> {
+    const result = await requestStructuredJson({
+      model: OPENAI_MODEL_MINI,
+      schema: smartNotesSchema,
+      systemPrompt: [
+        "Tu es un assistant clinique pour ostéopathes.",
+        "Tu proposes des formulations courtes, prudentes et directement insérables dans une note de consultation.",
+        "Tu ne poses jamais de diagnostic définitif.",
+        "Tu écris toujours en français.",
+        "Retourne uniquement un objet JSON valide.",
+      ].join(" "),
+      userPrompt: [
+        "Génère entre 3 et 5 suggestions de notes.",
+        'Le JSON doit contenir un champ "suggestions" qui est un tableau d\'objets avec ces champs exacts :',
+        '- "text": string (la suggestion)',
+        '- "reason": string (pourquoi cette suggestion)',
+        '- "confidence": "low" | "medium" | "high"',
+        '- "inputMode": "chart-only" | "notes-only" | "combined" | "conflict"',
+        "Règles :",
+        "- Si seules des zones du body chart sont présentes, utilise inputMode='chart-only'.",
+        "- Si seule la note existante est présente, utilise inputMode='notes-only'.",
+        "- Si les deux convergent, utilise inputMode='combined'.",
+        "- Si les éléments se contredisent, formule la suggestion avec 'À vérifier :' et utilise inputMode='conflict'.",
+        "",
+        `Prestation: ${input.serviceName}`,
+        `Zones sélectionnées: ${input.bodyChartLabels.join(", ") || "Aucune"}`,
+        `Note actuelle: ${input.noteText || "Aucune"}`,
+      ].join("\n"),
+    })
+
+    return result.suggestions.map((s, i) => ({ ...s, id: `sn-${Date.now()}-${i}` }))
+  }
+
+  async generateSoapDraft(input: SoapDraftGenerationInput): Promise<SoapDraft> {
+    const result = await requestStructuredJson({
+      model: OPENAI_MODEL_FULL,
+      schema: soapDraftSchema,
+      systemPrompt: [
+        "Tu rédiges des brouillons de notes SOAP pour une séance d'ostéopathie.",
+        "Tu écris en français, de façon structurée et concise.",
+        "Tu n'inventes pas d'information absente du transcript.",
+        "Tu peux signaler les éléments incertains avec des formulations prudentes.",
+        "Retourne uniquement un objet JSON valide.",
+      ].join(" "),
+      userPrompt: [
+        "À partir du transcript et du contexte, génère un brouillon SOAP.",
+        'Le JSON doit contenir exactement ces champs à la racine :',
+        '- "summary": string (résumé clinique court)',
+        '- "sections": tableau de 4 objets { "label": string, "content": string }',
+        "Les labels doivent être exactement : 'Subjectif (S)', 'Objectif (O)', 'Évaluation (A)', 'Plan (P)'",
+        "La section Évaluation doit rester prudente et ne pas affirmer de diagnostic définitif.",
+        "",
+        `Prestation: ${input.serviceName}`,
+        `Zones sélectionnées: ${input.bodyChartLabels.join(", ") || "Aucune"}`,
+        `Note existante: ${input.existingNoteText || "Aucune"}`,
+        "Transcript :",
+        input.transcript,
+      ].join("\n"),
+    })
+
+    return {
+      ...result,
+      generatedAt: new Date().toISOString(),
+      model: OPENAI_MODEL_FULL,
+    }
+  }
+
+  async generatePatientRecap(input: PatientRecapGenerationInput): Promise<PatientRecap> {
+    const result = await requestStructuredJson({
+      model: OPENAI_MODEL_FULL,
+      schema: patientRecapSchema,
+      systemPrompt: [
+        "Tu rédiges un compte-rendu patient post-séance pour un logiciel d'ostéopathie.",
+        "Le ton doit être clair, rassurant, non alarmiste et compréhensible par un patient.",
+        "Tu n'inventes ni diagnostic médical ni promesse de guérison.",
+        "Tu écris toujours en français.",
+        "Retourne uniquement un objet JSON valide.",
+      ].join(" "),
+      userPrompt: [
+        "Génère un compte-rendu patient simple et actionnable.",
+        "Le JSON doit contenir exactement ces champs à la racine :",
+        '- "summary": string (résumé de la séance)',
+        '- "advice": string[] (conseils post-séance)',
+        '- "exercises": string[] (exercices recommandés)',
+        '- "precautions": string[] (précautions à observer)',
+        '- "followUp": string (phrase courte sur la suite conseillée)',
+        "",
+        `Prestation: ${input.serviceName}`,
+        `Zones travaillées ou sensibles: ${input.bodyChartLabels.join(", ") || "Aucune"}`,
+        `Résumé SOAP: ${input.soapSummary || "Aucun"}`,
+        `Note clinique: ${input.noteText || "Aucune"}`,
+      ].join("\n"),
+    })
+
+    return {
+      ...result,
+      generatedAt: new Date().toISOString(),
+      model: OPENAI_MODEL_FULL,
+    }
+  }
+}
+
+export const openAIClinicalGenerationProvider = new OpenAIClinicalGenerationProvider()

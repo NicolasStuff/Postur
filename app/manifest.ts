@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Postur - Logiciel Ostéopathe',
     short_name: 'Postur',
-    description: 'Logiciel de gestion de cabinet pour ostéopathes avec Body Chart interactif et Facture-X',
+    description: 'Logiciel de gestion de cabinet pour ostéopathes avec Body Chart interactif et préparation Factur-X',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
