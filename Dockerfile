@@ -70,9 +70,8 @@ RUN pnpm build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Installer OpenSSL pour Prisma et pnpm
+# Installer OpenSSL pour Prisma
 RUN apk add --no-cache openssl
-RUN corepack enable && corepack prepare pnpm@latest --activate
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -81,15 +80,17 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copier les fichiers nécessaires depuis le builder
+# Copier le build standalone (inclut un node_modules minimal)
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+
+# Copier Prisma pour les migrations (release_command dans fly.toml)
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Changer le propriétaire des fichiers
 RUN chown -R nextjs:nodejs /app
@@ -101,5 +102,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Script de démarrage avec migration Prisma
-CMD ["sh", "-c", "pnpm prisma migrate deploy && node server.js"]
+# Démarrage (les migrations sont gérées par le release_command de fly.toml)
+CMD ["node", "server.js"]

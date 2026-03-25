@@ -12,9 +12,9 @@ env:
   FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
 jobs:
-  # Job de test et build
+  # Job de lint (+ build sur PRs uniquement)
   test:
-    name: Test & Build
+    name: Lint & Validate
     runs-on: ubuntu-latest
 
     steps:
@@ -44,7 +44,8 @@ jobs:
         run: pnpm run lint
         continue-on-error: true
 
-      - name: Build application
+      - name: Build application (PR only)
+        if: github.event_name == 'pull_request'
         run: pnpm run build
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/test
