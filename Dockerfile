@@ -29,8 +29,9 @@ COPY . .
 # Variables d'environnement nécessaires pour le build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-# Placeholder DATABASE_URL pour la génération de Prisma (sera remplacé au runtime)
+# Placeholders pour le build (remplacés par les vrais secrets au runtime)
 ENV DATABASE_URL="postgresql://placeholder:placeholder@placeholder:5432/placeholder"
+ENV BETTER_AUTH_SECRET="build-placeholder-secret"
 
 # Arguments de build pour les variables publiques (inlinées dans le bundle client)
 ARG NEXT_PUBLIC_APP_URL
