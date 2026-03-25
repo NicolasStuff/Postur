@@ -48,7 +48,7 @@ primary_region = "cdg" # Paris - Changez selon votre région préférée
 
 # Configuration pour déploiement
 [deploy]
-  release_command = "npx prisma migrate deploy"
+  release_command = "prisma migrate deploy"
   strategy = "rolling"
 
 # Métriques
