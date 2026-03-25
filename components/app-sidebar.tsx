@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useMemo } from "react"
 import {
   Briefcase,
   Calendar,
@@ -50,7 +51,7 @@ export function AppSidebar({ user, subscription, ...props }: AppSidebarProps) {
   const t = useTranslations('sidebar')
   const tSub = useTranslations('subscription')
 
-  const navGroups = [
+  const navGroups = useMemo(() => [
     {
       label: t('sections.activity'),
       items: [
@@ -101,7 +102,7 @@ export function AppSidebar({ user, subscription, ...props }: AppSidebarProps) {
         },
       ],
     },
-  ]
+  ], [t])
 
   const defaultUser = {
     name: "Jean Dupont",

@@ -264,7 +264,8 @@ function PlanCard({ name, price, features, priceId, popular, isLoading, onSubscr
   return (
     <Card
       className={cn(
-        "relative cursor-pointer transition-all hover:shadow-lg",
+        "relative transition-all hover:shadow-lg",
+        isConfigured ? "cursor-pointer" : "cursor-not-allowed opacity-80",
         popular && "border-indigo-500 border-2"
       )}
     >

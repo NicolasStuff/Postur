@@ -1,6 +1,6 @@
 "use client"
 
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent, type Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Button } from '@/components/ui/button'
 import { Bold, Italic, List, ListOrdered, Strikethrough, Undo, Redo } from 'lucide-react'
@@ -21,7 +21,7 @@ interface ConsultationEditorProps {
 
 export interface ConsultationEditorRef {
     insertText: (text: string) => void
-    setContent: (content: Parameters<ReturnType<typeof useEditor>['commands']['setContent']>[0]) => void
+    setContent: (content: Parameters<Editor['commands']['setContent']>[0]) => void
 }
 
 export const ConsultationEditor = forwardRef<ConsultationEditorRef, ConsultationEditorProps>(
@@ -62,9 +62,9 @@ export const ConsultationEditor = forwardRef<ConsultationEditorRef, Consultation
         editor.chain().focus().insertContent(formatTextForInsertion(text)).run()
       }
     },
-    setContent: (content: unknown) => {
+    setContent: (content: Parameters<Editor['commands']['setContent']>[0]) => {
       if (editor) {
-        editor.commands.setContent(content as Parameters<typeof editor.commands.setContent>[0] || '<p></p>')
+        editor.commands.setContent(content || '<p></p>')
       }
     },
   }), [editor])
