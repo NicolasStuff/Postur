@@ -90,8 +90,8 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
-# Installer le CLI Prisma globalement pour les migrations (release_command)
-RUN npm install -g prisma
+# Installer le CLI Prisma pour les migrations (release_command)
+RUN npm install --no-save --legacy-peer-deps prisma
 
 # Changer le propriétaire des fichiers
 RUN chown -R nextjs:nodejs /app
