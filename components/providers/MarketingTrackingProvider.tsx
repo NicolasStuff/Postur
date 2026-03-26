@@ -7,11 +7,9 @@ import {
   AxeptioSdk,
   ensureMarketingDataLayer,
   getLatestAxeptioConsentMode,
-  loadGoogleAnalytics,
   loadGoogleTagManager,
   pushMarketingEvent,
   setDefaultGoogleConsent,
-  trackGoogleAnalyticsPageView,
   updateGoogleConsent,
 } from "@/lib/marketing"
 
@@ -48,7 +46,6 @@ function injectAxeptioScript() {
 function syncConsentAndTracking(sdk: AxeptioSdk, pathname?: string | null) {
   const analyticsVendor = process.env.NEXT_PUBLIC_AXEPTIO_GOOGLE_ANALYTICS_VENDOR
   const adsVendor = process.env.NEXT_PUBLIC_AXEPTIO_GOOGLE_ADS_VENDOR
-  const ga4MeasurementId = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID
   const axeptioConsentMode = getLatestAxeptioConsentMode()
 
@@ -65,13 +62,6 @@ function syncConsentAndTracking(sdk: AxeptioSdk, pathname?: string | null) {
     adUserData: adsGranted ? "granted" : "denied",
     adPersonalization: adsGranted ? "granted" : "denied",
   })
-
-  if (ga4MeasurementId && analyticsGranted) {
-    loadGoogleAnalytics(ga4MeasurementId)
-    if (pathname) {
-      trackGoogleAnalyticsPageView(ga4MeasurementId, pathname)
-    }
-  }
 
   if (gtmId && (analyticsGranted || adsGranted)) {
     loadGoogleTagManager(gtmId)
@@ -114,16 +104,10 @@ export function MarketingTrackingProvider({
       return
     }
 
-    const ga4MeasurementId = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID
-
     pushMarketingEvent("page_view_public", {
       surface,
       path: pathname,
     })
-
-    if (ga4MeasurementId) {
-      trackGoogleAnalyticsPageView(ga4MeasurementId, pathname)
-    }
   }, [pathname, surface])
 
   return <>{children}</>
