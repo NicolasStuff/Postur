@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import {
   AxeptioSdk,
   ensureMarketingDataLayer,
+  getLatestAxeptioConsentMode,
   loadGoogleAnalytics,
   loadGoogleTagManager,
   pushMarketingEvent,
@@ -49,9 +50,14 @@ function syncConsentAndTracking(sdk: AxeptioSdk, pathname?: string | null) {
   const adsVendor = process.env.NEXT_PUBLIC_AXEPTIO_GOOGLE_ADS_VENDOR
   const ga4MeasurementId = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID
+  const axeptioConsentMode = getLatestAxeptioConsentMode()
 
-  const analyticsGranted = analyticsVendor ? sdk.hasAcceptedVendor(analyticsVendor) : false
-  const adsGranted = adsVendor ? sdk.hasAcceptedVendor(adsVendor) : false
+  const analyticsGrantedByVendor = analyticsVendor ? sdk.hasAcceptedVendor(analyticsVendor) : false
+  const adsGrantedByVendor = adsVendor ? sdk.hasAcceptedVendor(adsVendor) : false
+
+  const analyticsGranted =
+    analyticsGrantedByVendor || axeptioConsentMode?.analytics_storage === "granted"
+  const adsGranted = adsGrantedByVendor || axeptioConsentMode?.ad_storage === "granted"
 
   updateGoogleConsent({
     analyticsStorage: analyticsGranted ? "granted" : "denied",

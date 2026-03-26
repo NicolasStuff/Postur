@@ -10,6 +10,13 @@ export type MarketingEventName =
 
 type ConsentState = "granted" | "denied"
 
+type AxeptioConsentModeState = {
+  analytics_storage?: ConsentState
+  ad_storage?: ConsentState
+  ad_user_data?: ConsentState
+  ad_personalization?: ConsentState
+}
+
 declare global {
   interface Window {
     _axcb?: Array<(sdk: AxeptioSdk) => void>
@@ -45,7 +52,32 @@ export function ensureMarketingDataLayer() {
     window.gtag ||
     function gtag(...args: unknown[]) {
       window.dataLayer?.push(args as unknown as IArguments)
+  }
+}
+
+export function getLatestAxeptioConsentMode(): AxeptioConsentModeState | null {
+  if (typeof window === "undefined" || !window.dataLayer) {
+    return null
+  }
+
+  for (let index = window.dataLayer.length - 1; index >= 0; index -= 1) {
+    const entry = window.dataLayer[index]
+
+    if (
+      entry &&
+      !Array.isArray(entry) &&
+      typeof entry === "object" &&
+      "event" in entry &&
+      (entry.event === "axeptio_update" || entry.event === "axeptio_update_consent") &&
+      "consent_mode" in entry &&
+      entry.consent_mode &&
+      typeof entry.consent_mode === "object"
+    ) {
+      return entry.consent_mode as AxeptioConsentModeState
     }
+  }
+
+  return null
 }
 
 export function setDefaultGoogleConsent() {
