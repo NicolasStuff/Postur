@@ -56,7 +56,6 @@ export function useProductTour({ tour, onComplete }: UseProductTourOptions) {
       prevBtnText: t("common.previous"),
       doneBtnText: t("common.done"),
       progressText: "{{current}} / {{total}}",
-      popoverClass: "postur-tour-popover",
       overlayColor: "rgba(0, 0, 0, 0.5)",
       stagePadding: 8,
       stageRadius: 8,
