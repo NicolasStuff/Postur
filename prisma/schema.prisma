@@ -37,6 +37,7 @@ model User {
   openingHours     Json?
   slotDuration     Int               @default(60)
   language         String            @default("fr") // "fr" or "en"
+  completedTours   Json              @default("[]") // ["dashboard", "consultation"]
 
   // Relations
   patients             Patient[]

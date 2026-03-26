@@ -1345,5 +1345,60 @@
     "invalidSlug": "The public booking URL is invalid",
     "reservedSlug": "This public booking URL is reserved",
     "invalidSiret": "The SIRET must contain 14 digits"
+  },
+  "productTour": {
+    "common": {
+      "next": "Next",
+      "previous": "Previous",
+      "done": "Done"
+    },
+    "dashboard": {
+      "availability": {
+        "title": "Set your availability",
+        "description": "Define your working days and hours so patients can book appointments online."
+      },
+      "services": {
+        "title": "Add your services",
+        "description": "Create your services with their duration and price. They'll appear on your booking page."
+      },
+      "calendar": {
+        "title": "Your calendar",
+        "description": "View all your appointments here. Your opening hours and booked slots are displayed at a glance."
+      },
+      "patients": {
+        "title": "Manage your patients",
+        "description": "Create patient records with personal information and medical history."
+      },
+      "billing": {
+        "title": "Billing",
+        "description": "View and manage your invoices. Each completed consultation automatically generates a draft invoice."
+      },
+      "settings": {
+        "title": "Settings & VAT",
+        "description": "Check your VAT exemption status and complete your billing information."
+      }
+    },
+    "consultation": {
+      "bodyChart": {
+        "title": "Body chart",
+        "description": "Click on anatomical areas to mark examined or treated regions. Both anterior and posterior views are available."
+      },
+      "editor": {
+        "title": "Consultation notes",
+        "description": "Write your clinical notes with the rich text editor. Formatting, lists, and SOAP structure are supported."
+      },
+      "guides": {
+        "title": "Quick guides",
+        "description": "Access the patient's trauma timeline, full file, and body chart selection history."
+      },
+      "audioSoap": {
+        "title": "Audio to SOAP",
+        "description": "Record or upload a session audio. AI transcribes it and automatically generates a SOAP note draft."
+      },
+      "suggestions": {
+        "title": "Smart suggestions",
+        "description": "AI analyzes your notes and body chart to propose diagnosis and treatment suggestions."
+      }
+    }
   }
 }

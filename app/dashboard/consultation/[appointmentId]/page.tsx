@@ -13,6 +13,7 @@ import {
   prepareConsultationBillingDraft,
   saveConsultationNote,
 } from "@/app/actions/consultation"
+import { getUserCompletedTours } from "@/app/actions/tours"
 import {
   createEmptyConsultationAIState,
   type ConsultationAIState,
@@ -23,6 +24,7 @@ import {
 } from "@/components/consultation/osteopath/OsteopathConsultation"
 import { SessionClosureDialog } from "@/components/consultation/shared/SessionClosureDialog"
 import { ConsultationHeader } from "@/components/consultation/shared/ConsultationHeader"
+import { ConsultationTour } from "@/components/onboarding/ConsultationTour"
 import { toast } from "sonner"
 
 export default function ConsultationPage({
@@ -50,6 +52,11 @@ export default function ConsultationPage({
   const { data: aiAccess } = useQuery({
     queryKey: ["consultation-ai-access"],
     queryFn: () => getConsultationAIAccess(),
+  })
+
+  const { data: completedTours } = useQuery({
+    queryKey: ["completedTours"],
+    queryFn: () => getUserCompletedTours(),
   })
 
   const saveMutation = useMutation({
@@ -185,6 +192,13 @@ export default function ConsultationPage({
           aiAccess={aiAccess}
         />
       </div>
+
+      {completedTours && (
+        <ConsultationTour
+          completedTours={completedTours}
+          hasAIAccess={aiAccess?.audioSoap || aiAccess?.smartNotesLive}
+        />
+      )}
 
       <SessionClosureDialog
         open={closureDialogOpen}

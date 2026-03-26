@@ -146,7 +146,7 @@ export function SuggestionsModal({
       setOpen(nextOpen)
     }}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="h-7 text-xs gap-1.5">
+        <Button data-tour="ai-suggestions" variant="outline" size="sm" className="h-7 text-xs gap-1.5">
           <WandSparkles className="h-3.5 w-3.5" />
           {t("tabs.suggestions")}
         </Button>

@@ -8,6 +8,7 @@ import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { BillingSettings } from "@/components/settings/BillingSettings"
 import { SupportChatWidget } from "@/components/support/SupportChatWidget"
+import { DashboardTour } from "@/components/onboarding/DashboardTour"
 
 export default async function DashboardLayout({
   children,
@@ -37,6 +38,7 @@ export default async function DashboardLayout({
       name: true,
       email: true,
       image: true,
+      completedTours: true,
       subscription: {
         select: {
           status: true,
@@ -102,6 +104,11 @@ export default async function DashboardLayout({
         </main>
         {!isAdmin && !isAdminRoute ? <SupportChatWidget /> : null}
       </SidebarInset>
+      {!isAdmin && hasActiveSubscription && (
+        <DashboardTour
+          completedTours={Array.isArray(dbUser?.completedTours) ? dbUser.completedTours as string[] : []}
+        />
+      )}
     </SidebarProvider>
   )
 }

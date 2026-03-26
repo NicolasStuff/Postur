@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "../lib/product-tour/driver-theme.css";
 
 @custom-variant dark (&:is(.dark *));
 
