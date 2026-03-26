@@ -211,7 +211,6 @@ export function trackGoogleAnalyticsPageView(measurementId: string, pagePath: st
   }
 
   window.gtag?.("event", "page_view", {
-    send_to: measurementId,
     page_path: pagePath,
     page_location: window.location.href,
     page_title: document.title,

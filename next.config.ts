@@ -10,9 +10,9 @@ const isDevelopment = process.env.NODE_ENV !== "production"
 const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://*.axept.io https://static.axept.io${isDevelopment ? " 'unsafe-eval'" : ""}`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.g.doubleclick.net https://www.google.com https://www.google.fr",
-  "font-src 'self' data:",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.axept.io",
+  "img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.g.doubleclick.net https://www.google.com https://www.google.fr https://*.axept.io https://axeptio.imgix.net",
+  "font-src 'self' data: https://fonts.gstatic.com https://fonts.axept.io",
   `connect-src 'self' https://cdnjs.cloudflare.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.g.doubleclick.net https://*.axept.io${isDevelopment ? " ws: http://localhost:* http://127.0.0.1:*" : ""}`,
   "frame-src 'self' https://td.doubleclick.net https://www.googletagmanager.com",
   "object-src 'none'",
