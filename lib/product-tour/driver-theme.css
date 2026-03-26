@@ -246,3 +246,14 @@
   outline: 2px solid oklch(0.488 0.243 264.376) !important;
   outline-offset: 2px !important;
 }
+
+/* ── Sidebar fix: remove overflow clipping during tour ───── */
+.driver-active [data-sidebar="content"] {
+  overflow: visible !important;
+}
+.driver-active [data-slot="sidebar-container"] {
+  overflow: visible !important;
+}
+.driver-active [data-slot="sidebar-inner"] {
+  overflow: visible !important;
+}
