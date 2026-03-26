@@ -27,8 +27,10 @@ export function DashboardTour({ completedTours }: DashboardTourProps) {
     ) {
       hasStarted.current = true
       const timer = setTimeout(() => {
+        const target = document.querySelector('[data-tour="nav-availability"]')
+        console.log("[DashboardTour] starting, target found:", !!target)
         startTour()
-      }, 800)
+      }, 1500)
       return () => clearTimeout(timer)
     }
   }, [isReady, completedTours, startTour])
