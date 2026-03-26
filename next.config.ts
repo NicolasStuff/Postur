@@ -9,11 +9,12 @@ const isDevelopment = process.env.NODE_ENV !== "production"
 // TODO: migrate to nonce-based CSP when Next.js App Router supports it natively.
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://*.axept.io https://static.axept.io${isDevelopment ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://*.axept.io https://static.axept.io${isDevelopment ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://www.googletagmanager.com",
+  "img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.g.doubleclick.net https://www.google.com https://www.google.fr",
   "font-src 'self' data:",
-  `connect-src 'self' https://cdnjs.cloudflare.com https://www.google-analytics.com https://*.axept.io${isDevelopment ? " ws: http://localhost:* http://127.0.0.1:*" : ""}`,
+  `connect-src 'self' https://cdnjs.cloudflare.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.g.doubleclick.net https://*.axept.io${isDevelopment ? " ws: http://localhost:* http://127.0.0.1:*" : ""}`,
+  "frame-src 'self' https://td.doubleclick.net https://www.googletagmanager.com",
   "object-src 'none'",
   "base-uri 'self'",
   "frame-ancestors 'self'",
