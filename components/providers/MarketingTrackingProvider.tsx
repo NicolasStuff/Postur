@@ -1,14 +1,16 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 
 import {
   AxeptioSdk,
   ensureMarketingDataLayer,
+  loadGoogleAnalytics,
   loadGoogleTagManager,
   pushMarketingEvent,
   setDefaultGoogleConsent,
+  trackGoogleAnalyticsPageView,
   updateGoogleConsent,
 } from "@/lib/marketing"
 
@@ -42,9 +44,10 @@ function injectAxeptioScript() {
   document.head.appendChild(script)
 }
 
-function syncConsentAndTracking(sdk: AxeptioSdk) {
+function syncConsentAndTracking(sdk: AxeptioSdk, pathname?: string | null) {
   const analyticsVendor = process.env.NEXT_PUBLIC_AXEPTIO_GOOGLE_ANALYTICS_VENDOR
   const adsVendor = process.env.NEXT_PUBLIC_AXEPTIO_GOOGLE_ADS_VENDOR
+  const ga4MeasurementId = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID
 
   const analyticsGranted = analyticsVendor ? sdk.hasAcceptedVendor(analyticsVendor) : false
@@ -56,6 +59,13 @@ function syncConsentAndTracking(sdk: AxeptioSdk) {
     adUserData: adsGranted ? "granted" : "denied",
     adPersonalization: adsGranted ? "granted" : "denied",
   })
+
+  if (ga4MeasurementId && analyticsGranted) {
+    loadGoogleAnalytics(ga4MeasurementId)
+    if (pathname) {
+      trackGoogleAnalyticsPageView(ga4MeasurementId, pathname)
+    }
+  }
 
   if (gtmId && (analyticsGranted || adsGranted)) {
     loadGoogleTagManager(gtmId)
@@ -70,6 +80,11 @@ export function MarketingTrackingProvider({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const pathnameRef = useRef(pathname)
+
+  useEffect(() => {
+    pathnameRef.current = pathname
+  }, [pathname])
 
   useEffect(() => {
     ensureMarketingDataLayer()
@@ -79,9 +94,9 @@ export function MarketingTrackingProvider({
       window.openAxeptioCookies = (settings) => {
         sdk.openCookies(settings)
       }
-      syncConsentAndTracking(sdk)
+      syncConsentAndTracking(sdk, pathnameRef.current)
       sdk.on("cookies:complete", () => {
-        syncConsentAndTracking(sdk)
+        syncConsentAndTracking(sdk, pathnameRef.current)
       })
     })
 
@@ -93,10 +108,16 @@ export function MarketingTrackingProvider({
       return
     }
 
+    const ga4MeasurementId = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID
+
     pushMarketingEvent("page_view_public", {
       surface,
       path: pathname,
     })
+
+    if (ga4MeasurementId) {
+      trackGoogleAnalyticsPageView(ga4MeasurementId, pathname)
+    }
   }, [pathname, surface])
 
   return <>{children}</>

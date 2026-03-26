@@ -9,6 +9,7 @@ primary_region = "cdg" # Paris - Changez selon votre région préférée
   [build.args]
     NEXT_PUBLIC_APP_URL = "https://postur.fr"
     NEXT_PUBLIC_GTM_ID = "GTM-KD78VTHP"
+    NEXT_PUBLIC_GA4_MEASUREMENT_ID = "G-E9QS9XQH44"
     NEXT_PUBLIC_AXEPTIO_CLIENT_ID = "69c2b40fad08adace6110d57"
     NEXT_PUBLIC_AXEPTIO_COOKIES_VERSION = "352d6c5e-0d71-411f-a3d1-53df20c78d7d"
     NEXT_PUBLIC_AXEPTIO_GOOGLE_ANALYTICS_VENDOR = "google_analytics_4"

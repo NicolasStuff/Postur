@@ -22,6 +22,10 @@ declare global {
     openAxeptioCookies?: (settings?: Record<string, unknown>) => void
     __posturGtmLoaded?: boolean
     __posturGtmId?: string
+    __posturGa4Loaded?: boolean
+    __posturGa4MeasurementId?: string
+    __posturGa4LastPagePath?: string
+    __posturAnalyticsConsentGranted?: boolean
   }
 }
 
@@ -50,6 +54,7 @@ export function setDefaultGoogleConsent() {
   }
 
   ensureMarketingDataLayer()
+  window.__posturAnalyticsConsentGranted = false
   window.gtag?.("consent", "default", {
     analytics_storage: "denied",
     ad_storage: "denied",
@@ -70,6 +75,7 @@ export function updateGoogleConsent(options: {
   }
 
   ensureMarketingDataLayer()
+  window.__posturAnalyticsConsentGranted = options.analyticsStorage === "granted"
   window.gtag?.("consent", "update", {
     analytics_storage: options.analyticsStorage,
     ad_storage: options.adStorage,
@@ -123,6 +129,63 @@ export function loadGoogleTagManager(gtmId: string) {
 
   window.__posturGtmLoaded = true
   window.__posturGtmId = gtmId
+}
+
+export function loadGoogleAnalytics(measurementId: string) {
+  if (typeof window === "undefined" || !measurementId) {
+    return
+  }
+
+  const scriptId = "postur-ga4-script"
+  const existingScript = document.getElementById(scriptId)
+
+  if (!existingScript) {
+    const script = document.createElement("script")
+    script.id = scriptId
+    script.async = true
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`
+    document.head.appendChild(script)
+  }
+
+  if (window.__posturGa4Loaded && window.__posturGa4MeasurementId === measurementId) {
+    return
+  }
+
+  ensureMarketingDataLayer()
+  window.gtag?.("js", new Date())
+  window.gtag?.("config", measurementId, {
+    send_page_view: false,
+  })
+
+  window.__posturGa4Loaded = true
+  window.__posturGa4MeasurementId = measurementId
+}
+
+export function trackGoogleAnalyticsPageView(measurementId: string, pagePath: string) {
+  if (typeof window === "undefined" || !measurementId || !pagePath) {
+    return
+  }
+
+  if (
+    !window.__posturGa4Loaded ||
+    window.__posturGa4MeasurementId !== measurementId ||
+    !window.__posturAnalyticsConsentGranted
+  ) {
+    return
+  }
+
+  if (window.__posturGa4LastPagePath === pagePath) {
+    return
+  }
+
+  window.gtag?.("event", "page_view", {
+    send_to: measurementId,
+    page_path: pagePath,
+    page_location: window.location.href,
+    page_title: document.title,
+  })
+
+  window.__posturGa4LastPagePath = pagePath
 }
 
 export function openCookiePreferences() {
