@@ -1345,5 +1345,60 @@
     "invalidSiret": "Le numéro SIRET est invalide",
     "invalidSlug": "L'identifiant de réservation est invalide",
     "reservedSlug": "Cet identifiant de réservation est déjà utilisé"
+  },
+  "productTour": {
+    "common": {
+      "next": "Suivant",
+      "previous": "Précédent",
+      "done": "Terminer"
+    },
+    "dashboard": {
+      "availability": {
+        "title": "Configurez vos disponibilités",
+        "description": "Définissez vos jours et horaires de consultation pour permettre la prise de rendez-vous en ligne."
+      },
+      "services": {
+        "title": "Ajoutez vos prestations",
+        "description": "Créez vos services avec leur durée et tarif. Ils apparaîtront sur votre page de réservation."
+      },
+      "calendar": {
+        "title": "Votre calendrier",
+        "description": "Retrouvez ici tous vos rendez-vous. Vos horaires d'ouverture et créneaux réservés s'affichent en un coup d'œil."
+      },
+      "patients": {
+        "title": "Gérez vos patients",
+        "description": "Créez des fiches patients avec leurs informations personnelles et leur historique médical."
+      },
+      "billing": {
+        "title": "Facturation",
+        "description": "Consultez et gérez vos factures. Chaque consultation terminée génère automatiquement un brouillon de facture."
+      },
+      "settings": {
+        "title": "Paramètres & TVA",
+        "description": "Vérifiez votre statut d'exonération de TVA et complétez vos informations de facturation."
+      }
+    },
+    "consultation": {
+      "bodyChart": {
+        "title": "Schéma corporel",
+        "description": "Cliquez sur les zones anatomiques pour marquer les régions examinées ou traitées. Les vues antérieure et postérieure sont disponibles."
+      },
+      "editor": {
+        "title": "Notes de consultation",
+        "description": "Rédigez vos notes cliniques avec l'éditeur enrichi. Mise en forme, listes et structure SOAP sont supportées."
+      },
+      "guides": {
+        "title": "Guides rapides",
+        "description": "Accédez à la timeline traumatique du patient, son dossier complet et l'historique des schémas corporels."
+      },
+      "audioSoap": {
+        "title": "Audio vers SOAP",
+        "description": "Enregistrez ou importez un audio de séance. L'IA le transcrit et génère un brouillon de note SOAP automatiquement."
+      },
+      "suggestions": {
+        "title": "Suggestions intelligentes",
+        "description": "L'IA analyse vos notes et le schéma corporel pour proposer des suggestions de diagnostic et de traitement."
+      }
+    }
   }
 }

@@ -393,7 +393,7 @@ export const OsteopathConsultation = forwardRef<
     <div className="flex h-full flex-col overflow-hidden bg-white">
       <div className="shrink-0 border-y bg-muted/50 px-4 py-2.5">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
+          <div data-tour="toolbar-guides" className="flex items-center gap-2">
             <Sheet open={showTimeline} onOpenChange={setShowTimeline}>
               <SheetTrigger asChild>
                 <Button variant="outline" size="sm" className="h-8 text-xs">
@@ -450,7 +450,7 @@ export const OsteopathConsultation = forwardRef<
       </div>
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <div className="flex w-[60%] items-center justify-center overflow-auto border-r bg-muted/30 p-4">
+        <div data-tour="body-chart" className="flex w-[60%] items-center justify-center overflow-auto border-r bg-muted/30 p-4">
           <BodyChart
             value={bodyChartParts}
             onChange={setBodyChartParts}
@@ -458,7 +458,7 @@ export const OsteopathConsultation = forwardRef<
           />
         </div>
 
-        <div className="flex w-[40%] flex-col overflow-hidden bg-white">
+        <div data-tour="editor" className="flex w-[40%] flex-col overflow-hidden bg-white">
           <div className="flex shrink-0 items-center gap-2 border-b bg-muted/50 px-3 py-2">
             <FileText className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium text-foreground">{t("editor.title")}</span>

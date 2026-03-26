@@ -30,6 +30,7 @@ export function NavMain({
     url: string
     icon?: LucideIcon
     isActive?: boolean
+    dataTour?: string
     items?: {
       title: string
       url: string
@@ -93,7 +94,7 @@ export function NavMain({
 
           // Otherwise, render it as a simple menu item
           return (
-            <SidebarMenuItem key={item.title}>
+            <SidebarMenuItem key={item.title} data-tour={item.dataTour}>
               <SidebarMenuButton tooltip={item.title} asChild isActive={isItemActive}>
                 <Link href={item.url}>
                   {item.icon && <item.icon />}
